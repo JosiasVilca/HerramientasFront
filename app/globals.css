@@ -1,6 +1,152 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: "Inter", sans-serif;
+  --font-mono: var(--font-geist-mono);
+  --font-heading: "Inter", sans-serif;
+  
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  --background: #f8f9ff;
+  --foreground: #0b1c30;
+  
+  --card: #ffffff;
+  --card-foreground: #0b1c30;
+  
+  --popover: #ffffff;
+  --popover-foreground: #0b1c30;
+  
+  --primary: #00288e;
+  --primary-foreground: #ffffff;
+  
+  --secondary: #9d4300;
+  --secondary-foreground: #ffffff;
+  
+  --muted: #eff4ff;
+  --muted-foreground: #444653;
+  
+  --accent: #e5eeff;
+  --accent-foreground: #00288e;
+  
+  --destructive: #ba1a1a;
+  --destructive-foreground: #ffffff;
+  
+  --border: #c4c5d5;
+  --input: #c4c5d5;
+  --ring: #00288e;
+  --radius: 0.5rem;
+  
+  --sidebar: #f8f9ff;
+  --sidebar-foreground: #0b1c30;
+  --sidebar-primary: #00288e;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #eff4ff;
+  --sidebar-accent-foreground: #00288e;
+  --sidebar-border: #c4c5d5;
+  --sidebar-ring: #00288e;
+}
+
+.dark {
+  --background: #060e18;
+  --foreground: #eaf1ff;
+  
+  --card: #0b1c30;
+  --card-foreground: #eaf1ff;
+  
+  --popover: #0b1c30;
+  --popover-foreground: #eaf1ff;
+  
+  --primary: #b8c4ff;
+  --primary-foreground: #001453;
+  
+  --secondary: #ffb690;
+  --secondary-foreground: #341100;
+  
+  --muted: #132438;
+  --muted-foreground: #8a9bb0;
+  
+  --accent: #132438;
+  --accent-foreground: #b8c4ff;
+  
+  --destructive: #ffdad6;
+  --destructive-foreground: #93000a;
+  
+  --border: #213145;
+  --input: #213145;
+  --ring: #b8c4ff;
+  
+  --sidebar: #0b1c30;
+  --sidebar-foreground: #eaf1ff;
+  --sidebar-primary: #b8c4ff;
+  --sidebar-primary-foreground: #001453;
+  --sidebar-accent: #132438;
+  --sidebar-accent-foreground: #b8c4ff;
+  --sidebar-border: #213145;
+  --sidebar-ring: #b8c4ff;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+  html {
+    @apply font-sans h-full;
+  }
+}
 
 .material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
@@ -17,131 +163,4 @@
   direction: ltr;
   -webkit-font-feature-settings: 'liga';
   -webkit-font-smoothing: antialiased;
-}
-
-@theme {
-  --color-primary-fixed: #dde1ff;
-  --color-surface-tint: #3755c3;
-  --color-on-tertiary-fixed: #380d00;
-  --color-error: #ba1a1a;
-  --color-tertiary-fixed-dim: #ffb59a;
-  --color-on-tertiary: #ffffff;
-  --color-on-secondary-container: #5c2400;
-  --color-on-surface: #0b1c30;
-  --color-primary-container: #1e40af;
-  --color-inverse-surface: #213145;
-  --color-tertiary-container: #872d00;
-  --color-on-error-container: #93000a;
-  --color-inverse-on-surface: #eaf1ff;
-  --color-surface-container-lowest: #ffffff;
-  --color-on-secondary-fixed: #341100;
-  --color-on-tertiary-fixed-variant: #802a00;
-  --color-on-tertiary-container: #ffa583;
-  --color-on-surface-variant: #444653;
-  --color-surface-dim: #cbdbf5;
-  --color-inverse-primary: #b8c4ff;
-  --color-outline: #757684;
-  --color-on-primary: #ffffff;
-  --color-primary: #00288e;
-  --color-tertiary: #611e00;
-  --color-surface-container: #e5eeff;
-  --color-on-error: #ffffff;
-  --color-secondary-fixed-dim: #ffb690;
-  --color-secondary-fixed: #ffdbca;
-  --color-tertiary-fixed: #ffdbce;
-  --color-on-background: #0b1c30;
-  --color-surface-variant: #d3e4fe;
-  --color-error-container: #ffdad6;
-  --color-secondary: #9d4300;
-  --color-on-secondary-fixed-variant: #783200;
-  --color-surface-container-highest: #d3e4fe;
-  --color-background: #f8f9ff;
-  --color-surface-bright: #f8f9ff;
-  --color-outline-variant: #c4c5d5;
-  --color-on-primary-fixed-variant: #173bab;
-  --color-surface-container-high: #dce9ff;
-  --color-on-primary-fixed: #001453;
-  --color-surface-container-low: #eff4ff;
-  --color-primary-fixed-dim: #b8c4ff;
-  --color-on-primary-container: #a8b8ff;
-  --color-surface: #f8f9ff;
-  --color-on-secondary: #ffffff;
-  --color-secondary-container: #fd761a;
-
-  --spacing-sm: 8px;
-  --spacing-xs: 4px;
-  --spacing-margin-mobile: 16px;
-  --spacing-gutter: 20px;
-  --spacing-base: 4px;
-  --spacing-md: 16px;
-  --spacing-xl: 32px;
-  --spacing-lg: 24px;
-  --spacing-margin-desktop: 40px;
-
-  --font-headline-md: "Inter", sans-serif;
-  --font-headline-lg: "Inter", sans-serif;
-  --font-label-md: "Inter", sans-serif;
-  --font-headline-lg-mobile: "Inter", sans-serif;
-  --font-code-tracking: "Inter", sans-serif;
-  --font-body-lg: "Inter", sans-serif;
-  --font-headline-sm: "Inter", sans-serif;
-  --font-body-sm: "Inter", sans-serif;
-  --font-body-md: "Inter", sans-serif;
-  --font-display: "Inter", sans-serif;
-  --font-label-sm: "Inter", sans-serif;
-
-  --text-headline-md: 24px;
-  --text-headline-md--line-height: 32px;
-  --text-headline-md--font-weight: 700;
-
-  --text-headline-lg: 32px;
-  --text-headline-lg--line-height: 40px;
-  --text-headline-lg--letter-spacing: -0.01em;
-  --text-headline-lg--font-weight: 600;
-
-  --text-label-md: 14px;
-  --text-label-md--line-height: 20px;
-  --text-label-md--letter-spacing: 0.01em;
-  --text-label-md--font-weight: 600;
-
-  --text-headline-lg-mobile: 24px;
-  --text-headline-lg-mobile--line-height: 32px;
-  --text-headline-lg-mobile--font-weight: 600;
-
-  --text-code-tracking: 16px;
-  --text-code-tracking--line-height: 24px;
-  --text-code-tracking--letter-spacing: 0.05em;
-  --text-code-tracking--font-weight: 700;
-
-  --text-body-lg: 18px;
-  --text-body-lg--line-height: 28px;
-  --text-body-lg--font-weight: 400;
-
-  --text-headline-sm: 20px;
-  --text-headline-sm--line-height: 28px;
-  --text-headline-sm--font-weight: 600;
-
-  --text-body-sm: 14px;
-  --text-body-sm--line-height: 20px;
-  --text-body-sm--font-weight: 400;
-
-  --text-body-md: 16px;
-  --text-body-md--line-height: 24px;
-  --text-body-md--font-weight: 400;
-
-  --text-display: 48px;
-  --text-display--line-height: 1.2;
-  --text-display--letter-spacing: -0.02em;
-  --text-display--font-weight: 700;
-
-  --text-label-sm: 12px;
-  --text-label-sm--line-height: 16px;
-  --text-label-sm--letter-spacing: 0.02em;
-  --text-label-sm--font-weight: 600;
-}
-
-body {
-  background-color: var(--color-background);
-  color: var(--color-on-background);
-  font-family: var(--font-body-md);
 }
