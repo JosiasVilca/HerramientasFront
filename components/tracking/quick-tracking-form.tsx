@@ -1,352 +1,265 @@
 "use client";
 
 import React, { useState } from "react";
-import { trackingApi } from "@/lib/api-client";
-import { PackageDTO, PackageStatus } from "@/types/tracking";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Search, Loader2, Calendar, MapPin, Truck, AlertTriangle, CheckCircle, Package } from "lucide-react";
+import { trackPackage } from "@/lib/api-client";
+import { TrackingSummaryDTO, TrackingStatus } from "@/types/tracking";
 
-// Helper to determine active step in visual flow
-const getStatusStep = (status: PackageStatus): number => {
-  switch (status) {
-    case "PENDING":
-      return 1;
-    case "COLLECTED":
-      return 2;
-    case "IN_TRANSIT":
-      return 3;
-    case "OUT_FOR_DELIVERY":
-      return 4;
-    case "DELIVERED":
-      return 5;
-    default:
-      return 1;
-  }
-};
-
-const getStatusLabel = (status: PackageStatus): string => {
-  switch (status) {
-    case "PENDING": return "Registrado";
-    case "COLLECTED": return "En Almacén";
-    case "IN_TRANSIT": return "En Tránsito";
-    case "OUT_FOR_DELIVERY": return "En Ruta de Entrega";
-    case "DELIVERED": return "Entregado";
-    case "FAILED_DELIVERY": return "Entrega Fallida";
-    case "RETURNED": return "Devuelto";
-    case "CANCELLED": return "Cancelado";
-    default: return status;
-  }
-};
+const STAGES: { status: TrackingStatus; label: string }[] = [
+  { status: "REGISTRADO", label: "Registrado" },
+  { status: "EN_ALMACEN", label: "En Almacén" },
+  { status: "EN_TRANSITO", label: "En Tránsito" },
+  { status: "EN_RUTA", label: "En Ruta" },
+  { status: "ENTREGADO", label: "Entregado" },
+];
 
 export default function QuickTrackingForm() {
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [packageData, setPackageData] = useState<PackageDTO | null>(null);
+  const [result, setResult] = useState<TrackingSummaryDTO | null>(null);
+  const [open, setOpen] = useState(false);
 
-  const validateCode = (val: string) => {
-    if (!val.trim()) {
-      return "El código de rastreo no puede estar vacío.";
-    }
-    if (val.trim().length < 5) {
-      return "El código debe tener al menos 5 caracteres.";
-    }
-    return null;
-  };
-
-  const handleSearch = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    
-    const validationError = validateCode(code);
-    if (validationError) {
-      setError(validationError);
-      setPackageData(null);
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!code.trim()) {
+      setError("Por favor ingresa un número de guía.");
       return;
     }
-
+    
     setLoading(true);
     setError(null);
-
     try {
-      const data = await trackingApi.trackPackage(code);
-      setPackageData(data);
+      const data = await trackPackage(code);
+      setResult(data);
+      setOpen(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "No se pudo encontrar el paquete");
-      setPackageData(null);
+      setError(err instanceof Error ? err.message : "Error al consultar el envío.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleQuickTest = (mockCode: string) => {
-    setCode(mockCode);
-    setTimeout(() => {
-      setLoading(true);
-      setError(null);
-      trackingApi.trackPackage(mockCode)
-        .then(data => {
-          setPackageData(data);
-        })
-        .catch(err => {
-          setError(err instanceof Error ? err.message : "Error al cargar datos");
-          setPackageData(null);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    }, 50);
+  const getStatusBadge = (status: TrackingStatus) => {
+    switch (status) {
+      case "ENTREGADO":
+        return <Badge className="bg-green-600 text-white hover:bg-green-700">Entregado</Badge>;
+      case "EN_RUTA":
+        return <Badge className="bg-blue-600 text-white hover:bg-blue-700">En Ruta de Entrega</Badge>;
+      case "EN_TRANSITO":
+        return <Badge className="bg-sky-600 text-white hover:bg-sky-700">En Tránsito</Badge>;
+      case "EN_ALMACEN":
+        return <Badge className="bg-orange-500 text-white hover:bg-orange-600">Recibido en Almacén</Badge>;
+      case "REGISTRADO":
+        return <Badge className="bg-zinc-500 text-white hover:bg-zinc-600">Registrado</Badge>;
+      case "INCIDENCIA":
+        return <Badge variant="destructive">Incidencia</Badge>;
+      default:
+        return <Badge>{status}</Badge>;
+    }
   };
 
-  const currentStep = packageData ? getStatusStep(packageData.status) : 0;
+  // Determine the index of the current status in the STAGES array
+  const currentStageIndex = STAGES.findIndex((s) => s.status === result?.currentStatus);
 
   return (
-    <div className="w-full flex flex-col items-center gap-lg">
-      {/* Search Bar Container */}
-      <div className="w-full max-w-2xl bg-surface rounded-xl shadow-md border border-outline-variant p-md transform transition-all hover:shadow-lg">
-        <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-sm items-center w-full">
-          <div className="relative flex-grow w-full">
-            <span className="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline" style={{ fontVariationSettings: "'FILL' 0" }}>
-              barcode
-            </span>
-            <input
-              className="w-full pl-xl pr-sm py-md bg-surface border border-outline-variant rounded-lg text-body-md focus:ring-2 focus:ring-[#1e40af] focus:border-transparent transition-all outline-none text-on-surface placeholder:text-outline"
-              placeholder="Rastrea tu envío (ej: SW-9843-XY)..."
-              type="text"
-              value={code}
-              onChange={(e) => {
-                setCode(e.target.value);
-                if (error) setError(null);
-              }}
-              disabled={loading}
-            />
-          </div>
-          <button
-            className="w-full md:w-auto bg-[#f97316] text-white px-xl py-md rounded-lg font-label-md text-label-md hover:bg-opacity-90 active:scale-95 transition-all shadow-sm flex items-center justify-center gap-xs cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
-            type="submit"
+    <div className="w-full max-w-2xl mx-auto">
+      <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-grow">
+          <Input
+            type="text"
+            placeholder="Introduce código de guía (Ej: SW-9843-XY, TRK-1111-AA)"
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
             disabled={loading}
-          >
-            {loading ? (
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-              </svg>
-            ) : (
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 0" }}>search</span>
-            )}
-            {loading ? "Buscando..." : "Rastrear"}
-          </button>
-        </form>
-
-        {/* Quick test buttons helper */}
-        <div className="flex flex-wrap items-center gap-xs mt-sm text-label-sm text-on-surface-variant/80">
-          <span>Prueba rápida:</span>
-          <button 
-            type="button"
-            onClick={() => handleQuickTest("SW-9843-XY")}
-            className="text-primary hover:underline hover:text-primary-container font-semibold"
-          >
-            SW-9843-XY (En Tránsito)
-          </button>
-          <span>•</span>
-          <button 
-            type="button"
-            onClick={() => handleQuickTest("TRK-1111-AA")}
-            className="text-primary hover:underline hover:text-primary-container font-semibold"
-          >
-            TRK-1111-AA (Entregado)
-          </button>
+            className="w-full h-12 pl-4 pr-10 text-base border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-zinc-900 rounded-xl focus-visible:ring-primary shadow-sm"
+          />
+          <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-zinc-400">
+            <Package className="w-5 h-5" />
+          </div>
         </div>
-      </div>
+        <Button
+          type="submit"
+          disabled={loading}
+          className="h-12 px-8 rounded-xl font-semibold active:scale-[0.98] transition-transform cursor-pointer bg-primary hover:bg-primary/95 text-primary-foreground shadow-md flex items-center justify-center gap-2"
+        >
+          {loading ? (
+            <Loader2 className="w-5 h-5 animate-spin" />
+          ) : (
+            <>
+              <Search className="w-5 h-5" />
+              <span>Buscar</span>
+            </>
+          )}
+        </Button>
+      </form>
 
-      {/* Validation or API error state */}
       {error && (
-        <div className="w-full max-w-2xl p-md rounded-lg bg-error-container border border-error/20 text-on-error-container text-body-sm flex items-center gap-sm animate-fadeIn">
-          <span className="material-symbols-outlined text-error" style={{ fontVariationSettings: "'FILL' 1" }}>error</span>
+        <div className="mt-3 p-3 rounded-lg bg-red-50 border border-red-200 text-red-800 text-sm flex items-center gap-2 animate-fadeIn">
+          <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
-      {/* Detailed Tracking Results Section */}
-      {packageData && (
-        <div className="w-full max-w-4xl bg-background border border-outline-variant rounded-xl p-md md:p-xl shadow-lg mt-md animate-slideDown flex flex-col gap-lg text-on-surface">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-outline-variant pb-md gap-md">
-            <div>
-              <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-xs">Código de Rastreo</p>
-              <h2 className="font-code-tracking text-code-tracking text-primary text-xl font-bold">{packageData.trackingCode}</h2>
-            </div>
-            <div className="flex items-center gap-sm bg-surface-container-high px-sm py-xs rounded-full border border-outline-variant">
-              <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>local_shipping</span>
-              <span className="font-label-sm text-label-sm text-primary font-semibold">{getStatusLabel(packageData.status)}</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-lg">
-            {/* Summary and Status Flow */}
-            <div className="lg:col-span-2 flex flex-col gap-lg">
-              {/* Shipment Details Panel */}
-              <div className="bg-surface-container-lowest border border-outline-variant rounded-lg p-md md:p-lg relative overflow-hidden shadow-sm">
-                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#f97316]"></div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
-                  <div className="flex items-start gap-md">
-                    <span className="material-symbols-outlined text-outline mt-0.5" style={{ fontVariationSettings: "'FILL' 0" }}>location_on</span>
-                    <div>
-                      <p className="font-label-sm text-label-sm text-on-surface-variant mb-xs">Origen</p>
-                      <p className="font-body-lg text-body-lg font-semibold text-on-surface">{packageData.originAddress}</p>
-                      <p className="font-body-sm text-body-sm text-on-surface-variant">Remitente: {packageData.senderName}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-md">
-                    <span className="material-symbols-outlined text-outline mt-0.5" style={{ fontVariationSettings: "'FILL' 0" }}>flag</span>
-                    <div>
-                      <p className="font-label-sm text-label-sm text-on-surface-variant mb-xs">Destino</p>
-                      <p className="font-body-lg text-body-lg font-semibold text-on-surface">{packageData.destinationAddress}</p>
-                      <p className="font-body-sm text-body-sm text-on-surface-variant">Est. Entrega: {packageData.estimatedDeliveryDate}</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="border-t border-outline-variant mt-md pt-md grid grid-cols-2 gap-md text-body-sm">
-                  <div>
-                    <span className="text-on-surface-variant">Peso: </span>
-                    <span className="font-semibold">{packageData.weight} kg</span>
-                  </div>
-                  <div>
-                    <span className="text-on-surface-variant">Descripción: </span>
-                    <span className="font-semibold">{packageData.description}</span>
-                  </div>
-                </div>
+      {/* Tracking Info Dialog */}
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-2xl w-[95vw] rounded-2xl max-h-[90vh] overflow-y-auto border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+          <DialogHeader className="pb-4 border-b border-zinc-100 dark:border-zinc-800">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pr-6">
+              <div>
+                <DialogTitle className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white">
+                  Guía: {result?.trackingCode}
+                </DialogTitle>
+                <DialogDescription className="text-zinc-500 dark:text-zinc-400 text-xs mt-0.5">
+                  Última actualización: {result?.lastUpdate}
+                </DialogDescription>
               </div>
+              <div className="shrink-0">{result && getStatusBadge(result.currentStatus)}</div>
+            </div>
+          </DialogHeader>
 
-              {/* Status Flow Timeline */}
-              <div className="bg-surface-container-lowest border border-outline-variant rounded-lg p-md md:p-lg shadow-sm">
-                <h3 className="font-headline-sm text-headline-sm mb-lg text-on-surface font-semibold">Flujo del Estado</h3>
-                <div className="relative pl-xs flex flex-col gap-xl">
-                  {/* Vertical Line Connector */}
-                  <div className="absolute left-[23px] top-[24px] bottom-[24px] w-[2px] bg-outline-variant animate-fadeIn" />
-
-                  {/* Step 1: Registrado */}
-                  <div className={`relative flex items-start group transition-opacity ${currentStep >= 1 ? "opacity-100" : "opacity-40"}`}>
-                    <div className={`z-10 flex items-center justify-center w-12 h-12 rounded-full shrink-0 shadow-sm transition-colors ${
-                      currentStep >= 1 ? "bg-primary text-white" : "bg-surface-variant text-on-surface-variant"
-                    }`}>
-                      <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>check</span>
-                    </div>
-                    <div className="ml-lg pt-sm">
-                      <h4 className={`font-label-md text-label-md ${currentStep >= 1 ? "text-primary font-bold" : "text-on-surface-variant"}`}>Registrado</h4>
-                      <p className="font-body-sm text-body-sm text-on-surface-variant">Información del envío registrada en el sistema.</p>
-                    </div>
+          {result && (
+            <div className="space-y-6 pt-4">
+              
+              {/* Core Details Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-100 dark:border-zinc-800/60">
+                <div className="space-y-1">
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400 block">Origen</span>
+                  <div className="flex items-center gap-1.5 font-semibold text-sm text-zinc-800 dark:text-zinc-200">
+                    <MapPin className="w-3.5 h-3.5 text-zinc-400" />
+                    <span>{result.originCity}</span>
                   </div>
-
-                  {/* Step 2: En Almacén */}
-                  <div className={`relative flex items-start group transition-opacity ${currentStep >= 2 ? "opacity-100" : "opacity-40"}`}>
-                    <div className={`z-10 flex items-center justify-center w-12 h-12 rounded-full shrink-0 shadow-sm transition-all ${
-                      currentStep > 2 
-                        ? "bg-primary text-white" 
-                        : currentStep === 2 
-                          ? "bg-surface border-2 border-primary text-primary ring-4 ring-primary-container/20" 
-                          : "bg-surface-variant text-on-surface-variant"
-                    }`}>
-                      <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>inventory_2</span>
-                    </div>
-                    <div className="ml-lg pt-sm">
-                      <h4 className={`font-label-md text-label-md ${currentStep >= 2 ? "text-primary font-bold" : "text-on-surface-variant"}`}>En Almacén</h4>
-                      <p className="font-body-sm text-body-sm text-on-surface-variant">Procesado y clasificado en el centro logístico.</p>
-                    </div>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400 block">Destino</span>
+                  <div className="flex items-center gap-1.5 font-semibold text-sm text-zinc-800 dark:text-zinc-200">
+                    <MapPin className="w-3.5 h-3.5 text-zinc-400" />
+                    <span>{result.destinationCity}</span>
                   </div>
-
-                  {/* Step 3: En Tránsito */}
-                  <div className={`relative flex items-start group transition-opacity ${currentStep >= 3 ? "opacity-100" : "opacity-40"}`}>
-                    <div className={`z-10 flex items-center justify-center w-12 h-12 rounded-full shrink-0 shadow-sm transition-all ${
-                      currentStep > 3 
-                        ? "bg-primary text-white" 
-                        : currentStep === 3 
-                          ? "bg-surface border-2 border-primary text-primary ring-4 ring-primary-container/20" 
-                          : "bg-surface-variant text-on-surface-variant"
-                    }`}>
-                      <span className="material-symbols-outlined" style={{ fontVariationSettings: currentStep === 3 ? "'FILL' 0" : "'FILL' 1" }}>local_shipping</span>
-                    </div>
-                    <div className="ml-lg pt-sm">
-                      <h4 className={`font-label-md text-label-md ${currentStep >= 3 ? "text-primary font-bold" : "text-on-surface-variant"}`}>En Tránsito</h4>
-                      <p className="font-body-sm text-body-sm text-on-surface-variant">El envío viaja hacia la ciudad de destino.</p>
-                    </div>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400 block">Fecha Estimada</span>
+                  <div className="flex items-center gap-1.5 font-semibold text-sm text-zinc-800 dark:text-zinc-200">
+                    <Calendar className="w-3.5 h-3.5 text-zinc-400" />
+                    <span>{result.estimatedDeliveryDate}</span>
                   </div>
-
-                  {/* Step 4: En Ruta de Entrega */}
-                  <div className={`relative flex items-start group transition-opacity ${currentStep >= 4 ? "opacity-100" : "opacity-40"}`}>
-                    <div className={`z-10 flex items-center justify-center w-12 h-12 rounded-full shrink-0 shadow-sm transition-all ${
-                      currentStep > 4 
-                        ? "bg-primary text-white" 
-                        : currentStep === 4 
-                          ? "bg-surface border-2 border-primary text-primary ring-4 ring-primary-container/20" 
-                          : "bg-surface-variant text-on-surface-variant"
-                    }`}>
-                      <span className="material-symbols-outlined" style={{ fontVariationSettings: currentStep === 4 ? "'FILL' 0" : "'FILL' 1" }}>route</span>
-                    </div>
-                    <div className="ml-lg pt-sm">
-                      <h4 className={`font-label-md text-label-md ${currentStep >= 4 ? "text-primary font-bold" : "text-on-surface-variant"}`}>En Reparto</h4>
-                      <p className="font-body-sm text-body-sm text-on-surface-variant">En manos del repartidor local, entrega hoy.</p>
-                    </div>
-                  </div>
-
-                  {/* Step 5: Entregado */}
-                  <div className={`relative flex items-start group transition-opacity ${currentStep >= 5 ? "opacity-100" : "opacity-40"}`}>
-                    <div className={`z-10 flex items-center justify-center w-12 h-12 rounded-full shrink-0 shadow-sm transition-all ${
-                      currentStep === 5 
-                        ? "bg-primary text-white ring-4 ring-green-100" 
-                        : "bg-surface-variant text-on-surface-variant"
-                    }`}>
-                      <span className="material-symbols-outlined" style={{ fontVariationSettings: currentStep === 5 ? "'FILL' 0" : "'FILL' 1" }}>home</span>
-                    </div>
-                    <div className="ml-lg pt-sm">
-                      <h4 className={`font-label-md text-label-md ${currentStep >= 5 ? "text-primary font-bold" : "text-on-surface-variant"}`}>Entregado</h4>
-                      <p className="font-body-sm text-body-sm text-on-surface-variant">Entregado exitosamente en el destino.</p>
-                    </div>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400 block">Peso</span>
+                  <div className="flex items-center gap-1.5 font-semibold text-sm text-zinc-800 dark:text-zinc-200">
+                    <Package className="w-3.5 h-3.5 text-zinc-400" />
+                    <span>{result.weight ? `${result.weight} kg` : "N/D"}</span>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Right Column: Actions & Event Log */}
-            <div className="flex flex-col gap-lg">
-              {/* Actions Card */}
-              <div className="bg-surface-container-highest rounded-lg p-md flex flex-col gap-md border border-outline-variant/30">
-                <button className="w-full flex items-center justify-center gap-sm bg-primary text-white px-lg py-sm rounded-lg hover:bg-opacity-95 active:scale-95 transition-all font-label-md shadow-sm cursor-pointer">
-                  <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>support_agent</span>
-                  Soporte de Envío
-                </button>
-                <button className="w-full flex items-center justify-center gap-sm bg-surface text-on-surface border border-outline-variant px-lg py-sm rounded-lg hover:bg-surface-variant active:scale-95 transition-all font-label-md shadow-sm cursor-pointer">
-                  <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>receipt_long</span>
-                  Comprobante PDF
-                </button>
-              </div>
+              {/* Graphical Timeline (Skip on INCIDENCIA status mapping for linear flow) */}
+              {result.currentStatus !== "INCIDENCIA" && (
+                <div className="py-2">
+                  <h4 className="text-sm font-bold text-zinc-800 dark:text-zinc-200 mb-6">Estado del Envío</h4>
+                  
+                  {/* Timeline Horizontal Line (Large screens) */}
+                  <div className="relative hidden sm:block">
+                    <div className="absolute top-1/2 left-0 right-0 h-1 bg-zinc-200 dark:bg-zinc-800 -translate-y-1/2 z-0 rounded-full" />
+                    <div 
+                      className="absolute top-1/2 left-0 h-1 bg-primary -translate-y-1/2 z-0 rounded-full transition-all duration-500" 
+                      style={{ width: `${(currentStageIndex / (STAGES.length - 1)) * 100}%` }}
+                    />
+                    
+                    <div className="relative z-10 flex justify-between">
+                      {STAGES.map((stage, idx) => {
+                        const isCompleted = idx <= currentStageIndex;
+                        const isActive = idx === currentStageIndex;
+                        
+                        return (
+                          <div key={stage.status} className="flex flex-col items-center gap-2">
+                            <div 
+                              className={`w-8 h-8 rounded-full border-2 flex items-center justify-center bg-white dark:bg-zinc-900 transition-all ${
+                                isCompleted 
+                                  ? "border-primary text-primary" 
+                                  : "border-zinc-300 dark:border-zinc-700 text-zinc-400"
+                              } ${isActive ? "ring-4 ring-primary/20 scale-110" : ""}`}
+                            >
+                              {idx < currentStageIndex ? (
+                                <CheckCircle className="w-4 h-4 fill-primary/10" />
+                              ) : (
+                                <div className={`w-2 h-2 rounded-full ${isCompleted ? "bg-primary" : "bg-zinc-300 dark:bg-zinc-700"}`} />
+                              )}
+                            </div>
+                            <span className={`text-[11px] font-bold ${isCompleted ? "text-primary" : "text-zinc-400 dark:text-zinc-500"}`}>
+                              {stage.label}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
 
-              {/* Event Log */}
-              <div className="bg-surface-container-lowest border border-outline-variant rounded-lg p-md flex flex-col flex-grow">
-                <h3 className="font-headline-sm text-headline-sm mb-md pb-xs border-b border-outline-variant font-semibold text-on-surface">Historial Detallado</h3>
-                <div className="flex flex-col max-h-[360px] overflow-y-auto pr-xs">
-                  {packageData.history.length === 0 ? (
-                    <p className="text-body-sm text-on-surface-variant italic">No hay actualizaciones todavía.</p>
-                  ) : (
-                    packageData.history.map((event) => (
-                      <div key={event.id} className="py-md border-b border-outline-variant last:border-0 hover:bg-surface-container-low/20 transition-colors flex items-start gap-md">
-                        <div className="bg-surface-variant text-on-surface-variant p-xs rounded shrink-0">
-                          <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>
-                            {event.status === "DELIVERED" ? "home" : event.status === "OUT_FOR_DELIVERY" ? "route" : event.status === "IN_TRANSIT" ? "swap_horiz" : "info"}
+                  {/* Vertical Timeline (Mobile / Small screens) */}
+                  <div className="block sm:hidden space-y-4">
+                    {STAGES.map((stage, idx) => {
+                      const isCompleted = idx <= currentStageIndex;
+                      const isActive = idx === currentStageIndex;
+                      
+                      return (
+                        <div key={stage.status} className="flex items-center gap-3">
+                          <div 
+                            className={`w-6 h-6 rounded-full border-2 flex items-center justify-center bg-white dark:bg-zinc-900 ${
+                              isCompleted ? "border-primary text-primary" : "border-zinc-300 dark:border-zinc-700 text-zinc-400"
+                            } ${isActive ? "ring-2 ring-primary/25" : ""}`}
+                          >
+                            <div className={`w-1.5 h-1.5 rounded-full ${isCompleted ? "bg-primary" : "bg-zinc-300 dark:bg-zinc-700"}`} />
+                          </div>
+                          <span className={`text-xs font-bold ${isCompleted ? "text-primary" : "text-zinc-400"}`}>
+                            {stage.label} {isActive && "(Actual)"}
                           </span>
                         </div>
-                        <div>
-                          <p className="font-body-sm text-body-sm text-on-surface font-medium leading-tight">{event.description}</p>
-                          <p className="font-label-sm text-label-sm text-on-surface-variant mt-xs flex items-center gap-xs">
-                            <span className="material-symbols-outlined text-[12px]" style={{ fontVariationSettings: "'FILL' 1" }}>location_on</span>
-                            {event.location} • {event.timestamp}
-                          </p>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* History Events */}
+              <div>
+                <h4 className="text-sm font-bold text-zinc-800 dark:text-zinc-200 mb-4">Detalle del Historial</h4>
+                <div className="space-y-4 relative before:absolute before:top-2 before:bottom-2 before:left-[11px] before:w-[2px] before:bg-zinc-200 dark:before:bg-zinc-800">
+                  {result.history?.map((event) => (
+                    <div key={event.id} className="flex gap-4 items-start pl-6 relative">
+                      <div className="absolute left-[8px] top-1.5 w-2 h-2 rounded-full bg-primary ring-4 ring-zinc-50 dark:ring-zinc-900" />
+                      <div className="flex-grow space-y-0.5">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                          <span className="text-xs font-bold text-zinc-800 dark:text-zinc-200">
+                            {event.location} - {event.status}
+                          </span>
+                          <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium shrink-0">
+                            {event.timestamp}
+                          </span>
                         </div>
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
+                          {event.description}
+                        </p>
                       </div>
-                    ))
-                  )}
+                    </div>
+                  ))}
                 </div>
               </div>
+
             </div>
-          </div>
-        </div>
-      )}
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

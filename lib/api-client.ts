@@ -1,164 +1,137 @@
-import { PackageDTO } from "@/types/tracking";
+import { TrackingSummaryDTO } from "@/types/tracking";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
-export class APIError extends Error {
-  status: number;
-  constructor(message: string, status: number) {
-    super(message);
-    this.name = "APIError";
-    this.status = status;
-  }
-}
-
-export const MOCK_PACKAGES: Record<string, PackageDTO> = {
+const MOCK_TRACKING_DATABASE: Record<string, TrackingSummaryDTO> = {
   "SW-9843-XY": {
-    id: 101,
     trackingCode: "SW-9843-XY",
-    status: "IN_TRANSIT",
-    senderName: "TechNova Inc.",
-    recipientName: "John Doe",
-    originAddress: "Barcelona, ESP",
-    destinationAddress: "Madrid, ESP",
+    currentStatus: "EN_TRANSITO",
+    originCity: "Lima",
+    destinationCity: "Arequipa",
+    estimatedDeliveryDate: "2026-08-30",
+    lastUpdate: "2026-08-28 10:15",
+    senderName: "Distribuidora Andina S.A.",
+    receiverName: "Josías Vilca",
     weight: 4.5,
-    description: "Componentes electrónicos de alta precisión",
-    estimatedDeliveryDate: "Mañana, 10:00 - 14:00",
-    createdAt: "2026-08-27T16:20:00Z",
-    updatedAt: "2026-08-28T14:30:00Z",
     history: [
       {
-        id: "evt-4",
-        timestamp: "Hoy, 14:30h",
-        status: "IN_TRANSIT",
-        location: "Terminal Madrid, ESP",
-        description: "Llegada a terminal Madrid. Actualmente en movimiento al centro de distribución.",
+        id: 1,
+        status: "REGISTRADO",
+        location: "Lima - Central",
+        description: "Envío registrado en el sistema y preparado para recojo.",
+        timestamp: "2026-08-27 08:30",
       },
       {
-        id: "evt-3",
-        timestamp: "Hoy, 08:15h",
-        status: "IN_TRANSIT",
-        location: "Terminal Barcelona, ESP",
-        description: "Salida de terminal Barcelona en ruta terrestre.",
+        id: 2,
+        status: "EN_ALMACEN",
+        location: "Lima - Principal",
+        description: "Paquete recibido en almacén central y clasificado por ruta.",
+        timestamp: "2026-08-27 15:45",
       },
       {
-        id: "evt-2",
-        timestamp: "Ayer, 19:45h",
-        status: "COLLECTED",
-        location: "Barcelona Facility, ESP",
-        description: "Envío recibido en el centro de procesamiento de origen.",
+        id: 3,
+        status: "EN_TRANSITO",
+        location: "Panamericana Sur Km 250",
+        description: "El vehículo de transporte está en camino al destino central de Arequipa.",
+        timestamp: "2026-08-28 10:15",
       },
-      {
-        id: "evt-1",
-        timestamp: "Ayer, 16:20h",
-        status: "PENDING",
-        location: "Barcelona, ESP",
-        description: "Envío registrado e información provista por TechNova Inc.",
-      }
-    ]
+    ],
   },
   "TRK-1111-AA": {
-    id: 102,
     trackingCode: "TRK-1111-AA",
-    status: "DELIVERED",
-    senderName: "Amazon ES",
-    recipientName: "María García",
-    originAddress: "Valencia, ESP",
-    destinationAddress: "Alicante, ESP",
+    currentStatus: "ENTREGADO",
+    originCity: "Trujillo",
+    destinationCity: "Lima",
+    estimatedDeliveryDate: "2026-08-26",
+    lastUpdate: "2026-08-26 14:20",
+    senderName: "Calzados del Norte",
+    receiverName: "María Rojas",
     weight: 1.2,
-    description: "Libros y artículos de papelería para oficina",
-    estimatedDeliveryDate: "Entregado el 27/08/2026",
-    createdAt: "2026-08-26T09:00:00Z",
-    updatedAt: "2026-08-27T11:45:00Z",
     history: [
       {
-        id: "evt-4",
-        timestamp: "27/08, 11:45h",
-        status: "DELIVERED",
-        location: "Alicante, ESP",
-        description: "Entregado de manera exitosa con firma digital.",
+        id: 1,
+        status: "REGISTRADO",
+        location: "Trujillo",
+        description: "Envío registrado por el remitente.",
+        timestamp: "2026-08-25 09:00",
       },
       {
-        id: "evt-3",
-        timestamp: "27/08, 08:00h",
-        status: "OUT_FOR_DELIVERY",
-        location: "Alicante Delivery Center, ESP",
-        description: "Envío asignado al repartidor de última milla.",
+        id: 2,
+        status: "EN_ALMACEN",
+        location: "Trujillo - Centro",
+        description: "Paquete recibido e ingresado al almacén de salida.",
+        timestamp: "2026-08-25 14:10",
       },
       {
-        id: "evt-2",
-        timestamp: "26/08, 14:30h",
-        status: "COLLECTED",
-        location: "Valencia Hub, ESP",
-        description: "Envío clasificado en el centro logístico regional.",
+        id: 3,
+        status: "EN_TRANSITO",
+        location: "Lima - Hub Norte",
+        description: "Tránsito terrestre nacional hacia Lima completado.",
+        timestamp: "2026-08-26 04:30",
       },
       {
-        id: "evt-1",
-        timestamp: "26/08, 09:00h",
-        status: "PENDING",
-        location: "Valencia, ESP",
-        description: "Información del envío recibida por el transportista.",
-      }
-    ]
-  }
+        id: 4,
+        status: "EN_RUTA",
+        location: "Lima - San Isidro",
+        description: "Paquete en manos del repartidor asignado a la zona residencial.",
+        timestamp: "2026-08-26 10:00",
+      },
+      {
+        id: 5,
+        status: "ENTREGADO",
+        location: "Lima - Destino Final",
+        description: "Entregado a María Rojas. Firma digital registrada.",
+        timestamp: "2026-08-26 14:20",
+      },
+    ],
+  },
 };
 
 export async function fetchFromAPI<T>(endpoint: string, options?: RequestInit): Promise<T> {
-  const url = `${API_BASE_URL}${endpoint}`;
-  
-  const headers = new Headers({
-    "Content-Type": "application/json",
-    ...(options?.headers || {}),
+  const response = await fetch(`${BASE_URL}${endpoint}`, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...(options?.headers || {}),
+    },
   });
 
-  try {
-    const response = await fetch(url, {
-      ...options,
-      headers,
-    });
-
-    if (!response.ok) {
-      let errorMessage = `API error: ${response.statusText}`;
-      try {
-        const errorData = await response.json();
-        errorMessage = errorData.message || errorData.error || errorMessage;
-      } catch {
-        try {
-          const text = await response.text();
-          if (text) errorMessage = text;
-        } catch {}
+  if (!response.ok) {
+    let errorMsg = `Error: ${response.status} ${response.statusText}`;
+    try {
+      const errorData = await response.json();
+      if (errorData && errorData.message) {
+        errorMsg = errorData.message;
       }
-      throw new APIError(errorMessage, response.status);
-    }
-
-    return (await response.json()) as T;
-  } catch (error) {
-    if (error instanceof APIError) {
-      throw error;
-    }
-    throw new Error(error instanceof Error ? error.message : "Error de conexión con el servidor");
+    } catch (_) {}
+    throw new Error(errorMsg);
   }
+
+  if (response.status === 204) {
+    return {} as T;
+  }
+
+  return response.json() as Promise<T>;
 }
 
-export const trackingApi = {
-  trackPackage: async (code: string): Promise<PackageDTO> => {
-    const cleanedCode = code.trim().toUpperCase();
+export async function trackPackage(trackingCode: string): Promise<TrackingSummaryDTO> {
+  try {
+    return await fetchFromAPI<TrackingSummaryDTO>(`/api/v1/packages/track/${trackingCode}`, {
+      method: "GET",
+    });
+  } catch (error) {
+    console.warn(`REST call failed. Checking local mock database for code ${trackingCode}`, error);
     
-    // Check if mock code is requested
-    if (MOCK_PACKAGES[cleanedCode]) {
-      // Simulate API lag
-      await new Promise(resolve => setTimeout(resolve, 800));
-      return MOCK_PACKAGES[cleanedCode];
+    // Simulate API delay
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    
+    const uppercaseCode = trackingCode.trim().toUpperCase();
+    const result = MOCK_TRACKING_DATABASE[uppercaseCode];
+    
+    if (result) {
+      return result;
     }
     
-    try {
-      return await fetchFromAPI<PackageDTO>(`/api/v1/packages/track/${cleanedCode}`);
-    } catch (apiError) {
-      // Fallback to local mock db if backend connection fails and code exists in mock database
-      if (MOCK_PACKAGES[cleanedCode]) {
-        console.warn("API Request failed. Falling back to local mock data.", apiError);
-        return MOCK_PACKAGES[cleanedCode];
-      }
-      throw apiError;
-    }
-  },
-};
+    throw new Error("Código de rastreo no encontrado. Verifica la guía e intenta de nuevo.");
+  }
+}

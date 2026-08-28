@@ -1,39 +1,28 @@
-export type PackageStatus = 
-  | 'PENDING' 
-  | 'COLLECTED' 
-  | 'IN_TRANSIT' 
-  | 'OUT_FOR_DELIVERY' 
-  | 'DELIVERED' 
-  | 'FAILED_DELIVERY' 
-  | 'RETURNED'
-  | 'CANCELLED';
+export type TrackingStatus =
+  | "REGISTRADO"
+  | "EN_ALMACEN"
+  | "EN_TRANSITO"
+  | "EN_RUTA"
+  | "ENTREGADO"
+  | "INCIDENCIA";
 
-export interface TrackingEvent {
-  id: string;
-  timestamp: string;
-  status: PackageStatus;
+export interface TrackingHistoryEvent {
+  id: number;
+  status: TrackingStatus;
   location: string;
   description: string;
+  timestamp: string;
 }
 
-export interface PackageDTO {
-  id: number;
+export interface TrackingSummaryDTO {
   trackingCode: string;
-  status: PackageStatus;
-  senderName: string;
-  recipientName: string;
-  originAddress: string;
-  destinationAddress: string;
-  weight: number;
-  description: string;
+  currentStatus: TrackingStatus;
+  originCity: string;
+  destinationCity: string;
   estimatedDeliveryDate: string;
-  createdAt: string;
-  updatedAt: string;
-  history: TrackingEvent[];
-}
-
-export interface TrackingState {
-  packageData: PackageDTO | null;
-  loading: boolean;
-  error: string | null;
+  lastUpdate: string;
+  senderName?: string;
+  receiverName?: string;
+  weight?: number;
+  history?: TrackingHistoryEvent[];
 }
