@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SwiftLogix - Tracking Details</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed": "#dde1ff",
+                        "surface-tint": "#3755c3",
+                        "on-tertiary-fixed": "#380d00",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed-dim": "#ffb59a",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-container": "#5c2400",
+                        "on-surface": "#0b1c30",
+                        "primary-container": "#1e40af",
+                        "inverse-surface": "#213145",
+                        "tertiary-container": "#872d00",
+                        "on-error-container": "#93000a",
+                        "inverse-on-surface": "#eaf1ff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed": "#341100",
+                        "on-tertiary-fixed-variant": "#802a00",
+                        "on-tertiary-container": "#ffa583",
+                        "on-surface-variant": "#444653",
+                        "surface-dim": "#cbdbf5",
+                        "inverse-primary": "#b8c4ff",
+                        "outline": "#757684",
+                        "on-primary": "#ffffff",
+                        "primary": "#00288e",
+                        "tertiary": "#611e00",
+                        "surface-container": "#e5eeff",
+                        "on-error": "#ffffff",
+                        "secondary-fixed-dim": "#ffb690",
+                        "secondary-fixed": "#ffdbca",
+                        "tertiary-fixed": "#ffdbce",
+                        "on-background": "#0b1c30",
+                        "surface-variant": "#d3e4fe",
+                        "error-container": "#ffdad6",
+                        "secondary": "#9d4300",
+                        "on-secondary-fixed-variant": "#783200",
+                        "surface-container-highest": "#d3e4fe",
+                        "background": "#f8f9ff",
+                        "surface-bright": "#f8f9ff",
+                        "outline-variant": "#c4c5d5",
+                        "on-primary-fixed-variant": "#173bab",
+                        "surface-container-high": "#dce9ff",
+                        "on-primary-fixed": "#001453",
+                        "surface-container-low": "#eff4ff",
+                        "primary-fixed-dim": "#b8c4ff",
+                        "on-primary-container": "#a8b8ff",
+                        "surface": "#f8f9ff",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#fd761a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "8px",
+                        "xs": "4px",
+                        "margin-mobile": "16px",
+                        "gutter": "20px",
+                        "base": "4px",
+                        "md": "16px",
+                        "xl": "32px",
+                        "lg": "24px",
+                        "margin-desktop": "40px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "code-tracking": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "display": ["Inter"],
+                        "label-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "code-tracking": ["16px", { "lineHeight": "24px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display": ["48px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .timeline-line {
+            width: 2px;
+            background-color: #e2e8f0;
+            position: absolute;
+            left: 23px;
+            top: 40px;
+            bottom: -20px;
+        }
+        .timeline-line-active {
+            background-color: #00288e;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen flex flex-col">
+<!-- TopNavBar (Shared Component) -->
+<nav class="bg-surface dark:bg-surface-dim w-full top-0 sticky border-b border-outline-variant dark:border-outline z-50">
+<div class="flex justify-between items-center px-margin-desktop py-md max-w-[1440px] mx-auto">
+<div class="flex items-center gap-lg">
+<a class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim" href="#">SwiftLogix</a>
+<div class="hidden md:flex gap-md">
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors py-1" href="#">Solutions</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors py-1" href="#">Pricing</a>
+<a class="text-primary dark:text-primary-fixed-dim border-b-2 border-primary dark:border-primary-fixed-dim pb-1 font-bold" href="#">Tracking</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors py-1" href="#">Support</a>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<button class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant px-md py-sm hover:text-primary dark:hover:text-primary-fixed-dim transition-colors hidden md:block">Login</button>
+<button class="bg-secondary text-on-secondary px-lg py-sm rounded-lg hover:opacity-90 transition-opacity font-label-md scale-95 active:scale-90 transition-transform">Ship Now</button>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-grow p-margin-mobile md:p-margin-desktop max-w-[1440px] mx-auto w-full">
+<div class="mb-lg">
+<h1 class="font-headline-lg text-headline-lg mb-xs">Tracking Details</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Real-time status for your shipment.</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-lg">
+<!-- Left Column: Summary & Timeline -->
+<div class="lg:col-span-2 flex flex-col gap-lg">
+<!-- Main Card: Shipment Summary -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-md md:p-lg relative overflow-hidden shadow-[0px_1px_2px_0px_rgba(15,23,42,0.05)]">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-secondary-container"></div>
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-lg gap-md">
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-xs">Tracking ID</p>
+<h2 class="font-code-tracking text-code-tracking text-primary">SW-9843-XY</h2>
+</div>
+<div class="flex items-center gap-sm bg-surface-container-high px-sm py-xs rounded-full">
+<span class="material-symbols-outlined text-primary" data-icon="local_shipping" style="font-variation-settings: 'FILL' 1;">local_shipping</span>
+<span class="font-label-sm text-label-sm text-primary">In Transit</span>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg border-t border-outline-variant pt-lg">
+<div class="flex items-start gap-md">
+<span class="material-symbols-outlined text-outline" data-icon="location_on">location_on</span>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Origin</p>
+<p class="font-body-lg text-body-lg font-semibold">Barcelona, ESP</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Sender: TechNova Inc.</p>
+</div>
+</div>
+<div class="flex items-start gap-md">
+<span class="material-symbols-outlined text-outline" data-icon="flag">flag</span>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Destination</p>
+<p class="font-body-lg text-body-lg font-semibold">Madrid, ESP</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Est. Delivery: Tomorrow, 10:00 - 14:00</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Interactive Timeline -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-md md:p-lg">
+<h3 class="font-headline-sm text-headline-sm mb-lg">Status Flow</h3>
+<div class="relative pl-xs">
+<!-- Step 1 -->
+<div class="relative flex items-start mb-xl group cursor-pointer">
+<div class="timeline-line timeline-line-active group-hover:bg-primary-container transition-colors"></div>
+<div class="z-10 flex items-center justify-center w-12 h-12 bg-primary text-on-primary rounded-full shrink-0 shadow-sm">
+<span class="material-symbols-outlined" data-icon="check" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<div class="ml-lg pt-sm">
+<h4 class="font-label-md text-label-md text-primary">Registrado</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Shipment information received.</p>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="relative flex items-start mb-xl group cursor-pointer">
+<div class="timeline-line timeline-line-active group-hover:bg-primary-container transition-colors"></div>
+<div class="z-10 flex items-center justify-center w-12 h-12 bg-primary text-on-primary rounded-full shrink-0 shadow-sm">
+<span class="material-symbols-outlined" data-icon="inventory_2" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+</div>
+<div class="ml-lg pt-sm">
+<h4 class="font-label-md text-label-md text-primary">En Almacén</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Processed at origin facility.</p>
+</div>
+</div>
+<!-- Step 3 (Active) -->
+<div class="relative flex items-start mb-xl group cursor-pointer">
+<div class="timeline-line group-hover:bg-surface-variant transition-colors"></div>
+<div class="z-10 flex items-center justify-center w-12 h-12 bg-surface border-2 border-primary text-primary rounded-full shrink-0 shadow-sm ring-4 ring-primary-container/20">
+<span class="material-symbols-outlined" data-icon="local_shipping">local_shipping</span>
+</div>
+<div class="ml-lg pt-sm">
+<h4 class="font-label-md text-label-md text-on-surface font-bold">En Tránsito</h4>
+<p class="font-body-sm text-body-sm text-primary">Currently moving to destination hub.</p>
+</div>
+</div>
+<!-- Step 4 -->
+<div class="relative flex items-start mb-xl group cursor-pointer opacity-50 hover:opacity-75 transition-opacity">
+<div class="timeline-line group-hover:bg-surface-variant transition-colors"></div>
+<div class="z-10 flex items-center justify-center w-12 h-12 bg-surface-variant text-on-surface-variant rounded-full shrink-0">
+<span class="material-symbols-outlined" data-icon="route">route</span>
+</div>
+<div class="ml-lg pt-sm">
+<h4 class="font-label-md text-label-md text-on-surface-variant">En Ruta de Entrega</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Out for delivery.</p>
+</div>
+</div>
+<!-- Step 5 -->
+<div class="relative flex items-start group cursor-pointer opacity-50 hover:opacity-75 transition-opacity">
+<div class="z-10 flex items-center justify-center w-12 h-12 bg-surface-variant text-on-surface-variant rounded-full shrink-0">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+</div>
+<div class="ml-lg pt-sm">
+<h4 class="font-label-md text-label-md text-on-surface-variant">Entregado</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Successfully delivered.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: History & Actions -->
+<div class="flex flex-col gap-lg">
+<!-- Actions Box -->
+<div class="bg-surface-container-highest rounded-lg p-md flex flex-col gap-md">
+<button class="w-full flex items-center justify-center gap-sm bg-primary text-on-primary px-lg py-sm rounded-lg hover:scale-[0.98] transition-transform font-label-md">
+<span class="material-symbols-outlined text-[20px]" data-icon="support_agent">support_agent</span>
+                        Contact Support
+                    </button>
+<button class="w-full flex items-center justify-center gap-sm bg-surface text-on-surface border border-outline-variant px-lg py-sm rounded-lg hover:bg-surface-variant transition-colors font-label-md shadow-sm">
+<span class="material-symbols-outlined text-[20px]" data-icon="receipt_long">receipt_long</span>
+                        Download Receipt
+                    </button>
+</div>
+<!-- Event History List -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-md overflow-hidden flex-grow">
+<h3 class="font-headline-sm text-headline-sm mb-md pb-xs border-b border-outline-variant">Detailed History</h3>
+<div class="flex flex-col">
+<!-- History Item 1 -->
+<div class="py-md border-b border-outline-variant last:border-0 hover:bg-surface-container-lowest transition-colors flex items-start gap-md">
+<div class="bg-surface-variant text-on-surface-variant p-xs rounded">
+<span class="material-symbols-outlined text-[16px]" data-icon="swap_horiz">swap_horiz</span>
+</div>
+<div>
+<p class="font-body-sm text-body-sm text-on-surface font-medium">Llegada a terminal Madrid</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-xs">Today, 14:30h</p>
+</div>
+</div>
+<!-- History Item 2 -->
+<div class="py-md border-b border-outline-variant last:border-0 hover:bg-surface-container-lowest transition-colors flex items-start gap-md">
+<div class="bg-surface-variant text-on-surface-variant p-xs rounded">
+<span class="material-symbols-outlined text-[16px]" data-icon="departure_board">departure_board</span>
+</div>
+<div>
+<p class="font-body-sm text-body-sm text-on-surface font-medium">Salida de terminal Barcelona</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-xs">Today, 08:15h</p>
+</div>
+</div>
+<!-- History Item 3 -->
+<div class="py-md border-b border-outline-variant last:border-0 hover:bg-surface-container-lowest transition-colors flex items-start gap-md">
+<div class="bg-surface-variant text-on-surface-variant p-xs rounded">
+<span class="material-symbols-outlined text-[16px]" data-icon="inventory_2">inventory_2</span>
+</div>
+<div>
+<p class="font-body-sm text-body-sm text-on-surface font-medium">Procesado en almacén origen</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-xs">Yesterday, 19:45h</p>
+</div>
+</div>
+<!-- History Item 4 -->
+<div class="py-md border-b border-outline-variant last:border-0 hover:bg-surface-container-lowest transition-colors flex items-start gap-md">
+<div class="bg-surface-variant text-on-surface-variant p-xs rounded">
+<span class="material-symbols-outlined text-[16px]" data-icon="fact_check">fact_check</span>
+</div>
+<div>
+<p class="font-body-sm text-body-sm text-on-surface font-medium">Envío registrado por TechNova Inc.</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-xs">Yesterday, 16:20h</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer (Shared Component) -->
+<footer class="bg-surface-container-lowest dark:bg-surface-dim border-t border-outline-variant dark:border-outline mt-auto w-full bottom-0">
+<div class="flex flex-col md:flex-row justify-between items-center px-margin-desktop py-lg max-w-[1440px] mx-auto gap-md">
+<span class="font-label-md text-label-md font-bold text-on-surface dark:text-on-surface-variant">© 2024 SwiftLogix Express. All rights reserved.</span>
+<div class="flex flex-wrap justify-center gap-md">
+<a class="font-body-sm text-body-sm text-on-surface-variant dark:text-surface-variant hover:text-secondary dark:hover:text-secondary-fixed transition-colors opacity-80 hover:opacity-100" href="#">Privacy Policy</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant dark:text-surface-variant hover:text-secondary dark:hover:text-secondary-fixed transition-colors opacity-80 hover:opacity-100" href="#">Terms of Service</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant dark:text-surface-variant hover:text-secondary dark:hover:text-secondary-fixed transition-colors opacity-80 hover:opacity-100" href="#">API Documentation</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant dark:text-surface-variant hover:text-secondary dark:hover:text-secondary-fixed transition-colors opacity-80 hover:opacity-100" href="#">Global Network</a>
+</div>
+</div>
+</footer>
+</body></html>

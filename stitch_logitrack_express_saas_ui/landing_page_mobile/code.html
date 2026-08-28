@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SwiftLogix - Logistics SaaS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed": "#dde1ff",
+                        "surface-tint": "#3755c3",
+                        "on-tertiary-fixed": "#380d00",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed-dim": "#ffb59a",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-container": "#5c2400",
+                        "on-surface": "#0b1c30",
+                        "primary-container": "#1e40af",
+                        "inverse-surface": "#213145",
+                        "tertiary-container": "#872d00",
+                        "on-error-container": "#93000a",
+                        "inverse-on-surface": "#eaf1ff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed": "#341100",
+                        "on-tertiary-fixed-variant": "#802a00",
+                        "on-tertiary-container": "#ffa583",
+                        "on-surface-variant": "#444653",
+                        "surface-dim": "#cbdbf5",
+                        "inverse-primary": "#b8c4ff",
+                        "outline": "#757684",
+                        "on-primary": "#ffffff",
+                        "primary": "#00288e",
+                        "tertiary": "#611e00",
+                        "surface-container": "#e5eeff",
+                        "on-error": "#ffffff",
+                        "secondary-fixed-dim": "#ffb690",
+                        "secondary-fixed": "#ffdbca",
+                        "tertiary-fixed": "#ffdbce",
+                        "on-background": "#0b1c30",
+                        "surface-variant": "#d3e4fe",
+                        "error-container": "#ffdad6",
+                        "secondary": "#9d4300",
+                        "on-secondary-fixed-variant": "#783200",
+                        "surface-container-highest": "#d3e4fe",
+                        "background": "#f8f9ff",
+                        "surface-bright": "#f8f9ff",
+                        "outline-variant": "#c4c5d5",
+                        "on-primary-fixed-variant": "#173bab",
+                        "surface-container-high": "#dce9ff",
+                        "on-primary-fixed": "#001453",
+                        "surface-container-low": "#eff4ff",
+                        "primary-fixed-dim": "#b8c4ff",
+                        "on-primary-container": "#a8b8ff",
+                        "surface": "#f8f9ff",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#fd761a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "8px",
+                        "xs": "4px",
+                        "margin-mobile": "16px",
+                        "gutter": "20px",
+                        "base": "4px",
+                        "md": "16px",
+                        "xl": "32px",
+                        "lg": "24px",
+                        "margin-desktop": "40px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "code-tracking": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "display": ["Inter"],
+                        "label-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "code-tracking": ["16px", { "lineHeight": "24px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display": ["48px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-md text-body-md overflow-x-hidden">
+<!-- Top NavBar (Mobile Version) -->
+<header class="bg-surface sticky top-0 z-50 shadow-sm">
+<div class="flex justify-between items-center px-margin-mobile py-sm">
+<div class="font-headline-md text-headline-md font-bold text-primary">SwiftLogix</div>
+<button aria-label="Menu" class="p-xs text-on-surface-variant focus:outline-none">
+<span class="material-symbols-outlined" data-icon="menu" data-weight="fill">menu</span>
+</button>
+</div>
+<!-- Hidden Desktop Nav for semantic completeness based on JSON -->
+<nav class="hidden md:flex justify-between items-center px-margin-desktop py-md max-w-[1440px] mx-auto border-b border-outline-variant bg-surface w-full">
+<div class="font-headline-md text-headline-md font-bold text-primary">SwiftLogix</div>
+<div class="flex gap-lg">
+<a class="text-on-surface-variant font-body-md text-body-md hover:text-primary transition-colors" href="#">Solutions</a>
+<a class="text-on-surface-variant font-body-md text-body-md hover:text-primary transition-colors" href="#">Pricing</a>
+<a class="text-primary border-b-2 border-primary pb-1 font-body-md text-body-md" href="#">Tracking</a>
+<a class="text-on-surface-variant font-body-md text-body-md hover:text-primary transition-colors" href="#">Support</a>
+</div>
+<div class="flex gap-md">
+<button class="px-md py-sm rounded-lg border border-outline-variant text-on-surface font-label-md text-label-md hover:bg-surface-variant transition-colors">Login</button>
+<button class="px-md py-sm rounded-lg bg-secondary-container text-on-secondary-container font-label-md text-label-md hover:opacity-90 transition-opacity">Ship Now</button>
+</div>
+</nav>
+</header>
+<main class="flex-grow flex flex-col px-margin-mobile py-lg gap-xl">
+<!-- Hero Mobile -->
+<section class="flex flex-col gap-lg">
+<div class="flex flex-col gap-sm">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Tu logística, simplificada y en tiempo real.</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Soluciones express para empresas que no pueden esperar.</p>
+</div>
+<!-- Tracking Input Component -->
+<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant shadow-sm flex flex-col gap-md">
+<label class="font-label-sm text-label-sm text-on-surface-variant" for="tracking">Rastrea tu envío</label>
+<div class="flex gap-sm">
+<input class="flex-grow p-sm rounded-lg border border-outline focus:ring-2 focus:ring-primary focus:border-primary outline-none font-code-tracking text-code-tracking text-on-surface bg-surface-container-lowest h-[48px]" id="tracking" placeholder="Ej. TRK-9821-44A" type="text"/>
+<button class="bg-primary text-on-primary rounded-lg px-md h-[48px] flex items-center justify-center scale-95 active:scale-90 transition-transform">
+<span class="material-symbols-outlined" data-icon="search" data-weight="fill">search</span>
+</button>
+</div>
+</div>
+<!-- Mobile Specific Interactive Bento -->
+<div class="grid grid-cols-1 gap-md">
+<div class="bg-primary text-on-primary rounded-xl p-lg flex flex-col justify-between h-48 relative overflow-hidden" data-alt="A dynamic, high-contrast abstract composition featuring flowing, vibrant cobalt blue waves against a stark white background, conveying a sense of speed and seamless global data transfer in a modern corporate style. Bright, clear lighting emphasizes efficiency." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuByoQ2MjT1M1o8Bvz8yseQYKMTPdGHCkbA_2DBHNddYK1jjOH9DrdEA032Ah1L6DPCDjYMoKXEEnADyaSs7ZJIYUJ45ITNP4-aFS4GhzK-EvmQ5cW34MzNw4TdTKDq-LI3CPpe9Gupjx3wETwzSsIH2mPKfvSYVVH0lEcKfYpKfZjB0441hh1yjukKvhlFkPmyOqYDmehJK--dwdjjiAPf5tG72sWaq2lbgizH6l-boGgoncWfwNrhY'); background-size: cover; background-position: center;">
+<div class="absolute inset-0 bg-primary/80"></div>
+<div class="relative z-10">
+<span class="material-symbols-outlined mb-sm" data-icon="bolt" data-weight="fill">bolt</span>
+<h2 class="font-headline-sm text-headline-sm">Envíos Express</h2>
+</div>
+<button class="relative z-10 w-fit bg-secondary-container text-on-secondary-container font-label-sm text-label-sm px-md py-sm rounded-lg scale-95 active:scale-90 transition-transform">Cotizar Ahora</button>
+</div>
+<div class="grid grid-cols-2 gap-md">
+<div class="bg-surface-container-high rounded-xl p-md flex flex-col gap-sm justify-center items-center text-center border border-outline-variant">
+<span class="material-symbols-outlined text-primary" data-icon="package_2" data-weight="fill">package_2</span>
+<span class="font-label-sm text-label-sm text-on-surface">Gestión de Carga</span>
+</div>
+<div class="bg-surface-container-high rounded-xl p-md flex flex-col gap-sm justify-center items-center text-center border border-outline-variant">
+<span class="material-symbols-outlined text-primary" data-icon="local_shipping" data-weight="fill">local_shipping</span>
+<span class="font-label-sm text-label-sm text-on-surface">Flota Dedicada</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Scrolling Metrics -->
+<section class="w-full overflow-hidden -mx-margin-mobile px-margin-mobile py-md">
+<div class="flex gap-md overflow-x-auto snap-x snap-mandatory pb-sm no-scrollbar">
+<div class="min-w-[80vw] bg-surface p-lg rounded-xl border border-outline-variant shadow-sm snap-center flex flex-col gap-xs">
+<div class="font-headline-lg-mobile text-headline-lg-mobile text-primary">99.9%</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Entregas a tiempo</div>
+</div>
+<div class="min-w-[80vw] bg-surface p-lg rounded-xl border border-outline-variant shadow-sm snap-center flex flex-col gap-xs">
+<div class="font-headline-lg-mobile text-headline-lg-mobile text-primary">+50K</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Envíos mensuales</div>
+</div>
+<div class="min-w-[80vw] bg-surface p-lg rounded-xl border border-outline-variant shadow-sm snap-center flex flex-col gap-xs">
+<div class="font-headline-lg-mobile text-headline-lg-mobile text-primary">24/7</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Soporte logístico</div>
+</div>
+</div>
+</section>
+<style>
+            .no-scrollbar::-webkit-scrollbar { display: none; }
+            .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        </style>
+<!-- Current Tracking Status Example -->
+<section class="flex flex-col gap-md">
+<h3 class="font-label-md text-label-md text-on-surface">Actividad Reciente</h3>
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden flex">
+<div class="w-1 bg-secondary-container"></div>
+<div class="p-md flex-grow flex flex-col gap-sm">
+<div class="flex justify-between items-start">
+<div class="font-code-tracking text-code-tracking text-on-surface">SLX-882-NY</div>
+<span class="bg-secondary-container/10 text-secondary-container font-label-sm text-label-sm px-xs py-[2px] rounded-sm">En tránsito</span>
+</div>
+<div class="flex items-center gap-sm text-on-surface-variant font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[16px]" data-icon="location_on" data-weight="fill">location_on</span>
+<span>Última ubicación: Centro de Distribución Norte</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer Component -->
+<footer class="bg-surface-container-lowest border-t border-outline-variant mt-auto">
+<div class="flex flex-col justify-between items-center px-margin-mobile py-lg max-w-[1440px] mx-auto gap-md text-center">
+<div class="font-label-md text-label-md font-bold text-on-surface">SwiftLogix Express</div>
+<div class="flex flex-wrap justify-center gap-md">
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-secondary transition-colors" href="#">Privacy Policy</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-secondary transition-colors" href="#">Terms of Service</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-secondary transition-colors" href="#">API Documentation</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-secondary transition-colors" href="#">Global Network</a>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant opacity-80">© 2024 SwiftLogix Express. All rights reserved.</div>
+</div>
+</footer>
+</body></html>
