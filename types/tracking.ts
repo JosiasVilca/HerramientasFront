@@ -6,13 +6,35 @@ export type TrackingStatus =
   | "ENTREGADO"
   | "INCIDENCIA";
 
-export interface TrackingHistoryEvent {
+export interface TrackingEventDTO {
   id: number;
   status: TrackingStatus;
   location: string;
   description: string;
   timestamp: string;
 }
+
+export interface TrackingDetailDTO {
+  trackingCode: string;
+  currentStatus: TrackingStatus;
+  originCity: string;
+  destinationCity: string;
+  senderName: string;
+  senderPhone?: string;
+  receiverName: string;
+  receiverPhone?: string;
+  destinationAddress: string;
+  estimatedDeliveryDate: string;
+  courierName?: string;
+  courierPhone?: string;
+  courierAvatar?: string;
+  weightKg?: number;
+  lastUpdate: string;
+  history: TrackingEventDTO[];
+}
+
+// Backward compatibility interfaces
+export type TrackingHistoryEvent = TrackingEventDTO;
 
 export interface TrackingSummaryDTO {
   trackingCode: string;
