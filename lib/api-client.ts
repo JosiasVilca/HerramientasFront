@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 import { TrackingSummaryDTO } from "@/types/tracking";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
@@ -87,9 +87,6 @@ const MOCK_TRACKING_DATABASE: Record<string, TrackingSummaryDTO> = {
     ],
   },
 };
-=======
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
->>>>>>> aef57aa (feat(SCRUM-11): implementa vistas de login y registro con validacion Zod)
 
 export async function fetchFromAPI<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${BASE_URL}${endpoint}`, {
@@ -111,17 +108,13 @@ export async function fetchFromAPI<T>(endpoint: string, options?: RequestInit): 
     throw new Error(errorMsg);
   }
 
-<<<<<<< HEAD
-=======
-  // Handle empty responses or HTTP 204
->>>>>>> aef57aa (feat(SCRUM-11): implementa vistas de login y registro con validacion Zod)
   if (response.status === 204) {
     return {} as T;
   }
 
   return response.json() as Promise<T>;
 }
-<<<<<<< HEAD
+
 
 export async function trackPackage(trackingCode: string): Promise<TrackingSummaryDTO> {
   try {
@@ -130,19 +123,17 @@ export async function trackPackage(trackingCode: string): Promise<TrackingSummar
     });
   } catch (error) {
     console.warn(`REST call failed. Checking local mock database for code ${trackingCode}`, error);
-    
+
     // Simulate API delay
     await new Promise((resolve) => setTimeout(resolve, 600));
-    
+
     const uppercaseCode = trackingCode.trim().toUpperCase();
     const result = MOCK_TRACKING_DATABASE[uppercaseCode];
-    
+
     if (result) {
       return result;
     }
-    
+
     throw new Error("Código de rastreo no encontrado. Verifica la guía e intenta de nuevo.");
   }
 }
-=======
->>>>>>> aef57aa (feat(SCRUM-11): implementa vistas de login y registro con validacion Zod)
