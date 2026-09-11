@@ -37,7 +37,7 @@ let MOCK_PACKAGES: PackageItem[] = [
   {
     id: 3,
     trackingCode: "SW-4321-LZ",
-    senderName: "Josías Vilca",
+    senderName: "Clientenomberaca",
     senderPhone: "+51912345678",
     receiverName: "Distribuidora Andina S.A.",
     receiverPhone: "+51987654321",

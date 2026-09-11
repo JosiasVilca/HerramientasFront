@@ -39,8 +39,6 @@ export default function ShipmentProgress({ currentStatus, lastUpdate }: Shipment
       </div>
 
       <div className="relative">
-        <div className="hidden md:block absolute top-6 left-12 right-12 h-0.5 bg-slate-800/90 -z-0" />
-
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 md:gap-4 relative z-10">
           {steps.map((step) => {
             const isCompleted = step.step <= currentStepIndex;

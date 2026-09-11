@@ -9,7 +9,7 @@ const MOCK_TRACKING_DETAILS: Record<string, TrackingDetailDTO> = {
     destinationCity: "Arequipa, PER",
     senderName: "TechNova Inc. (Distribuidora Andina)",
     senderPhone: "+51 1 456 7890",
-    receiverName: "Josías Vilca",
+    receiverName: "Cliente Nexora",
     receiverPhone: "+51 987 654 321",
     destinationAddress: "Av. Ejército 450, Yanahuara, Arequipa",
     estimatedDeliveryDate: "Mañana, 10:00 - 14:00 hrs",
