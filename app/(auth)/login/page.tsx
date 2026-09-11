@@ -7,9 +7,11 @@ import { useRouter } from "next/navigation";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebookF, FaInstagram } from "react-icons/fa";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import { useAuth } from "@/context/auth-context";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
@@ -51,10 +53,12 @@ export default function LoginPage() {
     setIsSubmitting(true);
     setIsFloating(false);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log("Login exitoso:", { email, password, rememberMe });
+      const loggedUser = await login({ email, password });
       setSuccessMsg("¡Sesión iniciada correctamente!");
-      setTimeout(() => router.push("/"), 1000);
+      setTimeout(
+        () => router.push(loggedUser.role === "ADMIN" ? "/admin/inventory" : "/"),
+        1000,
+      );
     } catch (err) {
       setErrorMsg(
         err instanceof Error
