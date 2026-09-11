@@ -11,6 +11,7 @@ import {
   Edit3,
   FileSpreadsheet,
   FileText,
+  Gamepad2,
   Layers3,
   Menu,
   PackagePlus,
@@ -78,7 +79,7 @@ export default function InventoryPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<ProductForm>(EMPTY_FORM);
   const [notice, setNotice] = useState<string | null>(null);
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   useEffect(() => {
     queueMicrotask(() => {
@@ -219,16 +220,16 @@ export default function InventoryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0c0e16] text-[#e2e1ed] [background-image:radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(0,217,255,0.07),transparent),radial-gradient(circle_at_100%_100%,rgba(87,27,193,0.08),transparent_40%),linear-gradient(to_right,rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.015)_1px,transparent_1px)] [background-size:100%_100%,100%_100%,36px_36px,36px_36px]">
+    <div className="min-h-screen bg-[#0c0e16] text-[#e2e1ed] [background-image:radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(0,217,255,0.07),transparent),radial-gradient(circle_at_100%_100%,rgba(87,27,193,0.08),transparent_40%),linear-gradient(to_right,rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.015)_1px,transparent_1px)] [background-size:100%_100%,100%_100%,36px_36px]">
       <div className="flex min-h-screen">
         <aside
-          className={`${mobileNavOpen ? "translate-x-0" : "-translate-x-full"} fixed inset-y-0 left-0 z-20 flex w-64 shrink-0 flex-col justify-between border-r border-[#242d32]/70 bg-[#161822] transition-transform lg:static lg:translate-x-0`}
+          className={`${isSidebarOpen ? "w-64 translate-x-0" : "w-0 -translate-x-full"} fixed inset-y-0 left-0 z-20 flex shrink-0 flex-col justify-between overflow-hidden border-r border-[#242d32]/70 bg-[#161822] transition-all lg:static lg:translate-x-0`}
         >
           <div>
             <div className="flex h-20 items-center gap-3 border-b border-[#242d32]/70 bg-gradient-to-r from-[#161822] to-[#1e1f28] px-6">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#00d9ff] to-[#571bc1] text-[#00d9ff] shadow-[0_0_12px_-2px_rgba(0,217,255,0.45)]">
                 <div className="flex h-full w-full items-center justify-center rounded-xl bg-[#0c0e16]">
-                  <Boxes size={22} />
+                  <Gamepad2 size={22} />
                 </div>
               </div>
               <div>
@@ -259,7 +260,7 @@ export default function InventoryPage() {
         <main className="min-w-0 flex-1">
           <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#242d32]/70 bg-[#161822]/90 px-4 py-5 backdrop-blur-md sm:px-8">
             <div className="flex items-center gap-3">
-              <button className="rounded-lg border border-[#242d32] p-2 text-[#859398] lg:hidden" onClick={() => setMobileNavOpen((open) => !open)} aria-label="Abrir navegación">
+              <button className="rounded-lg border border-[#242d32] p-2 text-[#859398] transition hover:border-[#00d9ff]/50 hover:text-[#00d9ff]" onClick={() => setIsSidebarOpen((open) => !open)} aria-label={isSidebarOpen ? "Ocultar navegación" : "Mostrar navegación"}>
                 <Menu size={18} />
               </button>
               <div>
