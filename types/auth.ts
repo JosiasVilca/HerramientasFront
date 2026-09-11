@@ -1,11 +1,12 @@
 export type UserRole = "CLIENTE" | "REPARTIDOR" | "ADMIN";
 
 export interface User {
-  id: number;
+  id: string | number;
   fullName: string;
   email: string;
   role: UserRole;
   phone?: string;
+  avatarUrl?: string;
 }
 
 export interface LoginRequest {

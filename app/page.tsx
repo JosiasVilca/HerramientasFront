@@ -23,8 +23,14 @@ import {
   Activity,
 } from "lucide-react";
 
+import { useAuth } from "@/context/auth-context";
+import { User as UserIcon, LogOut } from "lucide-react";
+
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user, logout } = useAuth();
+
+  const userAvatar = user?.avatarUrl || (user ? `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(user.fullName)}` : "");
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground font-sans antialiased">
@@ -60,16 +66,47 @@ export default function LandingPage() {
 
           {/* Right Header Buttons (Desktop) */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link href="/login">
-              <Button variant="ghost" className="font-semibold cursor-pointer">
-                Iniciar Sesión
-              </Button>
-            </Link>
-            <Link href="/register">
-              <Button className="font-semibold cursor-pointer shadow-md bg-primary hover:bg-primary/90 text-primary-foreground">
-                Registrarse
-              </Button>
-            </Link>
+            {user ? (
+              <div className="flex items-center gap-3">
+                <Link href="/profile" className="flex items-center gap-2.5 p-1.5 pr-3 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800/60 border border-zinc-200/80 dark:border-zinc-800 transition-all">
+                  <img
+                    src={userAvatar}
+                    alt={user.fullName}
+                    className="w-8 h-8 rounded-full object-cover border border-primary/20 bg-white"
+                  />
+                  <div className="flex flex-col text-left">
+                    <span className="text-xs font-bold text-zinc-800 dark:text-zinc-200 leading-none">
+                      {user.fullName}
+                    </span>
+                    <span className="text-[10px] text-zinc-400 font-medium">
+                      Ver Perfil
+                    </span>
+                  </div>
+                </Link>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={logout}
+                  className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 cursor-pointer"
+                  title="Cerrar Sesión"
+                >
+                  <LogOut className="w-4 h-4" />
+                </Button>
+              </div>
+            ) : (
+              <>
+                <Link href="/login">
+                  <Button variant="ghost" className="font-semibold cursor-pointer">
+                    Iniciar Sesión
+                  </Button>
+                </Link>
+                <Link href="/register">
+                  <Button className="font-semibold cursor-pointer shadow-md bg-primary hover:bg-primary/90 text-primary-foreground">
+                    Registrarse
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Hamburger Menu Button (Mobile) */}

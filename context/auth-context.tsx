@@ -79,6 +79,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (token) {
         await authService.logout(token);
       }
+    } catch (_) {
+      // Ignore API errors on logout to ensure local state is cleared
     } finally {
       setToken(null);
       setUser(null);

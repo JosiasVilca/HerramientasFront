@@ -5,16 +5,16 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
     <div className="min-h-screen w-full grid grid-cols-1 md:grid-cols-2 bg-slate-50/50 dark:bg-zinc-950 font-sans antialiased overflow-x-hidden">
       {/* Left Side: Graphic & Quote (Hidden on mobile) */}
       <div className="hidden md:flex relative flex-col justify-between p-12 text-white overflow-hidden min-h-screen">
-        <div 
-          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat transition-transform duration-[10000ms] hover:scale-105" 
-          style={{ 
-            backgroundImage: `url('https://lh3.googleusercontent.com/aida-public/AB6AXuCxdJd1nb7sAndSVoJ765uscEBJtwTIdjDrH3NIFF8W4CKcxLdAyU9xHE-E46Oa7jEZFgfUzDH67B7VDS391NfYANLq07AwdgyeZEt_JB2ItxMK8MllVDOP9IKNLO6LmVi4MP7oFtZhCZ1ABu2UsD7fjIfessyx3ecMHFjz_uKPf9nhjNN0Whxryd8BmFXFe7YSIQ_3KKx2L18fkFH9P0W9-K9tBg1tqZ1fFR33Cyroyckr6Iv8h1cb')` 
+        <div
+          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat transition-transform duration-[10000ms] hover:scale-105"
+          style={{
+            backgroundImage: `url('https://imgs.search.brave.com/NnsabbqhMfUj0KBmMQw3dYTWHJijIbkcxHmVDGHINKk/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5nZXR0eWltYWdl/cy5jb20vaWQvMTI3/MjU2MjU3OC9lcy9m/b3RvL2NvdXJpZXIt/Y2hlY2tpbmctdGhl/LXBhcmNlbC1mb3It/ZGVsaXZlcnkuanBn/P3M9NjEyeDYxMiZ3/PTAmaz0yMCZjPXI4/VmFyVHZGeFdINUt4/Z3lYZ0ZpSTBVNTNk/SGtNLTBoenJtRjRr/NVYwYkk9')`
           }}
         ></div>
-        
+
         {/* Modern dark gradient overlay to guarantee readability */}
         <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-900/60 to-zinc-950/40 z-10"></div>
-        
+
         {/* Top Branding Logo */}
         <div className="relative z-20 flex items-center gap-2">
           <div className="bg-white/10 backdrop-blur-md p-2.5 rounded-xl border border-white/15 shadow-inner">
@@ -40,11 +40,11 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           </p>
         </div>
       </div>
-      
+
       {/* Right Side: Form Container */}
       <div className="w-full flex items-center justify-center p-6 bg-slate-50/50 dark:bg-zinc-950 min-h-screen overflow-y-auto">
         <div className="w-full max-w-md mx-auto py-8">
-          
+
           {/* Mobile Header Branding */}
           <div className="flex items-center gap-2.5 mb-8 md:hidden justify-center">
             <div className="bg-primary/10 p-2 rounded-lg border border-primary/10">
