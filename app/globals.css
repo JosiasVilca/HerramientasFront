@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -9,10 +8,10 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: "Inter", sans-serif;
+  --font-sans: "Poppins", sans-serif;
   --font-mono: var(--font-geist-mono);
-  --font-heading: "Inter", sans-serif;
-  
+  --font-heading: "Poppins", sans-serif;
+
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -21,33 +20,33 @@
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
-  
+
   --color-chart-5: var(--chart-5);
   --color-chart-4: var(--chart-4);
   --color-chart-3: var(--chart-3);
   --color-chart-2: var(--chart-2);
   --color-chart-1: var(--chart-1);
-  
+
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
-  
+
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
   --color-muted: var(--muted);
-  
+
   --color-secondary-foreground: var(--secondary-foreground);
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
-  
+
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  
+
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -60,33 +59,33 @@
 :root {
   --background: #f8f9ff;
   --foreground: #0b1c30;
-  
+
   --card: #ffffff;
   --card-foreground: #0b1c30;
-  
+
   --popover: #ffffff;
   --popover-foreground: #0b1c30;
-  
+
   --primary: #00288e;
   --primary-foreground: #ffffff;
-  
+
   --secondary: #9d4300;
   --secondary-foreground: #ffffff;
-  
+
   --muted: #eff4ff;
   --muted-foreground: #444653;
-  
+
   --accent: #e5eeff;
   --accent-foreground: #00288e;
-  
+
   --destructive: #ba1a1a;
   --destructive-foreground: #ffffff;
-  
+
   --border: #c4c5d5;
   --input: #c4c5d5;
   --ring: #00288e;
   --radius: 0.5rem;
-  
+
   --sidebar: #f8f9ff;
   --sidebar-foreground: #0b1c30;
   --sidebar-primary: #00288e;
@@ -100,32 +99,32 @@
 .dark {
   --background: #060e18;
   --foreground: #eaf1ff;
-  
+
   --card: #0b1c30;
   --card-foreground: #eaf1ff;
-  
+
   --popover: #0b1c30;
   --popover-foreground: #eaf1ff;
-  
+
   --primary: #b8c4ff;
   --primary-foreground: #001453;
-  
+
   --secondary: #ffb690;
   --secondary-foreground: #341100;
-  
+
   --muted: #132438;
   --muted-foreground: #8a9bb0;
-  
+
   --accent: #132438;
   --accent-foreground: #b8c4ff;
-  
+
   --destructive: #ffdad6;
   --destructive-foreground: #93000a;
-  
+
   --border: #213145;
   --input: #213145;
   --ring: #b8c4ff;
-  
+
   --sidebar: #0b1c30;
   --sidebar-foreground: #eaf1ff;
   --sidebar-primary: #b8c4ff;
@@ -141,10 +140,14 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-background text-foreground;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   html {
-    @apply font-sans h-full;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    height: 100%;
   }
 }
 
@@ -163,4 +166,18 @@
   direction: ltr;
   -webkit-font-feature-settings: 'liga';
   -webkit-font-smoothing: antialiased;
+}
+
+/* Animación de flotación lenta para la tarjeta de login */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
 }
