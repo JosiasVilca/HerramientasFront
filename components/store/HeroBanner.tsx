@@ -8,7 +8,7 @@ import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 const slides = [
   {
     id: 1,
-    badge: "LANZAMIENTO EXCLUSIVO NEXORA STORE PERÚ",
+    badge: "LANZAMIENTO EXCLUSIVO",
     title: "OFERTAS GAMER",
     subtitle:
       "Hasta 40% de descuento en periféricos seleccionados de calibre competitivo.",

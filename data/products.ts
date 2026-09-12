@@ -118,4 +118,37 @@ export const newArrivals: Product[] = [
     discount: 30,
     isNew: true,
   },
+  {
+    id: "7",
+    sku: "ASUS ROG",
+    name: "ROG Swift PG279QM Monitor",
+    description: 'Monitor gamer 27" QHD con 240 Hz, 1 ms y tecnología G-Sync.',
+    image:
+      "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?q=80&w=600&auto=format&fit=crop",
+    imageHover:
+      "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?q=80&w=600&auto=format&fit=crop",
+    rating: 4.9,
+    reviews: 78,
+    oldPrice: 3200,
+    price: 2450.0,
+    discount: 23,
+    isNew: true,
+  },
+  {
+    id: "8",
+    sku: "CORSAIR",
+    name: "K70 RGB Pro Mechanical",
+    description:
+      "Teclado mecánico con switches Cherry MX y chasis de aluminio anodizado.",
+    image:
+      "https://images.unsplash.com/photo-1595044426077-d36d9236d54a?q=80&w=600&auto=format&fit=crop",
+    imageHover:
+      "https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?q=80&w=600&auto=format&fit=crop",
+    rating: 4.8,
+    reviews: 195,
+    oldPrice: 950,
+    price: 720.0,
+    discount: 24,
+    isNew: true,
+  },
 ];

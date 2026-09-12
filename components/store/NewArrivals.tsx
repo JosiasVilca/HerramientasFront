@@ -5,14 +5,14 @@ import { newArrivals } from "@/data/products";
 
 export default function NewArrivals() {
   return (
-    <section className="w-full max-w-7xl mx-auto px-4 py-12">
+    <section className="w-full max-w-7xl mx-auto px-4 py-6">
       {/* Encabezado */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
           <div className="flex items-center gap-2 mb-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
             <span className="text-xs font-bold text-emerald-600 tracking-widest uppercase">
-              Stock Lima
+              Stock Limitado
             </span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
@@ -32,7 +32,8 @@ export default function NewArrivals() {
       </div>
 
       {/* Grid de productos */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        {" "}
         {newArrivals.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
