@@ -41,7 +41,7 @@ export default function TrackingDetailPage() {
     return (
       <div className="min-h-screen bg-[#070b0e] flex flex-col items-center justify-center text-slate-300 gap-4">
         <p>{error || "No se encontró el envío"}</p>
-        <Link href="/" className="text-[#00f5ff] hover:underline">Volver al inicio</Link>
+        <Link href="/tracking-list" className="text-[#00f5ff] hover:underline">Volver al inicio</Link>
       </div>
     );
   }
@@ -50,12 +50,15 @@ export default function TrackingDetailPage() {
     <div className="min-h-screen bg-[#070b0e] text-slate-100 font-sans">
       <header className="border-b border-slate-800/80 bg-[#0d1418]/90 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-          {/* Logo corregido con el mando y texto en blanco */}
-          <div className="flex items-center gap-2.5 font-black text-2xl tracking-widest text-white">
-            <Gamepad2 className="w-8 h-8 text-white" strokeWidth={2.5} />
-            <span>NEXORA STORE</span>
-          </div>
-          <Link href="/" className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400 hover:text-white transition-colors">
+          <Link href="/" className="flex items-center gap-3 group">
+              <div className="w-9 h-9 rounded-lg bg-slate-900 border border-slate-700/80 flex items-center justify-center text-white group-hover:border-[#00f5ff]/50 transition-colors shadow-lg shadow-cyan-950/20">
+                <Gamepad2 className="w-5 h-5 text-white stroke-[2.5]" />
+              </div>
+              <span className="font-black text-lg tracking-widest text-white uppercase group-hover:text-[#00f5ff] transition-colors">
+                NEXORA STORE
+              </span>
+            </Link>
+          <Link href="/tracking-list" className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400 hover:text-white transition-colors">
             <ArrowLeft className="w-4 h-4" /> Volver
           </Link>
         </div>
