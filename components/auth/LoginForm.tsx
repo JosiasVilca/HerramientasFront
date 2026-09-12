@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { FcGoogle } from "react-icons/fc";           // Google a color
+import { FcGoogle } from "react-icons/fc"; // Google a color
 import { FaFacebookF, FaInstagram } from "react-icons/fa"; // Facebook e Instagram
 
 export const LoginForm = () => {

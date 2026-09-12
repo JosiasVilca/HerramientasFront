@@ -2,7 +2,13 @@
 "use client";
 
 import Link from "next/link";
-import { FiSearch, FiHeart, FiBell, FiShoppingCart, FiUser } from "react-icons/fi";
+import {
+  FiSearch,
+  FiHeart,
+  FiBell,
+  FiShoppingCart,
+  FiUser,
+} from "react-icons/fi";
 
 const categorias = [
   "Periféricos",
