@@ -1,7 +1,7 @@
 // app/(store)/perfil/page.tsx
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -38,16 +38,17 @@ const formatPhone = (value: string): string => {
       if (b) result += ` ${b}`;
       if (c) result += ` ${c}`;
       return result;
-    },
+    }
   );
 
   return `+51 ${formatted}`;
 };
 
-export default function PerfilPage() {
+function PerfilContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
   const tabFromUrl = (searchParams.get("tab") as TabId) || "perfil";
   const [activeTab, setActiveTab] = useState<TabId>(tabFromUrl);
 
@@ -355,5 +356,20 @@ export default function PerfilPage() {
         </main>
       </div>
     </div>
+  );
+}
+
+// Envolvemos con Suspense para que funcione en build de producción
+export default function PerfilPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="p-10 text-center text-sm text-slate-500">
+          Cargando perfil...
+        </div>
+      }
+    >
+      <PerfilContent />
+    </Suspense>
   );
 }
