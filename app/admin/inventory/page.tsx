@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 
 const STORAGE_KEY = "ecostore_inventory";
+const CATEGORY_STORAGE_KEY = "ecostore_categories";
 const LOW_STOCK_LIMIT = 10;
 const PRODUCT_CATEGORIES = ["Teclados", "Ratones", "Monitores"] as const;
 
@@ -80,10 +81,25 @@ export default function InventoryPage() {
   const [form, setForm] = useState<ProductForm>(EMPTY_FORM);
   const [notice, setNotice] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [availableCategories, setAvailableCategories] =
+    useState<string[]>([...PRODUCT_CATEGORIES]);
 
   useEffect(() => {
     queueMicrotask(() => {
       try {
+        const storedCategories = window.localStorage.getItem(CATEGORY_STORAGE_KEY);
+        if (storedCategories) {
+          const parsedCategories: unknown = JSON.parse(storedCategories);
+          if (
+            Array.isArray(parsedCategories) &&
+            parsedCategories.every(
+              (category): category is string => typeof category === "string",
+            )
+          ) {
+            setAvailableCategories(parsedCategories);
+          }
+        }
+
         const stored = window.localStorage.getItem(STORAGE_KEY);
         if (stored) {
           const parsed: unknown = JSON.parse(stored);
@@ -371,7 +387,7 @@ export default function InventoryPage() {
             <form onSubmit={handleSubmit} className="flex flex-1 flex-col overflow-y-auto">
               <div className="flex-1 space-y-5 p-6">
                 <Field label="Nombre del producto"><input required value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="Ej. Teclado Hall Effect NX-80" /></Field>
-                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2"><Field label="SKU"><input required value={form.sku} onChange={(event) => setForm({ ...form, sku: event.target.value })} placeholder="NX-KB-0001" /></Field><Field label="Categoría"><select required value={form.category} onChange={(event) => setForm({ ...form, category: event.target.value })}><option value="" disabled>Selecciona una categoría</option>{PRODUCT_CATEGORIES.map((category) => <option key={category} value={category}>{category}</option>)}</select></Field></div>
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2"><Field label="SKU"><input required value={form.sku} onChange={(event) => setForm({ ...form, sku: event.target.value })} placeholder="NX-KB-0001" /></Field><Field label="Categoría"><select required value={form.category} onChange={(event) => setForm({ ...form, category: event.target.value })}><option value="" disabled>Selecciona una categoría</option>{availableCategories.map((category) => <option key={category} value={category}>{category}</option>)}</select></Field></div>
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2"><Field label="Precio oficial (PEN)"><input required min="0" step="0.01" type="number" value={form.price} onChange={(event) => setForm({ ...form, price: Number(event.target.value) })} /></Field><Field label="Stock disponible"><input required min="0" step="1" type="number" value={form.stock} onChange={(event) => setForm({ ...form, stock: Number(event.target.value) })} /></Field></div>
                 <Field label="Descripción técnica (opcional)"><textarea rows={4} value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} placeholder="Características, sensor, conectividad..." /></Field>
               </div>
