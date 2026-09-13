@@ -16,9 +16,35 @@ import { Product } from "@/data/products";
 interface ProductInfoProps {
   product: Product;
 }
-
 export default function ProductInfo({ product }: ProductInfoProps) {
   const [quantity, setQuantity] = useState(1);
+
+  const agregarAlCarrito = () => {
+    const carritoActual = JSON.parse(
+      localStorage.getItem("carrito_compras") || "[]"
+    );
+
+    const indexExistente = carritoActual.findIndex(
+      (item: any) => item.id === product.id
+    );
+
+    if (indexExistente >= 0) {
+      carritoActual[indexExistente].cantidad += quantity;
+    } else {
+      carritoActual.push({
+        id: product.id,
+        nombre: product.name,
+        especificacion: product.sku,
+        precio: product.price,
+        cantidad: quantity,
+        imagen: product.image,
+      });
+    }
+
+    localStorage.setItem("carrito_compras", JSON.stringify(carritoActual));
+    window.dispatchEvent(new Event("cartUpdated"));
+
+  };
 
   return (
     <div className="w-full">
@@ -106,7 +132,10 @@ export default function ProductInfo({ product }: ProductInfoProps) {
 
       {/* Botones */}
       <div className="space-y-3 mb-6">
-        <button className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-cyan-400 text-white font-extrabold text-sm rounded-lg shadow-lg hover:shadow-xl hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 uppercase tracking-wider">
+        <button
+          onClick={agregarAlCarrito}
+          className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-cyan-400 text-white font-extrabold text-sm rounded-lg shadow-lg hover:shadow-xl hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 uppercase tracking-wider"
+        >
           <FiShoppingCart className="w-4 h-4" />
           Añadir al carrito
         </button>
