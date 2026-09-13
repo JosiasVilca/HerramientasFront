@@ -80,9 +80,8 @@ export default function ProductCard({ product }: ProductCardProps) {
           aria-label="Favorito"
         >
           <FiHeart
-            className={`w-4 h-4 transition-colors ${
-              isFavorite ? "fill-red-500 text-red-500" : "text-slate-400"
-            }`}
+            className={`w-4 h-4 transition-colors ${isFavorite ? "fill-red-500 text-red-500" : "text-slate-400"
+              }`}
           />
         </button>
       </div>
@@ -118,7 +117,34 @@ export default function ProductCard({ product }: ProductCardProps) {
           </span>
         </div>
 
-        <button className="mt-auto w-full py-2.5 bg-slate-900 text-white text-xs font-bold rounded-lg flex items-center justify-center gap-2 hover:bg-purple-600 transition-colors uppercase tracking-wider">
+        <button
+          onClick={() => {
+            try {
+              const stored = localStorage.getItem("carrito_compras");
+              const carrito: any[] = stored ? JSON.parse(stored) : [];
+
+              const index = carrito.findIndex((item) => item.id === product.id);
+              if (index > -1) {
+                carrito[index].cantidad += 1;
+              } else {
+                carrito.push({
+                  id: product.id,
+                  nombre: product.name,
+                  especificacion: product.sku,
+                  precio: product.price,
+                  cantidad: 1,
+                  imagen: product.image
+                });
+              }
+
+              localStorage.setItem("carrito_compras", JSON.stringify(carrito));
+              window.dispatchEvent(new Event("cartUpdated"));
+            } catch (e) {
+              console.error("Error al agregar al carrito:", e);
+            }
+          }}
+          className="mt-auto w-full py-2.5 bg-slate-900 text-white text-xs font-bold rounded-lg flex items-center justify-center gap-2 hover:bg-purple-600 transition-colors uppercase tracking-wider cursor-pointer"
+        >
           <FiShoppingCart className="w-3.5 h-3.5" />
           Agregar
         </button>

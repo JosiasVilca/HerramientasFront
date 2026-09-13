@@ -31,6 +31,24 @@ export default function StoreHeader() {
   const [searchTerm, setSearchTerm] = useState("");
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const [cartCount, setCartCount] = useState<number>(0);
+
+// Sincroniza en tiempo real el contador numérico del carrito leyendo 
+// el 'carrito_compras' del localStorage y escuchando el evento 'cartUpdated'.
+  useEffect(() => {
+    const updateCartCount = () => {
+      if (typeof window !== "undefined") {
+        const items = JSON.parse(localStorage.getItem("carrito_compras") || "[]");
+        const total = items.reduce((acc: number, item: any) => acc + (item.cantidad || 1), 0);
+        setCartCount(total);
+      }
+    };
+
+    updateCartCount(); 
+    window.addEventListener("cartUpdated", updateCartCount); // <--- Actualizado
+    
+    return () => window.removeEventListener("cartUpdated", updateCartCount); // <--- Actualizado
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,15 +114,16 @@ export default function StoreHeader() {
           </Link>
 
           {/* Carrito */}
-          <button
+          <Link
+            href="/carrito"
             className="p-2 rounded-lg hover:bg-slate-100 transition relative"
             aria-label="Carrito"
           >
             <FiShoppingCart className="w-5 h-5 text-slate-700" />
-            <span className="absolute top-1 right-1 bg-purple-600 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
-              0
+              <span className="absolute top-1 right-1 bg-purple-600 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
+              {cartCount}
             </span>
-          </button>
+          </Link>
 
           {/* Menú de usuario */}
           <div className="relative" ref={menuRef}>
