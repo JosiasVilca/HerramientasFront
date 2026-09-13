@@ -45,7 +45,7 @@ export default function HeroBanner() {
         {/* Imagen de fondo */}
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url('${slide.imagen}')` }}
+          style={{ backgroundImage: `url('/${slide.imagen}')` }}
         >
           <div className="absolute inset-0 bg-gradient-to-r from-slate-900/95 via-slate-900/70 to-transparent"></div>
         </div>
@@ -74,13 +74,13 @@ export default function HeroBanner() {
           {/* Botones */}
           <div className="flex flex-wrap gap-3 mb-8">
             <Link
-              href="/categoria/ofertas"
+              href="/productos"
               className="px-6 py-3 bg-gradient-to-r from-purple-600 to-cyan-400 text-white font-semibold text-sm rounded-lg shadow-lg hover:shadow-xl hover:opacity-90 active:scale-[0.98] transition-all"
             >
               Comprar ahora →
             </Link>
             <Link
-              href="/ofertas"
+              href="/productos"
               className="px-6 py-3 border-2 border-white/30 text-white font-semibold text-sm rounded-lg hover:bg-white/10 transition-all"
             >
               Ver ofertas
@@ -103,7 +103,7 @@ export default function HeroBanner() {
           </div>
         </div>
 
-        {/* Flechas (solo si hay más de un slide) */}
+        {/* Flechas */}
         {slides.length > 1 && (
           <>
             <button

@@ -49,12 +49,13 @@ export default function StoreHeader() {
 
         {/* Íconos */}
         <div className="flex items-center gap-1 sm:gap-2">
-          <button
+          <Link
+            href="/favoritos"
             className="p-2 rounded-lg hover:bg-slate-100 transition relative"
             aria-label="Favoritos"
           >
             <FiHeart className="w-5 h-5 text-slate-700" />
-          </button>
+          </Link>
 
           <button
             className="p-2 rounded-lg hover:bg-slate-100 transition relative"
@@ -93,7 +94,7 @@ export default function StoreHeader() {
             {categorias.map((cat) => (
               <li key={cat}>
                 <Link
-                  href={`/categoria/${cat.toLowerCase().replace(/\s+/g, "-")}`}
+                  href={`/productos?categoria=${cat.toLowerCase().replace(/\s+/g, "-")}`}
                   className="block px-3 py-1.5 text-sm text-slate-600 font-medium hover:text-purple-600 hover:bg-purple-50 rounded-md transition whitespace-nowrap"
                 >
                   {cat}
@@ -102,7 +103,7 @@ export default function StoreHeader() {
             ))}
             <li>
               <Link
-                href="/ofertas"
+                href="/productos"
                 className="ml-1 inline-flex items-center gap-1.5 px-4 py-1.5 text-sm font-bold text-white bg-gradient-to-r from-purple-600 to-cyan-400 rounded-full hover:shadow-lg hover:shadow-purple-500/40 hover:scale-105 transition-all whitespace-nowrap"
               >
                 Ofertas

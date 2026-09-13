@@ -58,7 +58,7 @@ export default function SetupBanner() {
           {/* Botón */}
           <div className="flex flex-wrap gap-3 mb-6">
             <Link
-              href="/combos"
+              href="/productos"
               className="inline-flex items-center gap-2 px-6 py-3 bg-white text-purple-700 font-bold text-sm rounded-lg hover:bg-purple-50 transition-colors shadow-lg"
             >
               Ver combos y ofertas →
