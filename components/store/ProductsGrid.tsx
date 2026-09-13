@@ -5,9 +5,7 @@ import { useState, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { FiGrid, FiList, FiChevronDown } from "react-icons/fi";
 import ProductCard from "./ProductCard";
-import { newArrivals, moreProducts } from "@/data/products";
-
-const allProducts = [...newArrivals, ...moreProducts];
+import { useCombinedProducts } from "@/lib/use-combined-products";
 
 // Función para normalizar texto (quitar tildes y minúsculas)
 const normalize = (str: string | undefined | null) =>
@@ -20,6 +18,9 @@ const normalize = (str: string | undefined | null) =>
 export default function ProductsGrid() {
   const searchParams = useSearchParams();
   const [sortBy, setSortBy] = useState("populares");
+
+  // ✅ Hook que combina productos hardcodeados + admin
+  const { allProducts, isLoaded } = useCombinedProducts();
 
   // Leer los parámetros de la URL
   const categoriaParam = searchParams.get("categoria");
@@ -51,7 +52,6 @@ export default function ProductsGrid() {
       const query = normalize(busquedaParam);
       const words = query.split(/\s+/).filter(Boolean);
 
-      // Dividir la búsqueda en palabras y buscar productos que coincidan con TODAS las palabras
       filtered = filtered.filter((p) => {
         const searchableText = [
           normalize(p.name),
@@ -61,11 +61,9 @@ export default function ProductsGrid() {
           normalize(p.description),
         ].join(" ");
 
-        // Debe contener TODAS las palabras
         return words.every((word) => searchableText.includes(word));
       });
 
-      // Si no hay resultados, intentar con búsqueda más laxa (cualquier palabra)
       if (filtered.length === 0) {
         filtered = allProducts.filter((p) => {
           const searchableText = [
@@ -90,7 +88,7 @@ export default function ProductsGrid() {
     }
 
     return filtered;
-  }, [categoriaParam, marcaParam, busquedaParam, minParam, maxParam]);
+  }, [allProducts, categoriaParam, marcaParam, busquedaParam, minParam, maxParam]);
 
   // Ordenar productos
   const sortedProducts = useMemo(() => {
@@ -114,9 +112,7 @@ export default function ProductsGrid() {
       {/* Título dinámico según filtro */}
       {busquedaParam && busquedaParam.trim() && (
         <div className="mb-4">
-          <p className="text-xs text-slate-500">
-            Resultados para:
-          </p>
+          <p className="text-xs text-slate-500">Resultados para:</p>
           <h2 className="text-lg font-bold text-slate-900">
             &ldquo;{busquedaParam}&rdquo;
             <span className="text-sm font-normal text-slate-500 ml-2">
@@ -177,7 +173,11 @@ export default function ProductsGrid() {
       </div>
 
       {/* Grid de productos */}
-      {sortedProducts.length === 0 ? (
+      {!isLoaded ? (
+        <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
+          <p className="text-sm text-slate-500">Cargando productos...</p>
+        </div>
+      ) : sortedProducts.length === 0 ? (
         <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
           <p className="text-lg font-bold text-slate-900 mb-2">
             No hay productos

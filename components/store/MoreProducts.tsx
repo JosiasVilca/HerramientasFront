@@ -1,9 +1,16 @@
 // components/store/MoreProducts.tsx
+"use client";
+
 import Link from "next/link";
 import ProductCard from "./ProductCard";
-import { moreProducts } from "@/data/products";
+import { useCombinedProducts } from "@/lib/use-combined-products";
 
 export default function MoreProducts() {
+  const { allProducts, isLoaded } = useCombinedProducts();
+
+  // Mostrar del producto 8 en adelante (los que no salen en NewArrivals)
+  const productsToShow = allProducts.slice(8, 16);
+
   return (
     <section className="w-full max-w-7xl mx-auto px-4 py-6">
       {/* Encabezado */}
@@ -33,11 +40,13 @@ export default function MoreProducts() {
       </div>
 
       {/* Grid de productos (4 columnas) */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-        {moreProducts.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
+      {isLoaded && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          {productsToShow.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+      )}
     </section>
   );
 }

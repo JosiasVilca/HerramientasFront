@@ -145,7 +145,7 @@ export default function CategoriesPage() {
               <div className="px-3 pb-2 font-mono text-[10px] font-bold uppercase tracking-wider text-[#859398]">
                 Control de Mando
               </div>
-              <a className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs text-[#859398] transition hover:bg-[#1e1f28] hover:text-white" href="/admin">
+              <a className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs text-[#859398] transition hover:bg-[#1e1f28] hover:text-white" href="/admin/inventory">
                 <Archive size={18} /> Dashboard Matriz
               </a>
               <a className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs text-[#859398] transition hover:bg-[#1e1f28] hover:text-white" href="/admin/inventory">

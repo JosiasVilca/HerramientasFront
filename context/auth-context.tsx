@@ -8,8 +8,8 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   loading: boolean;
-  login: (request: LoginRequest) => Promise<void>;
-  register: (request: RegisterRequest) => Promise<void>;
+  login: (request: LoginRequest) => Promise<User>;
+  register: (request: RegisterRequest) => Promise<User>;
   logout: () => Promise<void>;
 }
 
@@ -41,7 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     restoreSession();
   }, []);
 
-  const login = async (request: LoginRequest) => {
+  const login = async (request: LoginRequest): Promise<User> => {
     setLoading(true);
     try {
       const response = await authService.login(request);
@@ -50,6 +50,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       localStorage.setItem("auth_token", response.token);
       localStorage.setItem("auth_user", JSON.stringify(response.user));
+
+      return response.user;
     } catch (err) {
       throw err;
     } finally {
@@ -57,7 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const register = async (request: RegisterRequest) => {
+  const register = async (request: RegisterRequest): Promise<User> => {
     setLoading(true);
     try {
       const response = await authService.register(request);
@@ -66,6 +68,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       localStorage.setItem("auth_token", response.token);
       localStorage.setItem("auth_user", JSON.stringify(response.user));
+
+      return response.user;
     } catch (err) {
       throw err;
     } finally {

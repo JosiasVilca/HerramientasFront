@@ -34,6 +34,7 @@ type Product = {
   price: number;
   stock: number;
   description: string;
+  image?: string;
   updatedAt: string;
 };
 
@@ -46,6 +47,7 @@ const EMPTY_FORM: ProductForm = {
   price: 0,
   stock: 0,
   description: "",
+  image: "",
 };
 
 function formatCurrency(value: number) {
@@ -93,7 +95,7 @@ export default function InventoryPage() {
           if (
             Array.isArray(parsedCategories) &&
             parsedCategories.every(
-              (category): category is string => typeof category === "string",
+              (category): category is string => typeof category === "string"
             )
           ) {
             setAvailableCategories(parsedCategories);
@@ -123,7 +125,7 @@ export default function InventoryPage() {
     } catch (error) {
       console.error("No se pudo sincronizar el inventario local:", error);
       queueMicrotask(() =>
-        setNotice("No fue posible sincronizar los cambios con LocalStorage."),
+        setNotice("No fue posible sincronizar los cambios con LocalStorage.")
       );
     }
   }, [hydrated, products]);
@@ -131,9 +133,9 @@ export default function InventoryPage() {
   const categories = useMemo(
     () =>
       PRODUCT_CATEGORIES.filter((category) =>
-        products.some((product) => product.category === category),
+        products.some((product) => product.category === category)
       ),
-    [products],
+    [products]
   );
 
   const filteredProducts = useMemo(() => {
@@ -160,7 +162,7 @@ export default function InventoryPage() {
 
   const totalValue = products.reduce(
     (total, product) => total + product.price * product.stock,
-    0,
+    0
   );
   const totalUnits = products.reduce((total, product) => total + product.stock, 0);
   const lowStock = products.filter((product) => product.stock <= LOW_STOCK_LIMIT).length;
@@ -180,6 +182,7 @@ export default function InventoryPage() {
       price: product.price,
       stock: product.stock,
       description: product.description,
+      image: product.image || "",
     });
     setIsDrawerOpen(true);
   };
@@ -188,6 +191,27 @@ export default function InventoryPage() {
     setIsDrawerOpen(false);
     setEditingId(null);
     setForm(EMPTY_FORM);
+  };
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      setNotice("La imagen no debe superar los 2MB.");
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      setNotice("Solo se permiten archivos de imagen.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setForm({ ...form, image: reader.result as string });
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -200,6 +224,7 @@ export default function InventoryPage() {
       description: form.description.trim(),
       price: Number(form.price),
       stock: Number(form.stock),
+      image: form.image || "",
     };
 
     if (!normalized.name || !normalized.sku || !normalized.category) {
@@ -215,8 +240,8 @@ export default function InventoryPage() {
     if (editingId) {
       setProducts((current) =>
         current.map((product) =>
-          product.id === editingId ? { ...product, ...normalized, updatedAt } : product,
-        ),
+          product.id === editingId ? { ...product, ...normalized, updatedAt } : product
+        )
       );
       setNotice("Producto actualizado y sincronizado en la base de datos");
     } else {
@@ -256,7 +281,7 @@ export default function InventoryPage() {
 
             <nav className="mt-3 space-y-1 p-3">
               <div className="px-3 pb-2 font-mono text-[10px] font-bold uppercase tracking-wider text-[#859398]">Control de Mando</div>
-              <a className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs text-[#859398] transition hover:bg-[#1e1f28] hover:text-white" href="/admin">
+              <a className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs text-[#859398] transition hover:bg-[#1e1f28] hover:text-white" href="/admin/inventory">
                 <Archive size={18} /> Dashboard Matriz
               </a>
               <a className="flex items-center gap-3 rounded-lg border border-[#00d9ff]/30 bg-[#00d9ff]/10 px-3 py-2.5 text-xs font-bold text-[#00d9ff] shadow-[0_0_12px_-2px_rgba(0,217,255,0.45)]" href="/admin/inventory">
@@ -269,7 +294,7 @@ export default function InventoryPage() {
           </div>
           <div className="border-t border-[#242d32]/70 p-4 font-mono text-[10px] text-[#859398]">
             <div className="mb-2 flex items-center gap-2 text-[#58ffa1]"><CheckCircle2 size={13} /> Logeado como adminstrador</div>
-            <div> { new Date().toLocaleDateString() } </div>
+            <div> {new Date().toLocaleDateString()} </div>
           </div>
         </aside>
 
@@ -357,7 +382,7 @@ export default function InventoryPage() {
                       const statusClass = product.stock === 0 ? "text-[#ff5449] border-[#ff5449]/30 bg-[#ff5449]/10" : product.stock <= LOW_STOCK_LIMIT ? "text-amber-400 border-amber-400/30 bg-amber-400/10" : "text-[#58ffa1] border-[#58ffa1]/30 bg-[#58ffa1]/10";
                       return (
                         <tr key={product.id} className="group transition hover:bg-[#1e1f28]/50">
-                          <td className="px-6 py-3.5"><div className="flex items-center gap-3"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-[#242d32] bg-[#1e1f28] text-[#00d9ff]"><PackagePlus size={20} /></div><div className="min-w-0"><span className="block max-w-[280px] truncate font-bold text-white group-hover:text-[#00d9ff]">{product.name}</span><span className="mt-0.5 block font-mono text-[10px] text-[#00d9ff]">{product.sku}</span></div></div></td>
+                          <td className="px-6 py-3.5"><div className="flex items-center gap-3">{product.image ? (<img src={product.image} alt={product.name} className="h-10 w-10 shrink-0 rounded-lg border border-[#242d32] object-cover" />) : (<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-[#242d32] bg-[#1e1f28] text-[#00d9ff]"><PackagePlus size={20} /></div>)}<div className="min-w-0"><span className="block max-w-[280px] truncate font-bold text-white group-hover:text-[#00d9ff]">{product.name}</span><span className="mt-0.5 block font-mono text-[10px] text-[#00d9ff]">{product.sku}</span></div></div></td>
                           <td className="px-4 py-3.5"><span className="rounded-md border border-[#242d32] bg-[#1e1f28] px-2.5 py-1 font-mono text-[11px] text-[#e2e1ed]">{product.category}</span></td>
                           <td className="px-4 py-3.5 font-mono font-bold text-white">{formatCurrency(product.price)}</td>
                           <td className="px-4 py-3.5"><div className="flex flex-col gap-1"><span className={`font-mono font-bold ${product.stock <= LOW_STOCK_LIMIT ? "text-amber-400" : "text-[#58ffa1]"}`}>{product.stock} uds</span><div className="h-1 w-20 rounded-full bg-[#33343d]"><div className={`h-full rounded-full ${product.stock <= LOW_STOCK_LIMIT ? "bg-amber-400" : "bg-[#58ffa1]"}`} style={{ width: `${Math.min(product.stock * 2, 100)}%` }} /></div></div></td>
@@ -377,11 +402,14 @@ export default function InventoryPage() {
       </div>
 
       {isDrawerOpen && (
-        <div className="fixed inset-0 z-40 flex justify-end bg-black/60 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
           <button className="absolute inset-0 cursor-default" onClick={closeDrawer} aria-label="Cerrar formulario" />
-          <div className="relative z-10 flex h-full w-full max-w-xl flex-col border-l border-[#00d9ff]/20 bg-[#11131b] shadow-[-20px_0_60px_rgba(0,0,0,0.45)]">
-            <div className="flex items-center justify-between border-b border-[#242d32] bg-[#161822] px-6 py-5">
-              <div><p className="font-mono text-[10px] uppercase tracking-widest text-[#00d9ff]">NEXUS CYBER // DATA ENTRY</p><h2 id="drawer-title" className="mt-1 font-mono text-lg font-bold uppercase text-white">{editingId ? "Editar periférico" : "Registrar nuevo periférico"}</h2></div>
+          <div className="relative z-10 flex h-auto max-h-[90vh] w-full max-w-xl flex-col rounded-2xl border border-[#00d9ff]/20 bg-[#11131b] shadow-[0_20px_60px_rgba(0,0,0,0.55)]">
+            <div className="flex items-center justify-between rounded-t-2xl border-b border-[#242d32] bg-[#161822] px-6 py-5">
+              <div>
+                <p className="font-mono text-[10px] uppercase tracking-widest text-[#00d9ff]">NEXORA // PANEL ADMIN</p>
+                <h2 id="drawer-title" className="mt-1 font-mono text-lg font-bold uppercase text-white">{editingId ? "Editar periférico" : "Registrar nuevo periférico"}</h2>
+              </div>
               <button onClick={closeDrawer} className="rounded-lg border border-[#242d32] p-2 text-[#859398] hover:text-white" aria-label="Cerrar"><X size={18} /></button>
             </div>
             <form onSubmit={handleSubmit} className="flex flex-1 flex-col overflow-y-auto">
@@ -389,9 +417,25 @@ export default function InventoryPage() {
                 <Field label="Nombre del producto"><input required value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="Ej. Teclado Hall Effect NX-80" /></Field>
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2"><Field label="SKU"><input required value={form.sku} onChange={(event) => setForm({ ...form, sku: event.target.value })} placeholder="NX-KB-0001" /></Field><Field label="Categoría"><select required value={form.category} onChange={(event) => setForm({ ...form, category: event.target.value })}><option value="" disabled>Selecciona una categoría</option>{availableCategories.map((category) => <option key={category} value={category}>{category}</option>)}</select></Field></div>
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2"><Field label="Precio oficial (PEN)"><input required min="0" step="0.01" type="number" value={form.price} onChange={(event) => setForm({ ...form, price: Number(event.target.value) })} /></Field><Field label="Stock disponible"><input required min="0" step="1" type="number" value={form.stock} onChange={(event) => setForm({ ...form, stock: Number(event.target.value) })} /></Field></div>
+                <div className="space-y-2">
+                  <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#859398]">Imagen del producto (opcional)</span>
+                  <div className="flex items-center gap-4">
+                    {form.image && (
+                      <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-[#242d32]">
+                        <img src={form.image} alt="Preview" className="h-full w-full object-cover" />
+                        <button type="button" onClick={() => setForm({ ...form, image: "" })} className="absolute right-1 top-1 rounded-full bg-[#ff5449] p-1 text-white hover:bg-[#ff5449]/80" aria-label="Eliminar imagen"><X size={12} /></button>
+                      </div>
+                    )}
+                    <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-[#242d32] bg-[#1e1f28] px-4 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-[#e2e1ed] transition hover:border-[#00d9ff] hover:text-[#00d9ff]">
+                      <PackagePlus size={16} />
+                      {form.image ? "Cambiar imagen" : "Subir imagen"}
+                      <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                    </label>
+                  </div>
+                </div>
                 <Field label="Descripción técnica (opcional)"><textarea rows={4} value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} placeholder="Características, sensor, conectividad..." /></Field>
               </div>
-              <div className="flex gap-3 border-t border-[#242d32] bg-[#161822] p-6"><button type="button" onClick={closeDrawer} className="flex-1 rounded-lg border border-[#242d32] px-4 py-3 font-mono text-xs font-bold uppercase text-[#e2e1ed] hover:bg-[#1e1f28]">Cancelar</button><button type="submit" className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-[#00d9ff] px-4 py-3 font-mono text-xs font-extrabold uppercase text-[#0c0e16] hover:bg-[#58ffa1]"><CheckCircle2 size={16} /> {editingId ? "Guardar cambios" : "Registrar producto"}</button></div>
+              <div className="flex gap-3 rounded-b-2xl border-t border-[#242d32] bg-[#161822] p-6"><button type="button" onClick={closeDrawer} className="flex-1 rounded-lg border border-[#242d32] px-4 py-3 font-mono text-xs font-bold uppercase text-[#e2e1ed] hover:bg-[#1e1f28]">Cancelar</button><button type="submit" className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-[#00d9ff] px-4 py-3 font-mono text-xs font-extrabold uppercase text-[#0c0e16] hover:bg-[#58ffa1]"><CheckCircle2 size={16} /> {editingId ? "Guardar cambios" : "Registrar producto"}</button></div>
             </form>
           </div>
         </div>

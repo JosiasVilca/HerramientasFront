@@ -1,9 +1,16 @@
 // components/store/NewArrivals.tsx
+"use client";
+
 import Link from "next/link";
 import ProductCard from "./ProductCard";
-import { newArrivals } from "@/data/products";
+import { useCombinedProducts } from "@/lib/use-combined-products";
 
 export default function NewArrivals() {
+  const { allProducts, isLoaded } = useCombinedProducts();
+
+  // Mostrar solo los primeros 8 productos
+  const productsToShow = allProducts.slice(0, 8);
+
   return (
     <section className="w-full max-w-7xl mx-auto px-4 py-6">
       {/* Encabezado */}
@@ -32,12 +39,13 @@ export default function NewArrivals() {
       </div>
 
       {/* Grid de productos */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-        {" "}
-        {newArrivals.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
+      {isLoaded && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          {productsToShow.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+      )}
     </section>
   );
 }
