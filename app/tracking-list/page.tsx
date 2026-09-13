@@ -1,31 +1,86 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { Gamepad2, Package, ShoppingBag } from "lucide-react";
+import { Gamepad2, Package, ShoppingBag, Loader2 } from "lucide-react";
 import TrackingFilterBar from "@/components/tracking-list/tracking-filter-bar";
 import TrackingCard, { OrderTrackingItem } from "@/components/tracking-list/tracking-card";
 
-// Mantenemos los datos mockeados aquí temporalmente hasta conectarlo con tracking.service.ts
-const mockOrders: OrderTrackingItem[] = [
-  { id: "ord-1", trackingCode: "SW-9843-XY", orderNumber: "NXR-88214", productSummary: "Mouse Ultraligero 8K + Teclado Hall Effect 60HE+", itemsCount: 2, originCity: "Lima (HQ Central)", destinationCity: "Lima (San Isidro)", destinationAddress: "Av. Los Conquistadores 480", lastUpdate: "Hoy, 04:15 PM", status: "EN TRÁNSITO", estimatedDelivery: "Hoy ~05:00 PM", totalAmount: 1288.0 },
-  { id: "ord-2", trackingCode: "SW-7731-AB", orderNumber: "NXR-88190", productSummary: "Auriculares Planar Magnetic Pro Wireless", itemsCount: 1, originCity: "Lima", destinationCity: "Arequipa (Cercado)", destinationAddress: "Urb. Vallecito B-12", lastUpdate: "Ayer, 06:30 PM", status: "ENTREGADO", estimatedDelivery: "Entregado el 23 Oct", totalAmount: 749.0 },
-  { id: "ord-3", trackingCode: "SW-6429-KL", orderNumber: "NXR-88155", productSummary: "Mousepad Glass Control Ultra + Skates Cerámica", itemsCount: 2, originCity: "Lima", destinationCity: "Cusco (Wanchaq)", destinationAddress: "Av. La Florida 305", lastUpdate: "Hoy, 10:20 AM", status: "INCIDENCIA", estimatedDelivery: "Retenido por validación de dirección", totalAmount: 319.0 },
-];
+// Interfaz que coincide con la estructura guardada por el carrito
+interface PedidoGuardado {
+  codigoUnico: string;
+  articulos: { nombre: string; cantidad: number }[];
+  montoTotal: number;
+  fechaCreacion: string;
+  estado: string;
+  direccion?: { direccion: string };
+}
 
 export default function TrackingListPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>("TODOS");
+  
+  const [realOrders, setRealOrders] = useState<OrderTrackingItem[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    try {
+      // 1. Extraemos los pedidos reales del localStorage (la compra finalizada)
+      const storedOrders = localStorage.getItem("user_orders");
+      
+      if (storedOrders) {
+        const parsedOrders: PedidoGuardado[] = JSON.parse(storedOrders);
+        
+        // 2. Mapeamos la data del carrito al formato visual de tu tarjeta
+        const mappedOrders: OrderTrackingItem[] = parsedOrders.map((pedido) => {
+          
+          // Sincronizar los estados de la orden con el diseño UI
+          let mappedStatus: "EN PREPARACIÓN" | "EN TRÁNSITO" | "ENTREGADO" | "INCIDENCIA" = "EN PREPARACIÓN";
+          if (pedido.estado === "En camino") mappedStatus = "EN TRÁNSITO";
+          if (pedido.estado === "Entregado") mappedStatus = "ENTREGADO";
+          
+          // Limpiamos el símbolo '#' para tener una URL de detalle limpia (ej. ECO-12345)
+          const cleanCode = pedido.codigoUnico.replace("#", "");
+          
+          // Generar el texto resumen de los productos comprados
+          const totalItems = pedido.articulos.reduce((acc, item) => acc + item.cantidad, 0);
+          const firstProductName = pedido.articulos[0]?.nombre || "Paquete";
+          const summary = totalItems > 1 ? `${firstProductName} y más...` : firstProductName;
+
+          return {
+            id: pedido.codigoUnico,
+            trackingCode: cleanCode,
+            orderNumber: cleanCode,
+            productSummary: summary,
+            itemsCount: totalItems,
+            originCity: "Lima (HQ Central)",
+            destinationCity: "Lima Metropolitana",
+            destinationAddress: pedido.direccion?.direccion || "Dirección de cliente",
+            lastUpdate: pedido.fechaCreacion,
+            status: mappedStatus,
+            estimatedDelivery: "En 24 a 48 hrs",
+            totalAmount: pedido.montoTotal,
+          };
+        });
+        
+        setRealOrders(mappedOrders);
+      }
+    } catch (error) {
+      console.error("Error al cargar pedidos guardados:", error);
+    } finally {
+      setIsLoaded(true);
+    }
+  }, []);
 
   const filteredOrders = useMemo(() => {
-    return mockOrders.filter((order) => {
+    return realOrders.filter((order) => {
       const matchesSearch =
         order.trackingCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
         order.orderNumber.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesStatus = selectedStatus === "TODOS" || order.status === selectedStatus;
       return matchesSearch && matchesStatus;
     });
-  }, [searchQuery, selectedStatus]);
+  }, [realOrders, searchQuery, selectedStatus]);
 
   return (
     <div className="min-h-screen bg-[#070b0e] text-slate-100 font-sans selection:bg-[#00f5ff]/20 selection:text-[#00f5ff]">
@@ -64,18 +119,23 @@ export default function TrackingListPage() {
           setSelectedStatus={setSelectedStatus} 
         />
 
-        <section className="space-y-3">
-          {filteredOrders.length > 0 ? (
+        <section className="space-y-3 mt-6">
+          {!isLoaded ? (
+            <div className="flex flex-col items-center justify-center py-20 text-slate-400">
+              <Loader2 className="w-8 h-8 animate-spin mb-4 text-[#00f5ff]" />
+              <p className="text-sm font-semibold tracking-wider uppercase">Cargando envíos...</p>
+            </div>
+          ) : filteredOrders.length > 0 ? (
             filteredOrders.map((order) => <TrackingCard key={order.id} order={order} />)
           ) : (
             <div className="bg-[#0f171d]/90 border border-slate-800/90 rounded-2xl p-12 text-center backdrop-blur-sm">
               <Package className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-              <h3 className="text-base font-bold text-white mb-1">No se encontraron pedidos</h3>
+              <h3 className="text-base font-bold text-white mb-1">No tienes pedidos recientes</h3>
               <button
                 onClick={() => { setSearchQuery(""); setSelectedStatus("TODOS"); }}
                 className="mt-4 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-bold uppercase text-slate-200 transition"
               >
-                Restablecer Búsqueda
+                Restablecer Filtros
               </button>
             </div>
           )}
