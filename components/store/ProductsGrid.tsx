@@ -36,20 +36,49 @@ export default function ProductsGrid() {
     if (categoriaParam) {
       const categoriaNorm = normalize(categoriaParam);
       filtered = filtered.filter(
-        (p) => normalize(p.category) === categoriaNorm,
+        (p) => normalize(p.category) === categoriaNorm
       );
     }
 
-    // Filtrar por búsqueda
-    if (busquedaParam) {
-      const q = normalize(busquedaParam);
-      filtered = filtered.filter(
-        (p) =>
-          normalize(p.name).includes(q) ||
-          normalize(p.description).includes(q) ||
-          normalize(p.brand).includes(q) ||
-          normalize(p.sku).includes(q),
-      );
+    // Filtrar por marca
+    if (marcaParam) {
+      const marcaNorm = normalize(marcaParam);
+      filtered = filtered.filter((p) => normalize(p.brand) === marcaNorm);
+    }
+
+    // Filtrar por BÚSQUEDA INTELIGENTE
+    if (busquedaParam && busquedaParam.trim()) {
+      const query = normalize(busquedaParam);
+      const words = query.split(/\s+/).filter(Boolean);
+
+      // Dividir la búsqueda en palabras y buscar productos que coincidan con TODAS las palabras
+      filtered = filtered.filter((p) => {
+        const searchableText = [
+          normalize(p.name),
+          normalize(p.sku),
+          normalize(p.brand),
+          normalize(p.category),
+          normalize(p.description),
+        ].join(" ");
+
+        // Debe contener TODAS las palabras
+        return words.every((word) => searchableText.includes(word));
+      });
+
+      // Si no hay resultados, intentar con búsqueda más laxa (cualquier palabra)
+      if (filtered.length === 0) {
+        filtered = allProducts.filter((p) => {
+          const searchableText = [
+            normalize(p.name),
+            normalize(p.sku),
+            normalize(p.brand),
+            normalize(p.category),
+            normalize(p.description),
+          ].join(" ");
+
+          return words.some((word) => searchableText.includes(word));
+        });
+      }
     }
 
     // Filtrar por precio
@@ -83,7 +112,23 @@ export default function ProductsGrid() {
   return (
     <div>
       {/* Título dinámico según filtro */}
-      {categoriaParam && (
+      {busquedaParam && busquedaParam.trim() && (
+        <div className="mb-4">
+          <p className="text-xs text-slate-500">
+            Resultados para:
+          </p>
+          <h2 className="text-lg font-bold text-slate-900">
+            &ldquo;{busquedaParam}&rdquo;
+            <span className="text-sm font-normal text-slate-500 ml-2">
+              ({sortedProducts.length}{" "}
+              {sortedProducts.length === 1 ? "resultado" : "resultados"})
+            </span>
+          </h2>
+        </div>
+      )}
+
+      {/* Título de categoría */}
+      {categoriaParam && !busquedaParam && (
         <div className="mb-4">
           <h2 className="text-lg font-bold text-slate-900 capitalize">
             {categoriaParam.replace(/-/g, " ")}
@@ -139,7 +184,7 @@ export default function ProductsGrid() {
           </p>
           <p className="text-sm text-slate-500">
             No encontramos productos con esos filtros. Intenta con otra
-            categoría.
+            categoría o búsqueda.
           </p>
         </div>
       ) : (
