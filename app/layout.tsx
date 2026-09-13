@@ -1,7 +1,8 @@
+// app/layout.tsx
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/auth-context";
+import { Geist, Geist_Mono } from "next/font/google";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SwiftLogix - Logística Inteligente para Envíos Globales",
-  description: "Optimiza tu cadena de suministro con datos en tiempo real y envíos exprés a nivel mundial.",
+  title: "NEXORA STORE",
+  description: "Proyecto Ecommerce",
 };
 
 export default function RootLayout({

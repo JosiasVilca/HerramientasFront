@@ -2,7 +2,8 @@ import React from "react";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen w-full grid grid-cols-1 md:grid-cols-2 bg-slate-50/50 dark:bg-zinc-950 font-sans antialiased overflow-x-hidden">
+    <div className="min-h-screen w-full grid grid-cols-1 md:grid-cols-2 bg-slate-900/60 font-sans antialiased overflow-hidden">
+      
       {/* Left Side: Graphic & Quote (Hidden on mobile) */}
       <div className="hidden md:flex relative flex-col justify-between p-12 text-white overflow-hidden min-h-screen">
         <div
@@ -12,10 +13,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           }}
         ></div>
 
-        {/* Modern dark gradient overlay to guarantee readability */}
         <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-900/60 to-zinc-950/40 z-10"></div>
 
-        {/* Top Branding Logo */}
         <div className="relative z-20 flex items-center gap-2">
           <div className="bg-white/10 backdrop-blur-md p-2.5 rounded-xl border border-white/15 shadow-inner">
             <span className="material-symbols-outlined text-white" style={{ fontVariationSettings: "'FILL' 1" }}>
@@ -27,7 +26,6 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           </span>
         </div>
 
-        {/* Bottom Quote / Concept */}
         <div className="relative z-20 max-w-md">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 backdrop-blur-md border border-white/10 mb-6 text-zinc-100 shadow-sm animate-pulse">
             Logística Inteligente
@@ -41,18 +39,25 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </div>
       </div>
 
-      {/* Right Side: Form Container */}
-      <div className="w-full flex items-center justify-center p-6 bg-slate-50/50 dark:bg-zinc-950 min-h-screen overflow-y-auto">
-        <div className="w-full max-w-md mx-auto py-8">
+      {/* Right Side: Form Container with Partner's Background */}
+      <div className="relative w-full flex items-center justify-center p-6 min-h-screen overflow-hidden">
+        
+        {/* Background from Partner's design */}
+        <div
+          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat blur-md scale-110"
+          style={{ backgroundImage: "url('/fondo.jpg')" }}
+        ></div>
+        <div className="absolute inset-0 z-0 bg-slate-900/60"></div>
 
+        <div className="relative z-10 w-full max-w-md mx-auto py-8">
           {/* Mobile Header Branding */}
-          <div className="flex items-center gap-2.5 mb-8 md:hidden justify-center">
-            <div className="bg-primary/10 p-2 rounded-lg border border-primary/10">
-              <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>
+          <div className="flex items-center gap-2.5 mb-8 md:hidden justify-center text-white">
+            <div className="bg-primary/20 p-2 rounded-lg border border-primary/30">
+              <span className="material-symbols-outlined text-white" style={{ fontVariationSettings: "'FILL' 1" }}>
                 local_shipping
               </span>
             </div>
-            <span className="font-bold text-xl text-zinc-900 dark:text-white">
+            <span className="font-bold text-xl text-white">
               SwiftLogix
             </span>
           </div>

@@ -11,6 +11,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight } from "lucide-react";
+import { FcGoogle } from "react-icons/fc";
+import { FaFacebookF, FaInstagram } from "react-icons/fa";
 import { loginSchema, LoginInput } from "@/lib/validations/auth";
 import { useAuth } from "@/context/auth-context";
 
@@ -39,13 +41,13 @@ export default function LoginPage() {
     setErrorMsg(null);
     setSuccessMsg(null);
     try {
-      await login({
+      const loggedUser = await login({
         email: data.email,
         password: data.password,
       });
       setSuccessMsg("¡Sesión iniciada correctamente! Redirigiendo...");
       setTimeout(() => {
-        router.push("/");
+        router.push(loggedUser.role === "ADMIN" ? "/admin/inventory" : "/");
       }, 1000);
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : "Credenciales inválidas. Intente de nuevo.");
@@ -64,7 +66,6 @@ export default function LoginPage() {
       </CardHeader>
       
       <CardContent>
-        {/* Error Message */}
         {errorMsg && (
           <div className="mb-4 p-4 rounded-lg bg-red-50 border border-red-200 text-red-800 text-sm flex items-center gap-2">
             <span className="material-symbols-outlined text-red-600 text-[18px]">error</span>
@@ -72,7 +73,6 @@ export default function LoginPage() {
           </div>
         )}
 
-        {/* Success Message */}
         {successMsg && (
           <div className="mb-4 p-4 rounded-lg bg-green-50 border border-green-200 text-green-800 text-sm flex items-center gap-2">
             <span className="material-symbols-outlined text-green-600 text-[18px]">check_circle</span>
@@ -81,8 +81,6 @@ export default function LoginPage() {
         )}
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          
-          {/* Email input */}
           <div className="flex flex-col gap-2">
             <Label htmlFor="email" className="text-zinc-700 dark:text-zinc-300 font-semibold text-sm">
               Correo Electrónico
@@ -107,7 +105,6 @@ export default function LoginPage() {
             )}
           </div>
 
-          {/* Password input */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between gap-2">
               <Label htmlFor="password" className="text-zinc-700 dark:text-zinc-300 font-semibold text-sm">
@@ -148,7 +145,6 @@ export default function LoginPage() {
             )}
           </div>
 
-          {/* Remember me checkbox */}
           <div className="flex items-center space-x-2 py-1">
             <Checkbox
               id="remember"
@@ -164,7 +160,6 @@ export default function LoginPage() {
             </Label>
           </div>
 
-          {/* Submit button */}
           <Button
             type="submit"
             disabled={isSubmitting}
@@ -180,7 +175,29 @@ export default function LoginPage() {
             )}
           </Button>
 
-          {/* Registration link */}
+          <div className="flex items-center my-6">
+            <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-800"></div>
+            <span className="px-3 text-xs text-zinc-400 font-bold uppercase tracking-widest">
+              O continúa con
+            </span>
+            <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-800"></div>
+          </div>
+
+          <div className="flex justify-center gap-2 sm:gap-3">
+            <Button type="button" variant="outline" className="flex-1 flex items-center gap-2 text-xs sm:text-sm font-medium">
+              <FcGoogle className="w-4 h-4" />
+              Google
+            </Button>
+            <Button type="button" variant="outline" className="flex-1 flex items-center gap-2 text-xs sm:text-sm font-medium">
+              <FaFacebookF className="w-4 h-4 text-blue-600" />
+              Facebook
+            </Button>
+            <Button type="button" variant="outline" className="flex-1 flex items-center gap-2 text-xs sm:text-sm font-medium">
+              <FaInstagram className="w-4 h-4 text-pink-500" />
+              Instagram
+            </Button>
+          </div>
+
           <div className="text-center text-sm text-zinc-500 dark:text-zinc-400 pt-2">
             ¿No tienes una cuenta?{" "}
             <Link
