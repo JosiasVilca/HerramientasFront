@@ -1,7 +1,8 @@
 // components/store/FilterSidebar.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FiFilter, FiChevronDown, FiChevronUp } from "react-icons/fi";
 
 const categorias = [
@@ -24,18 +25,66 @@ const marcas = [
 ];
 
 export default function FilterSidebar() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [openSections, setOpenSections] = useState({
     categorias: true,
     marcas: true,
     precio: true,
   });
 
+  // Leer estado desde la URL
+  const categoriaActiva = searchParams.get("categoria") || "";
+  const marcaActiva = searchParams.get("marca") || "";
+  const minPrecio = Number(searchParams.get("min") || 0);
+  const maxPrecio = Number(searchParams.get("max") || 5000);
+  const [priceRange, setPriceRange] = useState({ min: minPrecio, max: maxPrecio });
   const toggleSection = (key: keyof typeof openSections) => {
     setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
+  // Actualizar la URL con un parámetro nuevo
+  const updateParam = (key: string, value: string | null) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value) {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+    router.push(`/productos?${params.toString()}`, { scroll: false });
+  };
+
+  const toggleCategory = (id: string) => {
+    if (categoriaActiva === id) {
+      updateParam("categoria", null);
+    } else {
+      updateParam("categoria", id);
+    }
+  };
+
+  const toggleBrand = (id: string) => {
+    if (marcaActiva === id) {
+      updateParam("marca", null);
+    } else {
+      updateParam("marca", id);
+    }
+  };
+
+  const applyPriceRange = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("min", String(priceRange.min));
+    params.set("max", String(priceRange.max));
+    router.push(`/productos?${params.toString()}`, { scroll: false });
+  };
+
+  const resetFilters = () => {
+    router.push("/productos", { scroll: false });
+  };
+
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-5 sticky top-32">
+      {/* Header */}
       <div className="flex items-center justify-between mb-4 pb-4 border-b border-slate-100">
         <div className="flex items-center gap-2">
           <FiFilter className="w-4 h-4 text-purple-600" />
@@ -43,7 +92,10 @@ export default function FilterSidebar() {
             Filtros
           </h2>
         </div>
-        <button className="text-xs text-purple-600 font-medium hover:underline">
+        <button
+          onClick={resetFilters}
+          className="text-xs text-purple-600 font-medium hover:underline"
+        >
           Resetear
         </button>
       </div>
@@ -71,6 +123,8 @@ export default function FilterSidebar() {
                 <label className="flex items-center gap-2.5 cursor-pointer group">
                   <input
                     type="checkbox"
+                    checked={categoriaActiva === cat.id}
+                    onChange={() => toggleCategory(cat.id)}
                     className="w-4 h-4 accent-purple-600 cursor-pointer"
                   />
                   <span className="text-sm text-slate-600 group-hover:text-purple-600 transition-colors flex-1">
@@ -107,6 +161,8 @@ export default function FilterSidebar() {
                 <label className="flex items-center gap-2.5 cursor-pointer group">
                   <input
                     type="checkbox"
+                    checked={marcaActiva === marca.id}
+                    onChange={() => toggleBrand(marca.id)}
                     className="w-4 h-4 accent-purple-600 cursor-pointer"
                   />
                   <span className="text-sm text-slate-600 group-hover:text-purple-600 transition-colors flex-1">
@@ -143,14 +199,18 @@ export default function FilterSidebar() {
                 <p className="text-[10px] text-slate-400 uppercase font-semibold">
                   Mín
                 </p>
-                <p className="text-xs font-bold text-slate-900">S/ 150</p>
+                <p className="text-xs font-bold text-slate-900">
+                  S/ {priceRange.min}
+                </p>
               </div>
               <span className="text-slate-400">—</span>
               <div className="flex-1 bg-slate-100 rounded-lg px-3 py-2">
                 <p className="text-[10px] text-slate-400 uppercase font-semibold">
                   Máx
                 </p>
-                <p className="text-xs font-bold text-slate-900">S/ 4500</p>
+                <p className="text-xs font-bold text-slate-900">
+                  S/ {priceRange.max}
+                </p>
               </div>
             </div>
 
@@ -159,14 +219,21 @@ export default function FilterSidebar() {
               min={0}
               max={5000}
               step={50}
-              defaultValue={4500}
+              value={priceRange.max}
+              onChange={(e) =>
+                setPriceRange({ ...priceRange, max: Number(e.target.value) })
+              }
               className="w-full accent-purple-600"
             />
           </div>
         )}
       </div>
 
-      <button className="w-full mt-5 py-2.5 bg-slate-900 text-white text-xs font-bold rounded-lg hover:bg-purple-600 transition-colors uppercase tracking-wider">
+      {/* Botón Aplicar */}
+      <button
+        onClick={applyPriceRange}
+        className="w-full mt-5 py-2.5 bg-slate-900 text-white text-xs font-bold rounded-lg hover:bg-purple-600 transition-colors uppercase tracking-wider"
+      >
         Aplicar filtros
       </button>
     </div>
