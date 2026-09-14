@@ -154,6 +154,9 @@ export default function CategoriesPage() {
               <a className="flex items-center gap-3 rounded-lg border border-[#00d9ff]/30 bg-[#00d9ff]/10 px-3 py-2.5 text-xs font-bold text-[#00d9ff] shadow-[0_0_12px_-2px_rgba(0,217,255,0.45)]" href="/admin/categories">
                 <Layers3 size={18} /> Catálogos y categorías
               </a>
+              <a className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs text-[#859398] transition hover:bg-[#1e1f28] hover:text-white" href="/tracking-list">
+                <Layers3 size={18} /> Seguimiento de Envíos
+              </a>
             </nav>
           </div>
           <div className="border-t border-[#242d32]/70 p-4 font-mono text-[10px] text-[#859398]">

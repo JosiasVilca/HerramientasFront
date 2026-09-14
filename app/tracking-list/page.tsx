@@ -95,9 +95,13 @@ export default function TrackingListPage() {
             </span>
           </Link>
           <div className="flex items-center gap-4">
-            <Link href="/" className="hidden sm:inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400 hover:text-white transition-colors">
-              <ShoppingBag className="w-4 h-4 text-[#00f5ff]" /> Tienda Oficial
-            </Link>
+            <Link 
+                href="/admin/inventory" 
+                className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wider text-[#859398] transition hover:text-[#00d9ff]"
+              >
+                {/* Opcional: puedes dejar un ícono de flecha o el que ya tenía */}
+                <span>← Volver</span>
+              </Link>
           </div>
         </div>
       </header>

@@ -290,6 +290,9 @@ export default function InventoryPage() {
               <a className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs text-[#859398] transition hover:bg-[#1e1f28] hover:text-white" href="/admin/categories">
                 <Layers3 size={18} /> Catálogos y categorías
               </a>
+              <a className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs text-[#859398] transition hover:bg-[#1e1f28] hover:text-white" href="/tracking-list">
+                  <Boxes size={18} /> Seguimiento de Envíos
+              </a>
             </nav>
           </div>
           <div className="border-t border-[#242d32]/70 p-4 font-mono text-[10px] text-[#859398]">

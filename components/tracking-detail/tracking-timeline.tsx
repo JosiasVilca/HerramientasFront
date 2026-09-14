@@ -5,7 +5,7 @@ export default function TrackingTimeline({ history }: { history: TrackingEventDT
   if (!history || history.length === 0) return null;
 
   // Ordenamos para que el evento más reciente salga arriba
-  const sortedHistory = [...history].sort((a, b) => b.id - a.id);
+  const sortedHistory = [...history].sort((a, b) => String(b.id).localeCompare(String(a.id)));
 
   return (
     <section className="bg-[#0f171d]/90 border border-slate-800/90 rounded-2xl p-6 sm:p-8 backdrop-blur-sm shadow-xl">
