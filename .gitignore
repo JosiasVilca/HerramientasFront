@@ -12,7 +12,8 @@
 
 # testing
 /coverage
-/graphify-out
+graphify-out/
+stitch_*/
 
 # next.js
 /.next/
