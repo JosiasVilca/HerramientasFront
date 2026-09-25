@@ -1,0 +1,363 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Registro y rastreo de envíos — SwiftLogix",
+    "output": "workflow-envios.html",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "registro-del-envio",
+        "label": "Registro del envío",
+        "focus": [
+          "crear",
+          "create_call",
+          "api_crear",
+          "guia",
+          "estado",
+          "update_call",
+          "api_estado",
+          "entregado"
+        ],
+        "note": "La guía nace en el panel y avanza hasta la entrega confirmada."
+      },
+      {
+        "id": "rastreo-publico",
+        "label": "Rastreo público",
+        "focus": [
+          "entregado",
+          "track_call",
+          "fetch_call",
+          "api_track",
+          "followup"
+        ],
+        "note": "El cliente consulta la misma guía desde la web."
+      },
+      {
+        "id": "respaldo-offline",
+        "label": "Respaldo offline",
+        "focus": [
+          "fetch_call",
+          "api_track",
+          "mock",
+          "followup"
+        ],
+        "note": "Cuando la red falla, trackingService lee las guías locales."
+      }
+    ]
+  },
+  "lanes": [
+    {
+      "id": "panel",
+      "label": "Panel Operativo"
+    },
+    {
+      "id": "web",
+      "label": "Web de Rastreo"
+    },
+    {
+      "id": "servicios",
+      "label": "Capa de Servicios"
+    },
+    {
+      "id": "api",
+      "label": "API Central"
+    },
+    {
+      "id": "fallback",
+      "label": "Respaldo local",
+      "variant": "exception"
+    }
+  ],
+  "phases": [
+    {
+      "id": "registro",
+      "label": "Registro del envío",
+      "fromCol": 0,
+      "toCol": 1,
+      "variant": "emphasis"
+    },
+    {
+      "id": "logistica",
+      "label": "Logística",
+      "fromCol": 2,
+      "toCol": 3
+    },
+    {
+      "id": "rastreo",
+      "label": "Rastreo",
+      "fromCol": 4,
+      "toCol": 5,
+      "variant": "dashed"
+    }
+  ],
+  "groups": [
+    {
+      "id": "operacion",
+      "label": "Operación",
+      "lane": "panel",
+      "fromCol": 0,
+      "toCol": 3,
+      "variant": "default"
+    }
+  ],
+  "mainPath": [
+    "crear",
+    "create_call",
+    "api_crear",
+    "guia",
+    "estado",
+    "update_call",
+    "api_estado",
+    "entregado",
+    "track_call",
+    "fetch_call",
+    "api_track",
+    "followup"
+  ],
+  "semanticChecks": {
+    "allowedRoots": [
+      "crear"
+    ],
+    "allowedTerminals": [
+      "followup"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "crear",
+      "lane": "panel",
+      "col": 0,
+      "type": "frontend",
+      "label": "Crear guía",
+      "sublabel": "formulario operador",
+      "width": 132
+    },
+    {
+      "id": "create_call",
+      "lane": "servicios",
+      "col": 0,
+      "type": "backend",
+      "label": "packageService",
+      "sublabel": "create(dto)",
+      "width": 132
+    },
+    {
+      "id": "api_crear",
+      "lane": "api",
+      "col": 0,
+      "type": "cloud",
+      "label": "API Envíos",
+      "sublabel": "crea la guía",
+      "width": 132
+    },
+    {
+      "id": "guia",
+      "lane": "panel",
+      "col": 1,
+      "type": "frontend",
+      "label": "Guía emitida",
+      "sublabel": "código SW-XXXX-XX",
+      "width": 132
+    },
+    {
+      "id": "estado",
+      "lane": "panel",
+      "col": 2,
+      "type": "frontend",
+      "label": "Ciclo de estados",
+      "sublabel": "EN_ALMACÉN → EN_RUTA",
+      "width": 150
+    },
+    {
+      "id": "update_call",
+      "lane": "servicios",
+      "col": 2,
+      "type": "backend",
+      "label": "packageService",
+      "sublabel": "updateStatus(dto)",
+      "width": 132
+    },
+    {
+      "id": "api_estado",
+      "lane": "api",
+      "col": 2,
+      "type": "cloud",
+      "label": "API Envíos",
+      "sublabel": "actualiza físico",
+      "width": 132
+    },
+    {
+      "id": "entregado",
+      "lane": "panel",
+      "col": 3,
+      "type": "frontend",
+      "label": "Entrega confirmada",
+      "sublabel": "ENTREGADO + firma",
+      "width": 132
+    },
+    {
+      "id": "track_call",
+      "lane": "web",
+      "col": 4,
+      "type": "frontend",
+      "label": "Rastreo público",
+      "sublabel": "ingresa código de guía",
+      "width": 150
+    },
+    {
+      "id": "fetch_call",
+      "lane": "servicios",
+      "col": 4,
+      "type": "backend",
+      "label": "trackingService",
+      "sublabel": "getTrackingDetail(code)",
+      "width": 132
+    },
+    {
+      "id": "api_track",
+      "lane": "api",
+      "col": 5,
+      "type": "cloud",
+      "label": "API Rastreo",
+      "sublabel": "consulta pública",
+      "width": 132
+    },
+    {
+      "id": "followup",
+      "lane": "web",
+      "col": 5,
+      "type": "frontend",
+      "label": "Ver seguimiento",
+      "sublabel": "stepper + timeline",
+      "width": 190
+    },
+    {
+      "id": "mock",
+      "lane": "fallback",
+      "col": 3,
+      "type": "database",
+      "label": "Guías de respaldo",
+      "sublabel": "MOCK_TRACKING_DETAILS",
+      "width": 150
+    }
+  ],
+  "edges": [
+    {
+      "id": "crear-create",
+      "from": "crear",
+      "to": "create_call"
+    },
+    {
+      "id": "create-post",
+      "from": "create_call",
+      "to": "api_crear",
+      "label": "POST /api/v1/packages",
+      "variant": "emphasis"
+    },
+    {
+      "id": "create-reply",
+      "from": "api_crear",
+      "to": "guia",
+      "label": "200 trackingCode",
+      "variant": "emphasis",
+      "role": "return"
+    },
+    {
+      "id": "guia-estado",
+      "from": "guia",
+      "to": "estado"
+    },
+    {
+      "id": "estado-update",
+      "from": "estado",
+      "to": "update_call"
+    },
+    {
+      "id": "update-patch",
+      "from": "update_call",
+      "to": "api_estado",
+      "label": "PATCH /api/v1/packages/{id}/status",
+      "variant": "emphasis"
+    },
+    {
+      "id": "update-reply",
+      "from": "api_estado",
+      "to": "entregado",
+      "label": "confirmado",
+      "variant": "emphasis",
+      "role": "return"
+    },
+    {
+      "id": "entrega-rastreo",
+      "from": "entregado",
+      "to": "track_call",
+      "label": "consulta seguimiento"
+    },
+    {
+      "id": "track-fetch",
+      "from": "track_call",
+      "to": "fetch_call"
+    },
+    {
+      "id": "fetch-get",
+      "from": "fetch_call",
+      "to": "api_track",
+      "label": "GET /api/v1/tracking/{code}",
+      "variant": "emphasis"
+    },
+    {
+      "id": "fetch-mock",
+      "from": "fetch_call",
+      "to": "mock",
+      "label": "sin conexión",
+      "variant": "security",
+      "role": "error"
+    },
+    {
+      "id": "mock-reply",
+      "from": "mock",
+      "to": "followup",
+      "label": "detalle local",
+      "variant": "dashed",
+      "role": "return"
+    },
+    {
+      "id": "track-reply",
+      "from": "api_track",
+      "to": "followup",
+      "label": "200 detalle + eventos",
+      "variant": "emphasis",
+      "role": "return"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Ruta principal",
+      "items": [
+        "La guía nace en el panel y avanza por estados hasta entregada",
+        "Cada operación intenta la API REST real en :8080",
+        "El cliente consulta la misma guía por el rastreo público"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Respaldo sin conexión",
+      "items": [
+        "trackingService intenta REST y cae a las guías locales",
+        "Los datos mock simulan latencia para parecer producción",
+        "auth y packages repiten el mismo patrón try/catch"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Estados del envío",
+      "items": [
+        "REGISTRADO → EN_ALMACÉN → EN_TRÁNSITO → EN_RUTA → ENTREGADO",
+        "INCIDENCIA se marca como estado alterno del operador",
+        "Cada actualización guarda ubicación y notas del despacho"
+      ]
+    }
+  ]
+}
