@@ -123,173 +123,139 @@ export default function CategoriesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0c0e16] text-[#e2e1ed] [background-image:radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(0,217,255,0.07),transparent),radial-gradient(circle_at_100%_100%,rgba(87,27,193,0.08),transparent_40%),linear-gradient(to_right,rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.015)_1px,transparent_1px)] [background-size:100%_100%,100%_100%,36px_36px]">
-      <div className="flex min-h-screen">
-        <aside
-          className={`${isSidebarOpen ? "w-64 translate-x-0" : "w-0 -translate-x-full"} fixed inset-y-0 left-0 z-20 flex shrink-0 flex-col justify-between overflow-hidden border-r border-[#242d32]/70 bg-[#161822] transition-all lg:static lg:translate-x-0`}
-        >
-          <div>
-            <div className="flex h-20 items-center gap-3 border-b border-[#242d32]/70 bg-gradient-to-r from-[#161822] to-[#1e1f28] px-6">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#00d9ff] to-[#571bc1] text-[#00d9ff] shadow-[0_0_12px_-2px_rgba(0,217,255,0.45)]">
-                <div className="flex h-full w-full items-center justify-center rounded-xl bg-[#0c0e16]">
-                  <Gamepad2 size={22} />
-                </div>
-              </div>
-              <div>
-                <div className="font-mono text-lg font-extrabold tracking-tight text-white">NEXORA</div>
-                <span className="font-mono text-[9px] tracking-widest text-[#859398]">Simplemente los mejores</span>
-              </div>
-            </div>
-
-            <nav className="mt-3 space-y-1 p-3">
-              <div className="px-3 pb-2 font-mono text-[10px] font-bold uppercase tracking-wider text-[#859398]">
-                Control de Mando
-              </div>
-              <a className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs text-[#859398] transition hover:bg-[#1e1f28] hover:text-white" href="/admin/inventory">
-                <Archive size={18} /> Dashboard Matriz
-              </a>
-              <a className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs text-[#859398] transition hover:bg-[#1e1f28] hover:text-white" href="/admin/inventory">
-                <Layers3 size={18} /> Inventario &amp; CRUD
-              </a>
-              <a className="flex items-center gap-3 rounded-lg border border-[#00d9ff]/30 bg-[#00d9ff]/10 px-3 py-2.5 text-xs font-bold text-[#00d9ff] shadow-[0_0_12px_-2px_rgba(0,217,255,0.45)]" href="/admin/categories">
-                <Layers3 size={18} /> Catálogos y categorías
-              </a>
-              <a className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs text-[#859398] transition hover:bg-[#1e1f28] hover:text-white" href="/tracking-list">
-                <Layers3 size={18} /> Seguimiento de Envíos
-              </a>
-            </nav>
-          </div>
-          <div className="border-t border-[#242d32]/70 p-4 font-mono text-[10px] text-[#859398]">
-            <div className="mb-2 flex items-center gap-2 text-[#58ffa1]">
-              <CheckCircle2 size={13} /> Logeado como administrador
-            </div>
-            <div>{today || "..."}</div>
-          </div>
-        </aside>
-
-        <main className="min-w-0 flex-1">
-          <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#242d32]/70 bg-[#161822]/90 px-4 py-5 backdrop-blur-md sm:px-8">
-            <div className="flex items-center gap-3">
-              <button
-                className="rounded-lg border border-[#242d32] p-2 text-[#859398] transition hover:border-[#00d9ff]/50 hover:text-[#00d9ff]"
-                onClick={() => setIsSidebarOpen((open) => !open)}
-                aria-label={isSidebarOpen ? "Ocultar navegación" : "Mostrar navegación"}
-              >
-                <Menu size={18} />
-              </button>
-              <div>
-                <p className="font-mono text-[10px] uppercase tracking-widest text-[#859398]">
-                  Administración
-                </p>
-                <h1 className="font-mono text-xl font-bold uppercase tracking-tight text-white sm:text-2xl">
-                  Nuevas categorías
-                </h1>
-              </div>
-            </div>
-          </header>
-
-          <div className="mx-auto w-full max-w-[1100px] space-y-6 p-4 sm:p-8">
-            {notice && (
-              <div className="flex items-center justify-between gap-3 rounded-xl border border-[#58ffa1]/40 bg-[#58ffa1]/10 p-4 font-mono text-xs text-[#58ffa1]">
-                <span className="flex items-center gap-3">
-                  <CheckCircle2 size={19} /> {notice}
-                </span>
-                <button onClick={() => setNotice(null)} aria-label="Cerrar notificación">
-                  <X size={16} />
-                </button>
-              </div>
-            )}
-
-            <section className="rounded-xl border border-[#242d32] bg-[#161822] p-5 sm:p-7">
-              <div className="mb-7 flex items-start gap-4">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#00d9ff]/40 bg-[#00d9ff]/10 text-[#00d9ff]">
-                  <Tag size={24} />
-                </div>
-                <div>
-                  <h2 className="font-mono text-lg font-bold uppercase tracking-wide text-white">
-                    Registrar categoría
-                  </h2>
-                  <p className="mt-1 text-sm text-[#859398]">
-                    Crea una categoría para organizar los productos de NEXORA.
-                  </p>
-                </div>
-              </div>
-
-              <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:flex-row sm:items-end">
-                <label className="flex-1 font-mono text-xs font-bold uppercase tracking-wider text-[#859398]">
-                  Nombre de la categoría
-                  <input
-                    value={categoryName}
-                    onChange={(event) => setCategoryName(event.target.value)}
-                    placeholder="Ej. Accesorios"
-                    maxLength={50}
-                    className="mt-2 w-full rounded-lg border border-[#242d32] bg-[#1e1f28] px-4 py-3 text-sm font-normal normal-case tracking-normal text-white outline-none transition placeholder:text-[#859398] focus:border-[#00d9ff] focus:ring-1 focus:ring-[#00d9ff]"
-                  />
-                </label>
-                <button
-                  type="submit"
-                  className="flex items-center justify-center gap-2 rounded-lg bg-[#00d9ff] px-5 py-3 font-mono text-xs font-extrabold uppercase tracking-wider text-[#0c0e16] shadow-[0_0_25px_-4px_rgba(0,217,255,0.35)] transition hover:bg-[#58ffa1]"
-                >
-                  {editingCategory ? <Edit3 size={18} /> : <Plus size={18} />}
-                  {editingCategory ? "Guardar cambios" : "Agregar categoría"}
-                </button>
-                {editingCategory && (
-                  <button
-                    type="button"
-                    onClick={cancelEditing}
-                    className="flex items-center justify-center gap-2 rounded-lg border border-[#242d32] bg-[#1e1f28] px-5 py-3 font-mono text-xs font-extrabold uppercase tracking-wider text-[#e2e1ed] transition hover:border-[#ff5449]/60 hover:text-[#ff8d86]"
-                  >
-                    <X size={18} /> Cancelar
-                  </button>
-                )}
-              </form>
-            </section>
-
-            <section className="rounded-xl border border-[#242d32] bg-[#161822] p-5 sm:p-7">
-              <div className="mb-5 flex items-center justify-between gap-4">
-                <div>
-                  <h2 className="font-mono text-sm font-bold uppercase tracking-wide text-white">
-                    Categorías registradas
-                  </h2>
-                  <p className="mt-1 text-xs text-[#859398]">
-                    {categories.length} {categories.length === 1 ? "categoría disponible" : "categorías disponibles"}
-                  </p>
-                </div>
-                <Layers3 className="text-[#d0bcff]" size={22} />
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {categories.map((category) => (
-                  <div
-                    key={category}
-                    className="flex items-center gap-3 rounded-lg border border-[#242d32] bg-[#1e1f28] px-4 py-3 text-sm text-[#e2e1ed]"
-                  >
-                    <span className="h-2 w-2 rounded-full bg-[#58ffa1] shadow-[0_0_8px_rgba(88,255,161,0.7)]" />
-                    <span className="min-w-0 flex-1 truncate">{category}</span>
-                    <button
-                      type="button"
-                      onClick={() => startEditing(category)}
-                      className="rounded-md p-1.5 text-[#859398] transition hover:bg-[#00d9ff]/10 hover:text-[#00d9ff]"
-                      aria-label={`Editar categoría ${category}`}
-                      title="Editar categoría"
-                    >
-                      <Edit3 size={15} />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => deleteCategory(category)}
-                      className="rounded-md p-1.5 text-[#859398] transition hover:bg-[#ff5449]/10 hover:text-[#ff8d86]"
-                      aria-label={`Eliminar categoría ${category}`}
-                      title="Eliminar categoría"
-                    >
-                      <Trash2 size={15} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </section>
-          </div>
-        </main>
+    <div className="space-y-6">
+      {/* Top Banner / Header Context */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border/60">
+        <div>
+          <span className="text-xs font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400 block mb-1">
+            NEXORA STORE // Catálogos
+          </span>
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+            Gestión de Categorías
+          </h1>
+          <p className="text-xs text-muted-foreground mt-1">
+            Organiza las familias de productos, periféricos y accesorios de NEXORA Store Perú.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="px-3 py-1.5 rounded-lg bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 text-xs font-semibold border border-purple-200 dark:border-purple-800">
+            {categories.length} {categories.length === 1 ? "Categoría Activa" : "Categorías Activas"}
+          </span>
+        </div>
       </div>
+
+      {notice && (
+        <div className="flex items-center justify-between gap-3 rounded-lg border border-emerald-200 bg-emerald-50 dark:bg-emerald-950/40 dark:border-emerald-800 p-4 text-xs font-medium text-emerald-800 dark:text-emerald-300 shadow-2xs">
+          <span className="flex items-center gap-2.5">
+            <CheckCircle2 size={18} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <span>{notice}</span>
+          </span>
+          <button 
+            onClick={() => setNotice(null)} 
+            className="text-emerald-700 hover:text-emerald-900 dark:text-emerald-400 dark:hover:text-emerald-200 cursor-pointer"
+            aria-label="Cerrar notificación"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
+
+      {/* Formular de Registro/Edición */}
+      <section className="rounded-xl border border-border/80 bg-card p-6 sm:p-7 shadow-xs">
+        <div className="mb-6 flex items-start gap-3.5">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-800">
+            <Tag size={20} />
+          </div>
+          <div>
+            <h2 className="text-base font-bold text-foreground">
+              {editingCategory ? "Editar Categoría Existente" : "Registrar Nueva Categoría"}
+            </h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Crea o modifica una categoría para agrupar periféricos y artículos en la tienda.
+            </p>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:flex-row sm:items-end">
+          <label className="flex-1 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            Nombre de la categoría
+            <input
+              value={categoryName}
+              onChange={(event) => setCategoryName(event.target.value)}
+              placeholder="Ej. Teclados, Audífonos, Monitores, Sillas Gamer..."
+              maxLength={50}
+              className="mt-2 w-full rounded-lg border border-input bg-transparent px-3.5 py-2.5 text-sm font-normal normal-case tracking-normal text-foreground outline-none transition placeholder:text-muted-foreground focus:border-purple-600 focus:ring-3 focus:ring-purple-500/20"
+            />
+          </label>
+          <button
+            type="submit"
+            className="flex items-center justify-center gap-2 rounded-lg bg-purple-600 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-xs transition hover:bg-purple-700 cursor-pointer h-10"
+          >
+            {editingCategory ? <Edit3 size={16} /> : <Plus size={16} />}
+            {editingCategory ? "Guardar Cambios" : "Agregar Categoría"}
+          </button>
+          {editingCategory && (
+            <button
+              type="button"
+              onClick={cancelEditing}
+              className="flex items-center justify-center gap-2 rounded-lg border border-border bg-muted px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-foreground hover:bg-muted/80 transition cursor-pointer h-10"
+            >
+              <X size={16} /> Cancelar
+            </button>
+          )}
+        </form>
+      </section>
+
+      {/* Lista de Categorías */}
+      <section className="rounded-xl border border-border/80 bg-card p-6 sm:p-7 shadow-xs">
+        <div className="mb-5 flex items-center justify-between gap-4 border-b border-border/60 pb-4">
+          <div>
+            <h2 className="text-sm font-bold uppercase tracking-wider text-foreground">
+              Categorías Registradas
+            </h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Catálogo activo de familias de productos en NEXORA Store
+            </p>
+          </div>
+          <Layers3 className="text-purple-600 dark:text-purple-400" size={20} />
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {categories.map((category) => (
+            <div
+              key={category}
+              className="flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-muted/30 p-3.5 text-sm font-semibold text-foreground hover:border-purple-400 transition-colors"
+            >
+              <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                <span className="h-2 w-2 rounded-full bg-cyan-400 shrink-0" />
+                <span className="truncate">{category}</span>
+              </div>
+              <div className="flex items-center gap-1 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => startEditing(category)}
+                  className="rounded-md p-1.5 text-muted-foreground hover:text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-950/40 transition cursor-pointer"
+                  aria-label={`Editar categoría ${category}`}
+                  title="Editar categoría"
+                >
+                  <Edit3 size={15} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => deleteCategory(category)}
+                  className="rounded-md p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition cursor-pointer"
+                  aria-label={`Eliminar categoría ${category}`}
+                  title="Eliminar categoría"
+                >
+                  <Trash2 size={15} />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
+
+

@@ -61,7 +61,7 @@ export default function StatusStepper({ currentStatus }: StatusStepperProps) {
         <div className="space-y-1">
           <h3 className="font-bold text-base">Atención: Incidencia Registrada</h3>
           <p className="text-sm text-red-700 dark:text-red-300 leading-relaxed font-light">
-            Se ha reportado una observación con la entrega (dirección no encontrada o reintento). El equipo de soporte de SwiftLogix se encuentra coordinando la solución.
+            Se ha reportado una observación con la entrega (dirección no encontrada o reintento). El equipo de soporte de NEXORA Store & Logistics se encuentra coordinando la solución.
           </p>
         </div>
       </div>

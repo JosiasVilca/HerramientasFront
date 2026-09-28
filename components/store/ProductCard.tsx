@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { FiHeart, FiShoppingCart, FiStar } from "react-icons/fi";
+import { FiHeart, FiShoppingCart, FiStar, FiCheck } from "react-icons/fi";
 import { Product } from "@/data/products";
 
 interface ProductCardProps {
@@ -24,8 +24,13 @@ const getInitialFavorite = (productId: string): boolean => {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const [isFavorite, setIsFavorite] = useState(() => getInitialFavorite(product.id));
+  const [isAdded, setIsAdded] = useState(false);
+  const [heartAnimated, setHeartAnimated] = useState(false);
 
   const toggleFavorite = () => {
+    setHeartAnimated(true);
+    setTimeout(() => setHeartAnimated(false), 300);
+
     try {
       const stored = localStorage.getItem("favorites");
       const favorites: string[] = stored ? JSON.parse(stored) : [];
@@ -46,8 +51,37 @@ export default function ProductCard({ product }: ProductCardProps) {
     }
   };
 
+  const handleAddToCart = () => {
+    setIsAdded(true);
+    setTimeout(() => setIsAdded(false), 1600);
+
+    try {
+      const stored = localStorage.getItem("carrito_compras");
+      const carrito: any[] = stored ? JSON.parse(stored) : [];
+
+      const index = carrito.findIndex((item) => item.id === product.id);
+      if (index > -1) {
+        carrito[index].cantidad += 1;
+      } else {
+        carrito.push({
+          id: product.id,
+          nombre: product.name,
+          especificacion: product.sku,
+          precio: product.price,
+          cantidad: 1,
+          imagen: product.image
+        });
+      }
+
+      localStorage.setItem("carrito_compras", JSON.stringify(carrito));
+      window.dispatchEvent(new Event("cartUpdated"));
+    } catch (e) {
+      console.error("Error al agregar al carrito:", e);
+    }
+  };
+
   return (
-    <div className="group bg-white border border-slate-200 rounded-2xl overflow-hidden transition-all duration-500 ease-out hover:-translate-y-2 hover:shadow-[0_15px_40px_-15px_rgba(34,211,238,0.35)] flex flex-col">
+    <div className="group bg-white border border-slate-200 rounded-2xl overflow-hidden transition-all duration-300 ease-out hover:-translate-y-1.5 hover:shadow-[0_20px_45px_-15px_rgba(124,58,237,0.25)] motion-reduce:hover:translate-y-0 flex flex-col">
       {/* Imagen con Link a detalle */}
       <div className="relative aspect-square bg-slate-50 overflow-hidden">
         <Link
@@ -55,33 +89,36 @@ export default function ProductCard({ product }: ProductCardProps) {
           className="absolute inset-0 z-10"
           aria-label={`Ver ${product.name}`}
         >
-          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-0">
-            <div className="absolute inset-8 bg-cyan-400/50 blur-3xl rounded-full"></div>
-            <div className="absolute inset-4 bg-cyan-300/30 blur-2xl rounded-full"></div>
-            <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/20 to-transparent"></div>
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0">
+            <div className="absolute inset-8 bg-purple-500/20 blur-3xl rounded-full"></div>
+            <div className="absolute inset-4 bg-cyan-400/20 blur-2xl rounded-full"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-purple-900/10 to-transparent"></div>
           </div>
 
           <img
             src={product.image}
             alt={product.name}
-            className="absolute inset-0 w-full h-full object-cover transition-all duration-500 opacity-100 group-hover:opacity-0 group-hover:scale-110"
+            className="absolute inset-0 w-full h-full object-cover transition-all duration-500 opacity-100 group-hover:opacity-0 group-hover:scale-105 motion-reduce:transform-none"
           />
 
           <img
             src={product.imageHover}
             alt={`${product.name} - vista alternativa`}
-            className="absolute inset-0 w-full h-full object-cover transition-all duration-500 opacity-0 group-hover:opacity-100 group-hover:scale-110"
+            className="absolute inset-0 w-full h-full object-cover transition-all duration-500 opacity-0 group-hover:opacity-100 group-hover:scale-105 motion-reduce:transform-none"
           />
         </Link>
 
         <button
           onClick={toggleFavorite}
-          className="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform z-20"
+          className={`absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-md z-20 transition-all duration-300 cursor-pointer ${
+            heartAnimated ? "scale-125 bg-rose-50" : "hover:scale-110"
+          } motion-reduce:transform-none`}
           aria-label="Favorito"
         >
           <FiHeart
-            className={`w-4 h-4 transition-colors ${isFavorite ? "fill-red-500 text-red-500" : "text-slate-400"
-              }`}
+            className={`w-4 h-4 transition-all duration-300 ${
+              isFavorite ? "fill-rose-500 text-rose-500 scale-110" : "text-slate-400"
+            }`}
           />
         </button>
       </div>
@@ -118,35 +155,24 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
 
         <button
-          onClick={() => {
-            try {
-              const stored = localStorage.getItem("carrito_compras");
-              const carrito: any[] = stored ? JSON.parse(stored) : [];
-
-              const index = carrito.findIndex((item) => item.id === product.id);
-              if (index > -1) {
-                carrito[index].cantidad += 1;
-              } else {
-                carrito.push({
-                  id: product.id,
-                  nombre: product.name,
-                  especificacion: product.sku,
-                  precio: product.price,
-                  cantidad: 1,
-                  imagen: product.image
-                });
-              }
-
-              localStorage.setItem("carrito_compras", JSON.stringify(carrito));
-              window.dispatchEvent(new Event("cartUpdated"));
-            } catch (e) {
-              console.error("Error al agregar al carrito:", e);
-            }
-          }}
-          className="mt-auto w-full py-2.5 bg-slate-900 text-white text-xs font-bold rounded-lg flex items-center justify-center gap-2 hover:bg-purple-600 transition-colors uppercase tracking-wider cursor-pointer"
+          onClick={handleAddToCart}
+          className={`mt-auto w-full py-2.5 text-xs font-bold rounded-xl flex items-center justify-center gap-2 transition-all duration-300 uppercase tracking-wider cursor-pointer active:scale-95 motion-reduce:transform-none ${
+            isAdded
+              ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 scale-102"
+              : "bg-slate-900 text-white hover:bg-purple-600 hover:shadow-lg hover:shadow-purple-600/25"
+          }`}
         >
-          <FiShoppingCart className="w-3.5 h-3.5" />
-          Agregar
+          {isAdded ? (
+            <>
+              <FiCheck className="w-4 h-4 animate-bounce" />
+              <span>¡Agregado!</span>
+            </>
+          ) : (
+            <>
+              <FiShoppingCart className="w-3.5 h-3.5" />
+              <span>Agregar</span>
+            </>
+          )}
         </button>
       </div>
     </div>
