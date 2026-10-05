@@ -20,19 +20,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Restore session on mount
+  // Validate and restore session on mount with Insforge Database
   useEffect(() => {
-    const restoreSession = () => {
+    const restoreSession = async () => {
       try {
         const storedToken = localStorage.getItem("auth_token");
-        const storedUser = localStorage.getItem("auth_user");
 
-        if (storedToken && storedUser) {
+        if (storedToken) {
           setToken(storedToken);
-          setUser(JSON.parse(storedUser));
+          const currentUser = await authService.getCurrentUser(storedToken);
+          setUser(currentUser);
+          localStorage.setItem("auth_user", JSON.stringify(currentUser));
         }
       } catch (err) {
-        console.error("Failed to restore auth session:", err);
+        console.warn("Session expired or invalid, clearing local session.", err);
+        localStorage.removeItem("auth_token");
+        localStorage.removeItem("auth_user");
+        setToken(null);
+        setUser(null);
       } finally {
         setLoading(false);
       }

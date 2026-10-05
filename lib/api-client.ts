@@ -88,10 +88,35 @@ const MOCK_TRACKING_DATABASE: Record<string, TrackingSummaryDTO> = {
 };
 
 export async function fetchFromAPI<T>(endpoint: string, options?: RequestInit): Promise<T> {
-  const response = await fetch(`${BASE_URL}${endpoint}`, {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
+  const endpointClean = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+
+  let targetUrl: string;
+  if (!envUrl) {
+    targetUrl = endpointClean;
+  } else {
+    const baseUrlClean = envUrl.replace(/\/+$/, "");
+    if (baseUrlClean.endsWith("/api") && endpointClean.startsWith("/api/")) {
+      targetUrl = `${baseUrlClean}${endpointClean.substring(4)}`;
+    } else {
+      targetUrl = `${baseUrlClean}${endpointClean}`;
+    }
+  }
+
+  // Inject Authorization Bearer JWT Token if stored
+  let authHeader: Record<string, string> = {};
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("auth_token") || localStorage.getItem("token");
+    if (token) {
+      authHeader["Authorization"] = token.startsWith("Bearer ") ? token : `Bearer ${token}`;
+    }
+  }
+
+  const response = await fetch(targetUrl, {
     ...options,
     headers: {
       "Content-Type": "application/json",
+      ...authHeader,
       ...(options?.headers || {}),
     },
   });

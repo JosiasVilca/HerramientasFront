@@ -8,6 +8,8 @@ import { FcGoogle } from "react-icons/fc";
 import { FaFacebookF, FaInstagram } from "react-icons/fa";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 
+import { authService } from "@/services/auth.service";
+
 export default function RegisterPage() {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -67,9 +69,13 @@ export default function RegisterPage() {
     setIsSubmitting(true);
     setIsFloating(false);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log("Registro exitoso:", { name, email, password });
-      setSuccessMsg("¡Cuenta creada correctamente! Redirigiendo...");
+      await authService.register({
+        fullName: name,
+        email: email,
+        password: password,
+        role: "CLIENTE",
+      });
+      setSuccessMsg("¡Cuenta creada correctamente en Insforge Database! Redirigiendo a inicio...");
       setTimeout(() => router.push("/login"), 1500);
     } catch (err) {
       setErrorMsg(

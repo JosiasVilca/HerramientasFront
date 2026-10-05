@@ -18,8 +18,8 @@ export interface RegisterRequest {
   fullName: string;
   email: string;
   password?: string;
-  phone: string;
-  role: UserRole;
+  phone?: string;
+  role?: UserRole;
 }
 
 export interface AuthResponse {
