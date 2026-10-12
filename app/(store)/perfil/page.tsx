@@ -5,6 +5,7 @@ import { useState, useRef, Suspense, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
+import { authService } from "@/services/auth.service";
 import {
   FiUser,
   FiPackage,
@@ -17,6 +18,9 @@ import {
   FiChevronRight,
   FiCamera,
   FiLogIn,
+  FiLoader,
+  FiCheckCircle,
+  FiAlertCircle,
 } from "react-icons/fi";
 
 type TabId = "perfil" | "pedidos" | "direcciones" | "favoritos" | "pagos";
@@ -49,13 +53,14 @@ const formatPhone = (value: string): string => {
 function PerfilContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const { user: authUser, logout, loading } = useAuth();
-
+  const { user: authUser, logout, loading, updateUser } = useAuth();
   const tabFromUrl = (searchParams.get("tab") as TabId) || "perfil";
   const [activeTab, setActiveTab] = useState<TabId>(tabFromUrl);
-
   const [isEditing, setIsEditing] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const [feedbackMsg, setFeedbackMsg] = useState<{ text: string; type: "success" | "error" } | null>(null);
 
   const [user, setUser] = useState({
     name: "",
@@ -87,9 +92,54 @@ function PerfilContent() {
     setEditedUser(user);
   }, [user]);
 
-  const handleSave = () => {
-    setUser(editedUser);
-    setIsEditing(false);
+  const handleSave = async () => {
+    setIsSaving(true);
+    setFeedbackMsg(null);
+    try {
+      const updatedUser = await authService.updateProfile({
+        fullName: editedUser.name,
+        phone: editedUser.phone,
+      });
+      setUser((prev) => ({
+        ...prev,
+        name: updatedUser.fullName,
+        phone: updatedUser.phone || "",
+      }));
+      updateUser(updatedUser);
+      setIsEditing(false);
+      setFeedbackMsg({ text: "¡Teléfono y datos del perfil actualizados correctamente!", type: "success" });
+      setTimeout(() => setFeedbackMsg(null), 4000);
+    } catch (err) {
+      setFeedbackMsg({
+        text: err instanceof Error ? err.message : "Error al actualizar los datos.",
+        type: "error",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingPhoto(true);
+    setFeedbackMsg(null);
+    try {
+      const updatedUser = await authService.uploadAvatar(file);
+      setUser((prev) => ({ ...prev, avatar: updatedUser.avatarUrl || "" }));
+      setEditedUser((prev) => ({ ...prev, avatar: updatedUser.avatarUrl || "" }));
+      updateUser(updatedUser);
+      setFeedbackMsg({ text: "¡Foto de perfil subida y sincronizada exitosamente con Cloudinary!", type: "success" });
+      setTimeout(() => setFeedbackMsg(null), 4000);
+    } catch (err) {
+      setFeedbackMsg({
+        text: err instanceof Error ? err.message : "Error al subir la foto a Cloudinary.",
+        type: "error",
+      });
+    } finally {
+      setIsUploadingPhoto(false);
+    }
   };
 
   const handleLogout = async () => {
@@ -119,19 +169,6 @@ function PerfilContent() {
     );
   }
 
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const result = reader.result as string;
-        setEditedUser({ ...editedUser, avatar: result });
-        setUser({ ...user, avatar: result });
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   const menuItems = [
     { id: "perfil" as TabId, label: "Mi Perfil", icon: FiUser },
     { id: "pedidos" as TabId, label: "Mis Pedidos", icon: FiPackage },
@@ -154,7 +191,13 @@ function PerfilContent() {
       <div className="bg-gradient-to-r from-purple-600 to-cyan-400 rounded-3xl p-6 sm:p-8 mb-6 text-white">
         <div className="flex items-center gap-4 flex-wrap">
           <div className="relative">
-            <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm border-2 border-white/40 flex items-center justify-center text-white font-extrabold text-2xl shrink-0 overflow-hidden">
+            <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm border-2 border-white/40 flex items-center justify-center text-white font-extrabold text-2xl shrink-0 overflow-hidden relative shadow-inner">
+              {isUploadingPhoto && (
+                <div className="absolute inset-0 bg-black/60 backdrop-blur-xs flex flex-col items-center justify-center z-10 text-white">
+                  <FiLoader className="w-6 h-6 animate-spin text-white mb-1" />
+                  <span className="text-[10px] font-bold">Subiendo...</span>
+                </div>
+              )}
               {user.avatar ? (
                 <img
                   src={user.avatar}
@@ -172,10 +215,16 @@ function PerfilContent() {
             </div>
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="absolute -bottom-1 -right-1 w-8 h-8 bg-white text-purple-600 rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform"
-              aria-label="Cambiar foto"
+              disabled={isUploadingPhoto}
+              className="absolute -bottom-1 -right-1 w-8 h-8 bg-white text-purple-600 rounded-full flex items-center justify-center shadow-md hover:scale-110 active:scale-95 disabled:opacity-50 transition-all cursor-pointer"
+              aria-label="Cambiar foto de perfil"
+              title="Cambiar foto de perfil con Cloudinary"
             >
-              <FiCamera className="w-3.5 h-3.5" />
+              {isUploadingPhoto ? (
+                <FiLoader className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <FiCamera className="w-3.5 h-3.5" />
+              )}
             </button>
             <input
               ref={fileInputRef}
@@ -232,6 +281,23 @@ function PerfilContent() {
 
         {/* Panel */}
         <main className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8">
+          {feedbackMsg && (
+            <div
+              className={`mb-6 p-4 rounded-xl flex items-center gap-3 text-sm font-medium transition-all ${
+                feedbackMsg.type === "success"
+                  ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                  : "bg-red-50 text-red-700 border border-red-200"
+              }`}
+            >
+              {feedbackMsg.type === "success" ? (
+                <FiCheckCircle className="w-5 h-5 shrink-0 text-emerald-600" />
+              ) : (
+                <FiAlertCircle className="w-5 h-5 shrink-0 text-red-600" />
+              )}
+              <span>{feedbackMsg.text}</span>
+            </div>
+          )}
+
           {activeTab === "perfil" && (
             <div>
               <div className="flex items-center justify-between mb-6">
@@ -247,13 +313,30 @@ function PerfilContent() {
                     Editar
                   </button>
                 ) : (
-                  <button
-                    onClick={handleSave}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-700 transition uppercase tracking-wider"
-                  >
-                    <FiSave className="w-3.5 h-3.5" />
-                    Guardar
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        setEditedUser(user);
+                        setIsEditing(false);
+                      }}
+                      disabled={isSaving}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-100 text-slate-600 text-xs font-bold rounded-lg hover:bg-slate-200 transition uppercase tracking-wider disabled:opacity-50"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      onClick={handleSave}
+                      disabled={isSaving}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-700 transition uppercase tracking-wider disabled:opacity-50"
+                    >
+                      {isSaving ? (
+                        <FiLoader className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <FiSave className="w-3.5 h-3.5" />
+                      )}
+                      {isSaving ? "Guardando..." : "Guardar"}
+                    </button>
+                  </div>
                 )}
               </div>
 
