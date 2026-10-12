@@ -88,19 +88,15 @@ const MOCK_TRACKING_DATABASE: Record<string, TrackingSummaryDTO> = {
 };
 
 export async function fetchFromAPI<T>(endpoint: string, options?: RequestInit): Promise<T> {
-  const envUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
+  const envUrl = process.env.NEXT_PUBLIC_API_URL?.trim() || "http://localhost:8080/api";
   const endpointClean = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
 
   let targetUrl: string;
-  if (!envUrl) {
-    targetUrl = endpointClean;
+  const baseUrlClean = envUrl.replace(/\/+$/, "");
+  if (baseUrlClean.endsWith("/api") && endpointClean.startsWith("/api/")) {
+    targetUrl = `${baseUrlClean}${endpointClean.substring(4)}`;
   } else {
-    const baseUrlClean = envUrl.replace(/\/+$/, "");
-    if (baseUrlClean.endsWith("/api") && endpointClean.startsWith("/api/")) {
-      targetUrl = `${baseUrlClean}${endpointClean.substring(4)}`;
-    } else {
-      targetUrl = `${baseUrlClean}${endpointClean}`;
-    }
+    targetUrl = `${baseUrlClean}${endpointClean}`;
   }
 
   // Inject Authorization Bearer JWT Token if stored

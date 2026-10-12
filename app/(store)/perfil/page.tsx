@@ -1,9 +1,10 @@
 // app/(store)/perfil/page.tsx
 "use client";
 
-import { useState, useRef, Suspense } from "react";
+import { useState, useRef, Suspense, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useAuth } from "@/context/auth-context";
 import {
   FiUser,
   FiPackage,
@@ -15,6 +16,7 @@ import {
   FiSave,
   FiChevronRight,
   FiCamera,
+  FiLogIn,
 } from "react-icons/fi";
 
 type TabId = "perfil" | "pedidos" | "direcciones" | "favoritos" | "pagos";
@@ -48,6 +50,7 @@ function PerfilContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { user: authUser, logout, loading } = useAuth();
 
   const tabFromUrl = (searchParams.get("tab") as TabId) || "perfil";
   const [activeTab, setActiveTab] = useState<TabId>(tabFromUrl);
@@ -55,25 +58,66 @@ function PerfilContent() {
   const [isEditing, setIsEditing] = useState(false);
 
   const [user, setUser] = useState({
-    name: "Juan Pérez",
-    email: "juan.perez@ejemplo.com",
-    phone: "+51 987 654 321",
+    name: "",
+    email: "",
+    phone: "",
+    role: "CLIENTE",
     address: "Av. Javier Prado 1234, San Isidro, Lima",
-    memberSince: "Enero 2025",
+    memberSince: "2025",
     avatar: "",
   });
 
+  useEffect(() => {
+    if (authUser) {
+      setUser({
+        name: authUser.fullName || "Usuario",
+        email: authUser.email || "",
+        phone: authUser.phone || "",
+        role: authUser.role || "CLIENTE",
+        address: "Av. Javier Prado 1234, San Isidro, Lima",
+        memberSince: "2025",
+        avatar: authUser.avatarUrl || "",
+      });
+    }
+  }, [authUser]);
+
   const [editedUser, setEditedUser] = useState(user);
+
+  useEffect(() => {
+    setEditedUser(user);
+  }, [user]);
 
   const handleSave = () => {
     setUser(editedUser);
     setIsEditing(false);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     localStorage.removeItem("favorites");
+    await logout();
     router.push("/login");
   };
+
+  if (!loading && !authUser) {
+    return (
+      <div className="w-full max-w-md mx-auto my-16 p-8 bg-white border border-slate-200 rounded-3xl shadow-xl text-center space-y-4">
+        <div className="w-16 h-16 mx-auto bg-purple-100 text-purple-600 rounded-full flex items-center justify-center">
+          <FiUser className="w-8 h-8" />
+        </div>
+        <h2 className="text-2xl font-extrabold text-slate-900">Sesión Requerida</h2>
+        <p className="text-slate-500 text-sm">
+          Debes iniciar sesión para visualizar los datos de tu cuenta.
+        </p>
+        <Link
+          href="/login"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-cyan-400 text-white font-bold text-sm rounded-xl shadow-lg hover:opacity-90 transition"
+        >
+          <FiLogIn className="w-4 h-4" />
+          <span>Ir a Iniciar Sesión</span>
+        </Link>
+      </div>
+    );
+  }
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

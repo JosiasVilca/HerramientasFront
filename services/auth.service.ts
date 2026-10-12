@@ -3,21 +3,21 @@ import { LoginRequest, RegisterRequest, AuthResponse, User } from "@/types/auth"
 
 export const authService = {
   login: async (request: LoginRequest): Promise<AuthResponse> => {
-    return await fetchFromAPI<AuthResponse>("/api/auth/login", {
+    return await fetchFromAPI<AuthResponse>("/api/v1/auth/login", {
       method: "POST",
       body: JSON.stringify(request),
     });
   },
 
   register: async (request: RegisterRequest): Promise<AuthResponse> => {
-    return await fetchFromAPI<AuthResponse>("/api/auth/register", {
+    return await fetchFromAPI<AuthResponse>("/api/v1/auth/register", {
       method: "POST",
       body: JSON.stringify(request),
     });
   },
 
   getCurrentUser: async (token: string): Promise<User> => {
-    return await fetchFromAPI<User>("/api/auth/me", {
+    return await fetchFromAPI<User>("/api/v1/auth/me", {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -27,7 +27,7 @@ export const authService = {
 
   logout: async (token?: string): Promise<void> => {
     try {
-      await fetchFromAPI<void>("/api/auth/logout", {
+      await fetchFromAPI<void>("/api/v1/auth/logout", {
         method: "POST",
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
@@ -37,7 +37,7 @@ export const authService = {
   },
 
   sendForgotPasswordEmail: async (email: string): Promise<void> => {
-    await fetchFromAPI<void>("/api/auth/forgot-password", {
+    await fetchFromAPI<void>("/api/v1/auth/forgot-password", {
       method: "POST",
       body: JSON.stringify({ email }),
     });

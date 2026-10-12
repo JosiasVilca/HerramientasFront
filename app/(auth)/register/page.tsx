@@ -8,10 +8,11 @@ import { FcGoogle } from "react-icons/fc";
 import { FaFacebookF, FaInstagram } from "react-icons/fa";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 
-import { authService } from "@/services/auth.service";
+import { useAuth } from "@/context/auth-context";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { register } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -69,14 +70,14 @@ export default function RegisterPage() {
     setIsSubmitting(true);
     setIsFloating(false);
     try {
-      await authService.register({
+      await register({
         fullName: name,
         email: email,
         password: password,
         role: "CLIENTE",
       });
-      setSuccessMsg("¡Cuenta creada correctamente en Insforge Database! Redirigiendo a inicio...");
-      setTimeout(() => router.push("/login"), 1500);
+      setSuccessMsg("¡Cuenta creada correctamente! Redirigiendo a inicio...");
+      setTimeout(() => router.push("/"), 1200);
     } catch (err) {
       setErrorMsg(
         err instanceof Error ? err.message : "Error al crear la cuenta. Intente de nuevo."
