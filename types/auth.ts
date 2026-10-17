@@ -19,7 +19,10 @@ export interface RegisterRequest {
   email: string;
   password?: string;
   phone?: string;
-  role?: UserRole;
+}
+
+export interface GoogleAuthRequest {
+  credential: string;
 }
 
 export interface AuthResponse {

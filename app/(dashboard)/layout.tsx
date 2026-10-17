@@ -26,23 +26,41 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/context/auth-context";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
+  const { user, logout } = useAuth();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
+  const isAdmin = user?.role === "ADMIN";
+
+  // Las secciones de administración solo se muestran a quien puede usarlas.
   const navigation = [
-    { name: "Inventario & Dashboard", href: "/admin/inventory", icon: LayoutDashboard },
-    { name: "Gestión de Paquetes", href: "/packages", icon: Package },
-    { name: "Categorías y Catálogos", href: "/admin/categories", icon: Layers3 },
-    { name: "Seguimiento Envíos", href: "/tracking-list", icon: MapPin },
-    { name: "Tienda NEXORA", href: "/productos", icon: Store },
+    { name: "Inventario & Dashboard", href: "/admin/inventory", icon: LayoutDashboard, adminOnly: true },
+    { name: "Gestión de Paquetes", href: "/packages", icon: Package, adminOnly: false },
+    { name: "Categorías y Catálogos", href: "/admin/categories", icon: Layers3, adminOnly: true },
+    { name: "Seguimiento Envíos", href: "/tracking-list", icon: MapPin, adminOnly: false },
+    { name: "Tienda NEXORA", href: "/productos", icon: Store, adminOnly: false },
   ];
 
-  const handleLogout = () => {
-    localStorage.removeItem("auth_token");
-    localStorage.removeItem("auth_user");
+  const visibleNavigation = navigation.filter((item) => !item.adminOnly || isAdmin);
+  const pageTitle =
+    visibleNavigation.find((item) => item.href === pathname)?.name ?? "Panel NEXORA";
+
+  const displayName = user?.fullName || "Operador NEXORA";
+  const displayRole = user?.role ? `Rol ${user.role}` : "Sesión no iniciada";
+  const initials =
+    (user?.fullName || "NX")
+      .split(" ")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase() ?? "")
+      .join("") || "NX";
+
+  const handleLogout = async () => {
+    await logout();
     router.push("/");
   };
 
@@ -72,7 +90,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
             Control de Administración
           </div>
-          {navigation.map((item) => {
+          {visibleNavigation.map((item) => {
             const isActive = pathname === item.href;
             const Icon = item.icon;
             return (
@@ -127,7 +145,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
 
             <nav className="flex-grow space-y-1">
-              {navigation.map((item) => {
+              {visibleNavigation.map((item) => {
                 const isActive = pathname === item.href;
                 const Icon = item.icon;
                 return (
@@ -177,13 +195,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-muted-foreground">
               <span>NEXORA Console</span>
               <span>/</span>
-              <span className="text-foreground font-bold">
-                {pathname === "/packages"
-                  ? "Gestión de Paquetes"
-                  : pathname === "/admin/categories"
-                  ? "Catálogos y Categorías"
-                  : "Inventario Matriz"}
-              </span>
+              <span className="text-foreground font-bold">{pageTitle}</span>
             </div>
           </div>
 
@@ -200,11 +212,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <DropdownMenu>
               <DropdownMenuTrigger render={<button className="flex items-center gap-2.5 cursor-pointer focus:outline-none py-1 px-2 rounded-lg hover:bg-muted transition-colors" />}>
                 <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-950/60 border border-purple-300 dark:border-purple-800 flex items-center justify-center text-purple-600 dark:text-purple-400 font-extrabold text-xs">
-                  NX
+                  {initials}
                 </div>
                 <div className="hidden sm:block text-left">
-                  <p className="text-xs font-bold leading-tight text-foreground">Operador NEXORA</p>
-                  <p className="text-[10px] text-muted-foreground font-medium">Lima Central HQ</p>
+                  <p className="text-xs font-bold leading-tight text-foreground max-w-[140px] truncate">
+                    {displayName}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground font-medium">{displayRole}</p>
                 </div>
                 <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
               </DropdownMenuTrigger>

@@ -16,6 +16,13 @@ export const authService = {
     });
   },
 
+  loginWithGoogle: async (credential: string): Promise<AuthResponse> => {
+    return await fetchFromAPI<AuthResponse>("/api/v1/auth/google", {
+      method: "POST",
+      body: JSON.stringify({ credential }),
+    });
+  },
+
   getCurrentUser: async (token: string): Promise<User> => {
     return await fetchFromAPI<User>("/api/v1/auth/me", {
       method: "GET",

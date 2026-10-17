@@ -74,7 +74,6 @@ export default function RegisterPage() {
         fullName: name,
         email: email,
         password: password,
-        role: "CLIENTE",
       });
       setSuccessMsg("¡Cuenta creada correctamente! Redirigiendo a inicio...");
       setTimeout(() => router.push("/"), 1200);

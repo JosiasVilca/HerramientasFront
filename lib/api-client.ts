@@ -100,7 +100,7 @@ export async function fetchFromAPI<T>(endpoint: string, options?: RequestInit): 
   }
 
   // Inject Authorization Bearer JWT Token if stored
-  let authHeader: Record<string, string> = {};
+  const authHeader: Record<string, string> = {};
   if (typeof window !== "undefined") {
     const token = localStorage.getItem("auth_token") || localStorage.getItem("token");
     if (token) {
@@ -108,10 +108,14 @@ export async function fetchFromAPI<T>(endpoint: string, options?: RequestInit): 
     }
   }
 
+  // Con FormData el navegador debe fijar el Content-Type (incluye el boundary).
+  const isFormData =
+    typeof FormData !== "undefined" && options?.body instanceof FormData;
+
   const response = await fetch(targetUrl, {
     ...options,
     headers: {
-      "Content-Type": "application/json",
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
       ...authHeader,
       ...(options?.headers || {}),
     },
