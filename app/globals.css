@@ -194,3 +194,60 @@
 .scrollbar-hide::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Opera */
 }
+
+/* Shared visual language for the Stitch-inspired admin console. */
+.admin-cyber {
+  --background: #070b11;
+  --foreground: #e6f0f5;
+  --card: #0d151d;
+  --card-foreground: #e6f0f5;
+  --popover: #101b25;
+  --popover-foreground: #e6f0f5;
+  --primary: #22d3ee;
+  --primary-foreground: #061018;
+  --muted: #111e29;
+  --muted-foreground: #78909c;
+  --accent: #132935;
+  --accent-foreground: #67e8f9;
+  --border: #203340;
+  --input: #29404d;
+  --ring: #22d3ee;
+}
+
+.admin-cyber main {
+  background:
+    radial-gradient(circle at 92% 2%, rgba(0, 217, 255, 0.08), transparent 25rem),
+    linear-gradient(180deg, rgba(9, 17, 25, 0.55), transparent 22rem);
+}
+
+.admin-cyber .bg-purple-600 {
+  background-color: #22d3ee !important;
+  color: #061018 !important;
+}
+
+.admin-cyber .text-purple-600 {
+  color: #22d3ee !important;
+}
+
+.admin-cyber .border-purple-300,
+.admin-cyber .border-purple-800 {
+  border-color: rgba(34, 211, 238, 0.35) !important;
+}
+
+.admin-cyber input,
+.admin-cyber select,
+.admin-cyber textarea {
+  color-scheme: dark;
+}
+
+.admin-cyber table thead {
+  background-color: rgba(19, 41, 53, 0.7);
+}
+
+.admin-cyber table tbody tr {
+  transition: background-color 150ms ease;
+}
+
+.admin-cyber table tbody tr:hover {
+  background-color: rgba(34, 211, 238, 0.045);
+}
