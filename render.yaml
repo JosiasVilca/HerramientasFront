@@ -1,0 +1,41 @@
+# =============================================================================
+# Render Blueprint — NEXORA STORAGE & LOGISTICS · FRONTEND
+# Servicio web Node (Next.js 16 · pnpm)
+#
+# Cómo desplegar:  Render Dashboard → New + → Blueprint → elegir este repo y la
+#                  rama `dev`. Render leerá este archivo y creará el servicio.
+#
+# ⚠️ Las variables NEXT_PUBLIC_* se "hornean" en el bundle durante el BUILD.
+#    Cambiarlas después requiere un redeploy (no basta con reiniciar).
+# =============================================================================
+
+services:
+  - type: web
+    name: nexora-frontend
+    runtime: node
+    plan: free
+    region: virginia # Misma región que el backend (menos latencia entre ambos).
+    branch: dev
+    buildCommand: pnpm install --frozen-lockfile && pnpm run build
+    startCommand: pnpm start
+    autoDeployTrigger: commit
+    healthCheckPath: /login # Página pública que responde 200 sin sesión.
+
+    envVars:
+      # Node 22 LTS: Next.js 16 exige >= 20.9. Fijarlo evita que un cambio del
+      # default de Render rompa el build.
+      - key: NODE_VERSION
+        value: 22.22.0
+
+      # ---------------------------------------------------------------------
+      # URL del backend desplegado, INCLUYENDO el contexto /api
+      # ---------------------------------------------------------------------
+      # Backend desplegado; el contexto /api es obligatorio.
+      - key: NEXT_PUBLIC_API_URL
+        value: https://herramientas-backend-fjmk.onrender.com/api
+
+      # ---------------------------------------------------------------------
+      # Google OAuth — debe ser el MISMO Client ID que usa el backend
+      # ---------------------------------------------------------------------
+      - key: NEXT_PUBLIC_GOOGLE_CLIENT_ID
+        sync: false

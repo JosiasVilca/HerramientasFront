@@ -10,7 +10,9 @@ interface AuthContextType {
   loading: boolean;
   login: (request: LoginRequest) => Promise<User>;
   register: (request: RegisterRequest) => Promise<User>;
+  loginWithGoogle: (credential: string) => Promise<User>;
   logout: () => Promise<void>;
+  updateUser: (user: User) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -20,19 +22,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Restore session on mount
+  // Validate and restore session on mount with Insforge Database
   useEffect(() => {
-    const restoreSession = () => {
+    const restoreSession = async () => {
       try {
         const storedToken = localStorage.getItem("auth_token");
-        const storedUser = localStorage.getItem("auth_user");
 
-        if (storedToken && storedUser) {
+        if (storedToken) {
           setToken(storedToken);
-          setUser(JSON.parse(storedUser));
+          const currentUser = await authService.getCurrentUser(storedToken);
+          setUser(currentUser);
+          localStorage.setItem("auth_user", JSON.stringify(currentUser));
         }
       } catch (err) {
-        console.error("Failed to restore auth session:", err);
+        console.warn("Session expired or invalid, clearing local session.", err);
+        localStorage.removeItem("auth_token");
+        localStorage.removeItem("auth_user");
+        setToken(null);
+        setUser(null);
       } finally {
         setLoading(false);
       }
@@ -77,6 +84,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const loginWithGoogle = async (credential: string): Promise<User> => {
+    setLoading(true);
+    try {
+      const response = await authService.loginWithGoogle(credential);
+      setToken(response.token);
+      setUser(response.user);
+
+      localStorage.setItem("auth_token", response.token);
+      localStorage.setItem("auth_user", JSON.stringify(response.user));
+
+      return response.user;
+    } catch (err) {
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const logout = async () => {
     setLoading(true);
     try {
@@ -94,8 +119,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const updateUser = (updatedUser: User) => {
+    setUser(updatedUser);
+    localStorage.setItem("auth_user", JSON.stringify(updatedUser));
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, loginWithGoogle, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

@@ -8,8 +8,11 @@ import { FcGoogle } from "react-icons/fc";
 import { FaFacebookF, FaInstagram } from "react-icons/fa";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 
+import { useAuth } from "@/context/auth-context";
+
 export default function RegisterPage() {
   const router = useRouter();
+  const { register } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -67,10 +70,13 @@ export default function RegisterPage() {
     setIsSubmitting(true);
     setIsFloating(false);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log("Registro exitoso:", { name, email, password });
-      setSuccessMsg("¡Cuenta creada correctamente! Redirigiendo...");
-      setTimeout(() => router.push("/login"), 1500);
+      await register({
+        fullName: name,
+        email: email,
+        password: password,
+      });
+      setSuccessMsg("¡Cuenta creada correctamente! Redirigiendo a inicio...");
+      setTimeout(() => router.push("/"), 1200);
     } catch (err) {
       setErrorMsg(
         err instanceof Error ? err.message : "Error al crear la cuenta. Intente de nuevo."

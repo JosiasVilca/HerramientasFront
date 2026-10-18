@@ -88,7 +88,7 @@ export default function CreatePackageDialog({ onSuccess }: CreatePackageDialogPr
             Registrar Nuevo Envío
           </DialogTitle>
           <DialogDescription className="text-zinc-500 dark:text-zinc-400 text-xs">
-            Ingresa los detalles del remitente y destinatario para generar la guía de envío de SwiftLogix.
+            Ingresa los detalles del remitente y destinatario para generar la guía de envío de NEXORA Store & Logistics.
           </DialogDescription>
         </DialogHeader>
 

@@ -17,7 +17,7 @@ export default function ShipmentProgress({ currentStatus, lastUpdate }: Shipment
       case "EN_TRANSITO": 
       case "EN_RUTA": return 3;
       case "ENTREGADO": return 4;
-      case "INCIDENCIA": return 3; // Se queda visualmente en tránsito pero con alerta
+      case "INCIDENCIA": return 3;
       default: return 1;
     }
   };
@@ -32,54 +32,59 @@ export default function ShipmentProgress({ currentStatus, lastUpdate }: Shipment
   ];
 
   return (
-    <section className="bg-[#0f171d]/90 border border-slate-800/90 rounded-2xl p-6 sm:p-8 mb-8 backdrop-blur-sm shadow-xl">
-      <div className="flex justify-between items-end mb-6">
-        <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400">Estado del Envío</h2>
-        <span className="text-xs text-slate-500">Última act: {lastUpdate}</span>
+    <section className="bg-card border border-border/80 rounded-xl p-6 sm:p-8 mb-8 shadow-xs">
+      <div className="flex justify-between items-center mb-6 border-b border-border/60 pb-4">
+        <div>
+          <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Progreso del Envío</h2>
+          <p className="text-sm font-semibold text-foreground mt-0.5">Línea de Tiempo Operativa</p>
+        </div>
+        <span className="text-xs font-medium text-muted-foreground bg-muted px-2.5 py-1 rounded-md">
+          Actualizado: {lastUpdate}
+        </span>
       </div>
 
       <div className="relative">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 md:gap-4 relative z-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 relative z-10">
           {steps.map((step) => {
             const isCompleted = step.step <= currentStepIndex;
             const isCurrent = step.step === currentStepIndex;
             const IconComponent = step.icon;
-            
-            let ringColor = "ring-[#00f5ff]/10";
-            let borderColor = "border-[#00f5ff]/40";
-            let bgColor = "bg-[#142028]";
-            let iconColor = "text-[#00f5ff]";
 
-            if (isIncidencia && isCurrent) {
-              ringColor = "ring-red-500/20";
-              borderColor = "border-red-500/50";
-              iconColor = "text-red-500";
+            let cardStyles = "bg-muted/30 border-border/40 opacity-60";
+            let iconBoxStyles = "bg-muted text-muted-foreground border-border";
+            let titleStyles = "text-muted-foreground font-medium";
+
+            if (isCurrent) {
+              if (isIncidencia) {
+                cardStyles = "bg-destructive/10 border-destructive/40 shadow-xs ring-1 ring-destructive/20";
+                iconBoxStyles = "bg-destructive text-destructive-foreground border-destructive";
+                titleStyles = "text-destructive font-bold";
+              } else {
+                cardStyles = "bg-accent/60 border-primary/40 shadow-xs ring-1 ring-primary/20";
+                iconBoxStyles = "bg-primary text-primary-foreground border-primary";
+                titleStyles = "text-primary font-bold";
+              }
+            } else if (isCompleted) {
+              cardStyles = "bg-slate-900 border-slate-800 shadow-2xs";
+              iconBoxStyles = "bg-purple-600/15 text-purple-400 border-purple-500/30";
+              titleStyles = "text-slate-200 font-semibold";
             }
 
             return (
               <div
                 key={step.step}
-                className={`flex items-start gap-4 p-4 rounded-xl border transition-all ${
-                  isCurrent
-                    ? `${bgColor} ${borderColor} shadow-lg shadow-[#00f5ff]/5`
-                    : isCompleted && !isIncidencia
-                    ? "bg-slate-900/40 border-slate-800/80"
-                    : "bg-slate-900/20 border-slate-800/40 opacity-50"
-                }`}
+                className={`flex items-center gap-3.5 p-3.5 rounded-lg border transition-all ${cardStyles}`}
               >
                 <div
-                  className={`w-11 h-11 rounded-full flex items-center justify-center shrink-0 shadow-md ${
-                    isCurrent
-                      ? `bg-slate-800/50 ${iconColor} border ${borderColor} ring-4 ${ringColor}`
-                      : isCompleted && !isIncidencia
-                      ? "bg-[#00f5ff]/10 text-[#00f5ff] border border-[#00f5ff]/30"
-                      : "bg-slate-800 text-slate-500 border border-slate-700"
-                  }`}
+                  className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 border shadow-2xs ${iconBoxStyles}`}
                 >
                   <IconComponent className="w-5 h-5" />
                 </div>
-                <div className="space-y-1 mt-3">
-                  <div className={`text-sm font-bold ${isCurrent ? "text-white" : "text-slate-400"}`}>
+                <div className="space-y-0.5">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
+                    Paso 0{step.step}
+                  </span>
+                  <div className={`text-sm ${titleStyles}`}>
                     {step.title}
                   </div>
                 </div>

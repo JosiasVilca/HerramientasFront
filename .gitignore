@@ -12,6 +12,13 @@
 
 # testing
 /coverage
+graphify-out/
+stitch_*/
+PRODUCT.md
+.impeccable/
+DESIGN.md
+AGENTS.md
+CLAUDE.md
 
 # next.js
 /.next/

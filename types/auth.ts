@@ -18,13 +18,16 @@ export interface RegisterRequest {
   fullName: string;
   email: string;
   password?: string;
-  phone: string;
-  role: UserRole;
+  phone?: string;
+}
+
+export interface GoogleAuthRequest {
+  credential: string;
 }
 
 export interface AuthResponse {
   token: string;
-  refreshToken: string;
+  refreshToken?: string;
   user: User;
 }
 

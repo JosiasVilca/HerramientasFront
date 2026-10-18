@@ -4,14 +4,14 @@
 import { useState, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FcGoogle } from "react-icons/fc";
 import { FaFacebookF, FaInstagram } from "react-icons/fa";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { useAuth } from "@/context/auth-context";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
@@ -67,6 +67,26 @@ export default function LoginPage() {
         err instanceof Error
           ? err.message
           : "Credenciales inválidas. Intente de nuevo."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleGoogleCredential = async (credential: string) => {
+    setErrorMsg(null);
+    setSuccessMsg(null);
+    setIsSubmitting(true);
+    try {
+      const loggedUser = await loginWithGoogle(credential);
+      setSuccessMsg("¡Sesión iniciada con Google!");
+      setTimeout(
+        () => router.push(loggedUser.role === "ADMIN" ? "/admin/inventory" : "/"),
+        800
+      );
+    } catch (err) {
+      setErrorMsg(
+        err instanceof Error ? err.message : "No se pudo iniciar sesión con Google."
       );
     } finally {
       setIsSubmitting(false);
@@ -204,28 +224,28 @@ export default function LoginPage() {
         <div className="flex-1 h-px bg-slate-200"></div>
       </div>
 
-      <div className="flex justify-center gap-2 sm:gap-3">
-        <button
-          type="button"
-          className="flex items-center gap-2 px-3 sm:px-4 py-2 border border-slate-200 rounded-lg text-xs sm:text-sm text-slate-600 font-medium hover:bg-slate-50 transition"
-        >
-          <FcGoogle className="w-4 h-4" />
-          Google
-        </button>
-        <button
-          type="button"
-          className="flex items-center gap-2 px-3 sm:px-4 py-2 border border-slate-200 rounded-lg text-xs sm:text-sm text-slate-600 font-medium hover:bg-slate-50 transition"
-        >
-          <FaFacebookF className="w-4 h-4 text-blue-600" />
-          Facebook
-        </button>
-        <button
-          type="button"
-          className="flex items-center gap-2 px-3 sm:px-4 py-2 border border-slate-200 rounded-lg text-xs sm:text-sm text-slate-600 font-medium hover:bg-slate-50 transition"
-        >
-          <FaInstagram className="w-4 h-4 text-pink-500" />
-          Instagram
-        </button>
+      <div className="flex flex-col items-center gap-3">
+        <GoogleSignInButton
+          width={300}
+          onCredential={handleGoogleCredential}
+          onError={setErrorMsg}
+        />
+        <div className="flex justify-center gap-2 sm:gap-3">
+          <button
+            type="button"
+            className="flex items-center gap-2 px-3 sm:px-4 py-2 border border-slate-200 rounded-lg text-xs sm:text-sm text-slate-600 font-medium hover:bg-slate-50 transition"
+          >
+            <FaFacebookF className="w-4 h-4 text-blue-600" />
+            Facebook
+          </button>
+          <button
+            type="button"
+            className="flex items-center gap-2 px-3 sm:px-4 py-2 border border-slate-200 rounded-lg text-xs sm:text-sm text-slate-600 font-medium hover:bg-slate-50 transition"
+          >
+            <FaInstagram className="w-4 h-4 text-pink-500" />
+            Instagram
+          </button>
+        </div>
       </div>
 
       <p className="text-center text-sm text-slate-500 mt-8 font-normal">

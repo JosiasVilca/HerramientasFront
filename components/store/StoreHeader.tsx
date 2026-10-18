@@ -15,6 +15,8 @@ import {
   FiChevronDown,
 } from "react-icons/fi";
 
+import { useAuth } from "@/context/auth-context";
+
 const categorias = [
   "Periféricos",
   "Notebooks",
@@ -28,6 +30,7 @@ const categorias = [
 
 export default function StoreHeader() {
   const router = useRouter();
+  const { user, logout } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -60,9 +63,10 @@ export default function StoreHeader() {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     localStorage.removeItem("favorites");
     setUserMenuOpen(false);
+    await logout();
     router.push("/login");
   };
 
@@ -127,77 +131,87 @@ export default function StoreHeader() {
 
           {/* Menú de usuario */}
           <div className="relative" ref={menuRef}>
-            <button
-              onClick={() => setUserMenuOpen(!userMenuOpen)}
-              className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-slate-100 transition text-sm font-medium text-slate-700"
-            >
-              {/* Avatar circular con inicial */}
-              <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-600 to-cyan-400 flex items-center justify-center text-white font-bold text-sm shrink-0">
-                J
-              </div>
-              <span className="hidden sm:inline text-slate-600">
-                Hola, <span className="font-bold text-slate-900">Juan</span>
-              </span>
-              <FiChevronDown
-                className={`w-3.5 h-3.5 transition-transform hidden sm:inline text-slate-400 ${
-                  userMenuOpen ? "rotate-180" : ""
-                }`}
-              />
-            </button>
+            {user ? (
+              <>
+                <button
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-slate-100 transition text-sm font-medium text-slate-700"
+                >
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-600 to-cyan-400 flex items-center justify-center text-white font-bold text-sm shrink-0 uppercase">
+                    {user.fullName ? user.fullName.charAt(0) : "U"}
+                  </div>
+                  <span className="hidden sm:inline text-slate-600">
+                    Hola, <span className="font-bold text-slate-900">{user.fullName ? user.fullName.split(" ")[0] : "Usuario"}</span>
+                  </span>
+                  <FiChevronDown
+                    className={`w-3.5 h-3.5 transition-transform hidden sm:inline text-slate-400 ${
+                      userMenuOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
 
-            {userMenuOpen && (
-              <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden z-50">
-                {/* Header del menú */}
-                <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
-                  <p className="text-xs text-slate-500">Conectado como</p>
-                  <p className="text-sm font-bold text-slate-900 truncate">
-                    juan.perez@ejemplo.com
-                  </p>
-                </div>
+                {userMenuOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden z-50">
+                    <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
+                      <p className="text-xs text-slate-500">Conectado como</p>
+                      <p className="text-sm font-bold text-slate-900 truncate">
+                        {user.email}
+                      </p>
+                    </div>
 
-                <ul className="py-2">
-                  <li>
-                    <Link
-                      href="/perfil"
-                      onClick={() => setUserMenuOpen(false)}
-                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
-                    >
-                      <FiUser className="w-4 h-4" />
-                      Mi Perfil
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/perfil?tab=pedidos"
-                      onClick={() => setUserMenuOpen(false)}
-                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
-                    >
-                      <FiPackage className="w-4 h-4" />
-                      Mis Pedidos
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/perfil?tab=direcciones"
-                      onClick={() => setUserMenuOpen(false)}
-                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
-                    >
-                      <FiMapPin className="w-4 h-4" />
-                      Ubicación
-                    </Link>
-                  </li>
-                </ul>
+                    <ul className="py-2">
+                      <li>
+                        <Link
+                          href="/perfil"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
+                        >
+                          <FiUser className="w-4 h-4" />
+                          Mi Perfil
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="/perfil?tab=pedidos"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
+                        >
+                          <FiPackage className="w-4 h-4" />
+                          Mis Pedidos
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href="/perfil?tab=direcciones"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
+                        >
+                          <FiMapPin className="w-4 h-4" />
+                          Ubicación
+                        </Link>
+                      </li>
+                    </ul>
 
-                <div className="border-t border-slate-100 py-1">
-                  <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                  >
-                    <FiLogOut className="w-4 h-4" />
-                    Cerrar Sesión
-                  </button>
-                </div>
-              </div>
+                    <div className="border-t border-slate-100 py-1">
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        <FiLogOut className="w-4 h-4" />
+                        Cerrar Sesión
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <Link
+                href="/login"
+                className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-purple-600 to-cyan-400 text-white rounded-lg hover:opacity-90 transition text-sm font-bold shadow-sm"
+              >
+                <FiUser className="w-4 h-4" />
+                <span>Iniciar Sesión</span>
+              </Link>
             )}
           </div>
         </div>

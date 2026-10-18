@@ -11,18 +11,20 @@ export default function StoreLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    // Si el usuario no está logueado, lo envía al login
-    if (!user) {
+    // Solo redirige cuando la sesión ya terminó de restaurarse. Sin esta guarda,
+    // una recarga dura (F5, enlace directo o pestaña nueva) expulsaba a /login a
+    // un usuario autenticado, porque `user` aún es null mientras se lee el token.
+    if (!loading && !user) {
       router.push("/login");
     }
-  }, [user, router]);
+  }, [loading, user, router]);
 
-  // Evita que la tienda parpadee mientras se hace la redirección
-  if (!user) return null;
+  // Evita que la tienda parpadee mientras se restaura la sesión o se redirige
+  if (loading || !user) return null;
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
