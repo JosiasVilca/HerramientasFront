@@ -79,7 +79,11 @@ export default function PackagesPage() {
   }, [searchQuery, statusFilter]);
 
   useEffect(() => {
-    loadPackages();
+    // Diferido con microtask: evita el setState síncrono dentro del efecto
+    // (misma convención que el resto del panel).
+    queueMicrotask(() => {
+      loadPackages();
+    });
   }, [loadPackages]);
 
   // Calculate KPIs

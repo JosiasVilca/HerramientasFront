@@ -14,7 +14,7 @@ export function getAuthHeaders(): Record<string, string> {
 
 export async function fetchFromAPI<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const headers = new Headers(options.headers);
-  if (!headers.has("Content-Type") && !(options.body instanceof FormData)) {
+  if (!headers.has("Content-Type") && !(typeof FormData !== "undefined" && options.body instanceof FormData)) {
     headers.set("Content-Type", "application/json");
   }
   Object.entries(getAuthHeaders()).forEach(([key, value]) => {

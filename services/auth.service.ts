@@ -8,6 +8,9 @@ export const authService = {
   register: (request: RegisterRequest) =>
     fetchFromAPI<AuthResponse>("/api/v1/auth/register", { method: "POST", body: JSON.stringify(request) }),
 
+  loginWithGoogle: (credential: string) =>
+    fetchFromAPI<AuthResponse>("/api/v1/auth/google", { method: "POST", body: JSON.stringify({ credential }) }),
+
   getCurrentUser: (token: string) =>
     fetchFromAPI<User>("/api/v1/auth/me", { headers: { Authorization: `Bearer ${token}` } }),
 

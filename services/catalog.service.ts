@@ -8,6 +8,24 @@ import {
   ProductRequest,
 } from "@/types/catalog";
 
+function saveProduct(request: ProductRequest, id?: string, file?: File | null) {
+  if (file) {
+    const body = new FormData();
+    Object.entries(request).forEach(([key, value]) => {
+      if (value != null) body.append(key, String(value));
+    });
+    body.append("file", file);
+    return fetchFromAPI<Product>(id ? `/products/${id}` : "/products", {
+      method: id ? "PUT" : "POST",
+      body,
+    });
+  }
+  return fetchFromAPI<Product>(id ? `/admin/products/${id}` : "/admin/products", {
+    method: id ? "PUT" : "POST",
+    body: JSON.stringify(request),
+  });
+}
+
 export const catalogService = {
   listCategories: (params?: { search?: string; activeOnly?: boolean }) => {
     const query = new URLSearchParams();
@@ -77,17 +95,11 @@ export const catalogService = {
     return fetchFromAPI<InventoryStats>(`/admin/products/inventory/stats?${query}`);
   },
 
-  createProduct: (request: ProductRequest) =>
-    fetchFromAPI<Product>("/admin/products", {
-      method: "POST",
-      body: JSON.stringify(request),
-    }),
+  createProduct: (request: ProductRequest, file?: File | null) =>
+    saveProduct(request, undefined, file),
 
-  updateProduct: (id: string, request: ProductRequest) =>
-    fetchFromAPI<Product>(`/admin/products/${id}`, {
-      method: "PUT",
-      body: JSON.stringify(request),
-    }),
+  updateProduct: (id: string, request: ProductRequest, file?: File | null) =>
+    saveProduct(request, id, file),
 
   deactivateProduct: (id: string) =>
     fetchFromAPI<Product>(`/admin/products/${id}/deactivate`, { method: "PATCH" }),
