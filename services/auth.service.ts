@@ -23,6 +23,13 @@ export const authService = {
     });
   },
 
+  loginWithFacebook: async (accessToken: string): Promise<AuthResponse> => {
+    return await fetchFromAPI<AuthResponse>("/api/v1/auth/facebook", {
+      method: "POST",
+      body: JSON.stringify({ accessToken }),
+    });
+  },
+
   getCurrentUser: async (token: string): Promise<User> => {
     return await fetchFromAPI<User>("/api/v1/auth/me", {
       method: "GET",

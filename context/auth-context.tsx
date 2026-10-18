@@ -11,6 +11,7 @@ interface AuthContextType {
   login: (request: LoginRequest) => Promise<User>;
   register: (request: RegisterRequest) => Promise<User>;
   loginWithGoogle: (credential: string) => Promise<User>;
+  loginWithFacebook: (accessToken: string) => Promise<User>;
   logout: () => Promise<void>;
   updateUser: (user: User) => void;
 }
@@ -102,6 +103,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const loginWithFacebook = async (accessToken: string): Promise<User> => {
+    setLoading(true);
+    try {
+      const response = await authService.loginWithFacebook(accessToken);
+      setToken(response.token);
+      setUser(response.user);
+
+      localStorage.setItem("auth_token", response.token);
+      localStorage.setItem("auth_user", JSON.stringify(response.user));
+
+      return response.user;
+    } catch (err) {
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const logout = async () => {
     setLoading(true);
     try {
@@ -125,7 +144,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, loginWithGoogle, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, loginWithGoogle, loginWithFacebook, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );
