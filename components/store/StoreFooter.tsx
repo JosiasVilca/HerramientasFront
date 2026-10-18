@@ -2,6 +2,11 @@
 import Link from "next/link";
 import { FiFacebook, FiInstagram, FiYoutube, FiTwitter, FiMapPin } from "react-icons/fi";
 
+// Enlaces reales del pie; el resto de la lista sigue siendo decorativo.
+const LINK_HREFS: Record<string, string> = {
+  "Política de Privacidad": "/privacidad",
+};
+
 const columns = [
   {
     title: "Información",
@@ -58,7 +63,7 @@ export default function StoreFooter() {
               {col.links.map((link) => (
                 <li key={link}>
                   <Link
-                    href="#"
+                    href={LINK_HREFS[link] ?? "#"}
                     className="text-xs text-slate-400 hover:text-cyan-400 transition-colors"
                   >
                     {link}
@@ -135,7 +140,7 @@ export default function StoreFooter() {
               Términos de Servicio
             </Link>
             <span>•</span>
-            <Link href="#" className="hover:text-cyan-400 transition-colors">
+            <Link href="/privacidad" className="hover:text-cyan-400 transition-colors">
               Privacidad
             </Link>
             <span>•</span>
