@@ -31,7 +31,7 @@ export interface FacebookAuthRequest {
 
 export interface AuthResponse {
   token: string;
-  refreshToken: string;
+  refreshToken?: string;
   user: User;
 }
 

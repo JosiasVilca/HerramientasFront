@@ -65,14 +65,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   };
 
   return (
-    <div className="min-h-screen flex bg-background font-sans antialiased text-foreground selection:bg-purple-500/20">
+    <div className="admin-cyber dark min-h-screen flex bg-background font-sans antialiased text-foreground selection:bg-cyan-400/20">
       
       {/* SIDEBAR FOR DESKTOP */}
-      <aside className="hidden md:flex flex-col w-64 bg-[#0f172a] text-slate-300 border-r border-slate-800 shrink-0 min-h-screen">
+      <aside className="hidden md:flex flex-col w-64 bg-[#090d14] text-slate-300 border-r border-[#1d2a36] shrink-0 min-h-screen">
         
         {/* Branding Logo */}
-        <div className="flex items-center gap-3 px-6 py-5 border-b border-slate-800">
-          <div className="bg-gradient-to-br from-purple-600 to-cyan-500 p-2 rounded-xl text-white flex items-center justify-center shadow-xs">
+        <div className="flex items-center gap-3 px-6 py-5 border-b border-[#1d2a36]">
+          <div className="bg-gradient-to-br from-cyan-400 to-blue-600 p-2 rounded-xl text-white flex items-center justify-center shadow-[0_0_22px_rgba(0,217,255,0.25)]">
             <Zap className="w-5 h-5 fill-white text-white" />
           </div>
           <div>
@@ -87,7 +87,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {/* Navigation Section */}
         <nav className="flex-grow p-4 space-y-1.5 pt-6">
-          <div className="px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+          <div className="px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-[#6f8490]">
             Control de Administración
           </div>
           {visibleNavigation.map((item) => {
@@ -98,8 +98,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <div
                   className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                     isActive
-                      ? "bg-purple-600 text-white shadow-xs"
-                      : "hover:bg-slate-800/80 hover:text-white"
+                      ? "bg-cyan-400/10 text-cyan-300 border border-cyan-400/30 shadow-[0_0_18px_rgba(0,217,255,0.12)]"
+                      : "hover:bg-[#121d28] hover:text-white"
                   }`}
                 >
                   <Icon className="w-4 h-4 shrink-0" />
@@ -111,7 +111,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </nav>
 
         {/* Footer Area / Logout */}
-        <div className="p-4 border-t border-slate-800">
+        <div className="p-4 border-t border-[#1d2a36]">
           <button
             onClick={handleLogout}
             className="flex items-center gap-3 w-full px-3.5 py-2.5 text-xs font-semibold rounded-lg text-rose-400 hover:bg-rose-950/30 hover:text-rose-300 transition-all cursor-pointer"
@@ -128,10 +128,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="md:hidden fixed inset-0 z-50 flex">
           <div className="fixed inset-0 bg-black/50 backdrop-blur-xs" onClick={() => setMobileSidebarOpen(false)}></div>
           
-          <div className="relative flex flex-col w-64 max-w-xs bg-[#0f172a] text-slate-300 p-4 border-r border-slate-800 min-h-screen z-50 animate-slideRight">
-            <div className="flex justify-between items-center pb-4 border-b border-slate-800 mb-4">
+          <div className="relative flex flex-col w-64 max-w-xs bg-[#090d14] text-slate-300 p-4 border-r border-[#1d2a36] min-h-screen z-50 animate-slideRight">
+            <div className="flex justify-between items-center pb-4 border-b border-[#1d2a36] mb-4">
               <div className="flex items-center gap-2.5">
-                <div className="bg-purple-600 p-1.5 rounded-md text-white">
+                <div className="bg-cyan-400 p-1.5 rounded-md text-[#071018]">
                   <Zap className="w-4 h-4 fill-white text-white" />
                 </div>
                 <span className="font-bold text-white text-sm uppercase tracking-wider">NEXORA STORE</span>
@@ -152,7 +152,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   <Link key={item.name} href={item.href} onClick={() => setMobileSidebarOpen(false)}>
                     <div
                       className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold cursor-pointer ${
-                        isActive ? "bg-purple-600 text-white" : "hover:bg-slate-800 hover:text-white"
+                        isActive                         ? "bg-cyan-400/10 text-cyan-300 border border-cyan-400/30" : "hover:bg-[#121d28] hover:text-white"
                       }`}
                     >
                       <Icon className="w-4 h-4 shrink-0" />
@@ -163,7 +163,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               })}
             </nav>
 
-            <div className="border-t border-slate-800 pt-4">
+            <div className="border-t border-[#1d2a36] pt-4">
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-3 w-full px-3.5 py-2.5 text-xs font-semibold rounded-lg text-rose-400 hover:bg-rose-950/30 hover:text-rose-300 transition-all cursor-pointer"
@@ -180,7 +180,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className="flex-grow flex flex-col min-h-screen overflow-x-hidden">
         
         {/* TOPBAR */}
-        <header className="bg-card border-b border-border/80 px-6 py-3.5 flex justify-between items-center w-full sticky top-0 z-30 shadow-2xs">
+        <header className="bg-[#0b1119]/95 border-b border-[#1d2a36] px-6 py-3.5 flex justify-between items-center w-full sticky top-0 z-30 shadow-[0_8px_30px_rgba(0,0,0,0.18)] backdrop-blur">
           
           <div className="flex items-center gap-3">
             {/* Hamburger menu trigger */}
@@ -245,5 +245,4 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     </div>
   );
 }
-
 

@@ -30,9 +30,9 @@ services:
       # ---------------------------------------------------------------------
       # URL del backend desplegado, INCLUYENDO el contexto /api
       # ---------------------------------------------------------------------
-      # Ej.: https://nexora-backend.onrender.com/api
+      # Backend desplegado; el contexto /api es obligatorio.
       - key: NEXT_PUBLIC_API_URL
-        sync: false
+        value: https://herramientas-backend-fjmk.onrender.com/api
 
       # ---------------------------------------------------------------------
       # Google OAuth — debe ser el MISMO Client ID que usa el backend
