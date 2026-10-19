@@ -60,7 +60,16 @@ function loadFacebookSdk(): Promise<FacebookSDK> {
     const settle = (fn: () => void) => {
       if (settled) return;
       settled = true;
+      window.clearTimeout(timeout);
+      window.clearInterval(poll);
       fn();
+    };
+
+    // El SDK se carga por partes: el bootstrap de `sdk.js` no siempre dispara
+    // `fbAsyncInit` (lo hace desde un chunk diferido), así que además de
+    // engancharnos al callback sondeamos `window.FB` hasta que aparezca.
+    const check = () => {
+      if (window.FB) settle(() => resolve(window.FB as FacebookSDK));
     };
 
     const timeout = window.setTimeout(
@@ -68,18 +77,14 @@ function loadFacebookSdk(): Promise<FacebookSDK> {
       15000
     );
 
+    const poll = window.setInterval(check, 100);
+
     // El SDK invoca este callback al terminar de cargarse. Si ya existía uno
     // (otro montaje del componente), se respeta.
     const previousAsyncInit = window.fbAsyncInit;
     window.fbAsyncInit = () => {
       previousAsyncInit?.();
-      if (window.FB) {
-        window.clearTimeout(timeout);
-        settle(() => resolve(window.FB as FacebookSDK));
-      } else {
-        window.clearTimeout(timeout);
-        settle(() => reject(new Error("El SDK de Facebook no se inicializó correctamente.")));
-      }
+      check();
     };
 
     // Si el script ya está en el DOM, no se duplica: bastará con el callback.
