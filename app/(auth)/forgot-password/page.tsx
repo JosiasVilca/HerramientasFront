@@ -1,14 +1,11 @@
+// app/(auth)/forgot-password/page.tsx
 "use client";
 
-import React, { useState } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Mail, Loader2, ArrowLeft, Send } from "lucide-react";
+import { ArrowLeft, CheckCircle2 } from "lucide-react";
 import { forgotPasswordSchema, ForgotPasswordInput } from "@/lib/validations/auth";
 import { authService } from "@/services/auth.service";
 
@@ -28,9 +25,22 @@ export default function ForgotPasswordPage() {
     },
   });
 
+  const [isFloating, setIsFloating] = useState(true);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleFocus = () => setIsFloating(false);
+
+  const handleBlur = (e: React.FocusEvent<HTMLDivElement>) => {
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setIsFloating(true);
+    }
+  };
+
   const onSubmit = async (data: ForgotPasswordInput) => {
     setErrorMsg(null);
     setSuccessMsg(null);
+    setIsFloating(false);
+
     try {
       await authService.sendForgotPasswordEmail(data.email);
       setSuccessMsg(
@@ -47,96 +57,87 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <Card className="border-zinc-200/80 dark:border-zinc-800 shadow-xl shadow-zinc-100/50 dark:shadow-none bg-white dark:bg-zinc-900 transition-all duration-300 w-full animate-fadeIn">
-      <CardHeader className="space-y-1.5 pb-6">
-        <CardTitle className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
-          ¿Olvidaste tu contraseña?
-        </CardTitle>
-        <CardDescription className="text-zinc-500 dark:text-zinc-400 text-sm">
-          Ingresa tu correo electrónico registrado y te enviaremos instrucciones para restablecerla.
-        </CardDescription>
-      </CardHeader>
-      
-      <CardContent>
-        {/* Error Message */}
-        {errorMsg && (
-          <div className="mb-4 p-4 rounded-lg bg-red-50 border border-red-200 text-red-800 text-sm flex items-center gap-2">
-            <span className="material-symbols-outlined text-red-600 text-[18px]">error</span>
-            <span>{errorMsg}</span>
-          </div>
-        )}
+    <div
+      ref={containerRef}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
+      className={`w-full max-w-md bg-white rounded-3xl shadow-2xl p-6 sm:p-10 transition-all duration-500 ${
+        isFloating ? "animate-float" : "translate-y-0"
+      }`}
+    >
+      {/* Logo y título */}
+      <div className="flex flex-col items-center mb-8">
+        <img
+          src="/logotipo.png"
+          alt="NEXORA STORE"
+          className="w-40 sm:w-52 h-auto object-contain mb-4"
+        />
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-wide text-center">
+          RECUPERAR CONTRASEÑA
+        </h1>
+        <p className="text-sm text-slate-500 mt-1.5 text-center font-normal">
+          Ingresa tu correo y te enviaremos las instrucciones
+        </p>
+      </div>
 
-        {/* Success Message */}
-        {successMsg && (
-          <div className="mb-4 p-4 rounded-lg bg-green-50 border border-green-200 text-green-800 text-sm flex flex-col gap-1 shadow-sm">
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-green-600 text-[18px]">check_circle</span>
-              <span className="font-bold text-sm">Correo de recuperación enviado</span>
-            </div>
-            <p className="text-xs mt-1 leading-relaxed text-zinc-600 dark:text-zinc-400">
-              {successMsg}
+      {errorMsg && (
+        <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-800 text-sm">
+          {errorMsg}
+        </div>
+      )}
+      {successMsg && (
+        <div className="mb-4 p-3 rounded-lg bg-green-50 border border-green-200 text-green-800 text-sm flex items-start gap-2">
+          <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
+          <span>{successMsg}</span>
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        {/* Correo electrónico */}
+        <div>
+          <label
+            htmlFor="email"
+            className="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2"
+          >
+            Correo Electrónico
+          </label>
+          <input
+            id="email"
+            type="email"
+            disabled={isSubmitting}
+            placeholder="ejemplo@ejemplo.com"
+            className={`w-full px-4 py-2.5 rounded-lg border text-sm font-normal transition outline-none focus:ring-2 focus:ring-purple-500 ${
+              errors.email ? "border-red-500" : "border-slate-200"
+            }`}
+            {...register("email")}
+          />
+          {errors.email && (
+            <p className="text-red-500 text-xs font-medium mt-1">
+              {errors.email.message}
             </p>
-          </div>
-        )}
+          )}
+        </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          
-          {/* Email Field */}
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="email" className="text-zinc-700 dark:text-zinc-300 font-semibold text-sm">
-              Correo Electrónico
-            </Label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
-                <Mail className="w-4 h-4" />
-              </div>
-              <Input
-                id="email"
-                type="email"
-                disabled={isSubmitting}
-                placeholder="ejemplo@empresa.com"
-                className={`pl-9 bg-zinc-50/30 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary focus-visible:ring-offset-2 transition-all ${
-                  errors.email ? "border-red-500 focus-visible:ring-red-500" : ""
-                }`}
-                {...register("email")}
-              />
-            </div>
-            {errors.email && (
-              <p className="text-red-500 text-xs font-semibold">{errors.email.message}</p>
-            )}
-          </div>
+        {/* Botón */}
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full py-3 bg-gradient-to-r from-purple-600 to-cyan-400 text-white font-extrabold text-sm tracking-wider rounded-lg shadow-lg hover:shadow-xl hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-60 uppercase"
+        >
+          {isSubmitting ? "ENVIANDO..." : "ENVIAR INSTRUCCIONES →"}
+        </button>
+      </form>
 
-          {/* Submit Button */}
-          <div>
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full h-10 font-medium active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md"
-            >
-              {isSubmitting ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <>
-                  <span>Enviar instrucciones</span>
-                  <Send className="w-3.5 h-3.5" />
-                </>
-              )}
-            </Button>
-          </div>
-
-          {/* Back to Login Link */}
-          <div className="mt-4 text-center">
-            <Link
-              href="/login"
-              className="text-sm font-semibold text-primary hover:text-primary/95 transition-colors flex items-center justify-center gap-1.5"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Volver al inicio de sesión
-            </Link>
-          </div>
-
-        </form>
-      </CardContent>
-    </Card>
+      {/* Volver al login */}
+      <p className="text-center text-sm text-slate-500 mt-8 font-normal">
+        <Link
+          href="/login"
+          className="inline-flex items-center gap-1.5 text-purple-600 font-semibold hover:text-purple-700 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Volver al inicio de sesión
+        </Link>
+      </p>
+    </div>
   );
 }
