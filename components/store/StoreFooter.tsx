@@ -136,7 +136,7 @@ export default function StoreFooter() {
             © 2026 NEXORA Ecommerce Gaming Tech Perú S.A.C. Todos los derechos reservados.
           </p>
           <div className="flex items-center gap-4">
-            <Link href="#" className="hover:text-cyan-400 transition-colors">
+            <Link href="/terms" className="hover:text-cyan-400 transition-colors">
               Términos de Servicio
             </Link>
             <span>•</span>

@@ -40,6 +40,10 @@ export default function LegalLayout({
         <div className="max-w-3xl mx-auto px-4 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
           <p>© 2026 NEXORA STORE &amp; Logistics. Todos los derechos reservados.</p>
           <div className="flex items-center gap-4">
+            <Link href="/terms" className="hover:text-purple-600 transition-colors">
+              Términos
+            </Link>
+            <span>•</span>
             <Link href="/privacidad" className="hover:text-purple-600 transition-colors">
               Privacidad
             </Link>
