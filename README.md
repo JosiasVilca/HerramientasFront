@@ -16,8 +16,8 @@ El proyecto se encuentra actualmente desplegado y disponible en el siguiente enl
 * 🔗 **URL del proyecto:** [https://herramientas-front-d9oe.vercel.app/]
 
 > ⚠️ **Nota de seguridad / Credenciales de prueba:**
-> * **Correo:** admin@swiftlogix.com
-> * **Contraseña:** Admin123
+> * **Correo:** admin.demo@nexora.test
+> * **Contraseña:** NxAdmin-sH0Yk8lA5yJGAv
 > 
 > 
 
