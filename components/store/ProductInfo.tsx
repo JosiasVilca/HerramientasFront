@@ -8,157 +8,252 @@ import {
   FiStar,
   FiTruck,
   FiShield,
+  FiCreditCard,
   FiMinus,
   FiPlus,
+  FiMessageCircle,
 } from "react-icons/fi";
 import { Product } from "@/data/products";
 
 interface ProductInfoProps {
   product: Product;
 }
+
 export default function ProductInfo({ product }: ProductInfoProps) {
   const [quantity, setQuantity] = useState(1);
+  const [isAdded, setIsAdded] = useState(false);
+
+  const hasPrice = product.price > 0;
+  const available = product.stock > 0;
+  const maxQuantity = Math.max(1, Math.min(product.stock, 10));
+
+  const whatsappHref = `https://wa.me/51987654321?text=${encodeURIComponent(
+    `Hola, quiero consultar por ${product.name} (SKU ${product.sku}).`,
+  )}`;
 
   const agregarAlCarrito = () => {
-    const carritoActual = JSON.parse(
-      localStorage.getItem("carrito_compras") || "[]"
-    );
+    if (!hasPrice || !available) return;
 
-    const indexExistente = carritoActual.findIndex(
-      (item: any) => item.id === product.id
-    );
+    try {
+      const carritoActual = JSON.parse(
+        localStorage.getItem("carrito_compras") || "[]",
+      );
+      const indexExistente = carritoActual.findIndex(
+        (item: { id: string }) => item.id === product.id,
+      );
 
-    if (indexExistente >= 0) {
-      carritoActual[indexExistente].cantidad += quantity;
-    } else {
-      carritoActual.push({
-        id: product.id,
-        nombre: product.name,
-        especificacion: product.sku,
-        precio: product.price,
-        cantidad: quantity,
-        imagen: product.image,
-      });
+      if (indexExistente >= 0) {
+        carritoActual[indexExistente].cantidad += quantity;
+      } else {
+        carritoActual.push({
+          id: product.id,
+          nombre: product.name,
+          especificacion: product.sku,
+          precio: product.price,
+          cantidad: quantity,
+          imagen: product.image,
+        });
+      }
+
+      localStorage.setItem("carrito_compras", JSON.stringify(carritoActual));
+      window.dispatchEvent(new Event("cartUpdated"));
+      setIsAdded(true);
+      setTimeout(() => setIsAdded(false), 1600);
+    } catch (error) {
+      console.error("Error al agregar al carrito:", error);
     }
-
-    localStorage.setItem("carrito_compras", JSON.stringify(carritoActual));
-    window.dispatchEvent(new Event("cartUpdated"));
-
   };
+
+  const categoryLabel = product.category
+    .replace(/-/g, " ")
+    .replace(/^./, (c) => c.toUpperCase());
+  const summary =
+    product.description &&
+    !product.description.startsWith("Producto registrado desde")
+      ? product.description
+      : `${categoryLabel} original, con garantía oficial y despacho a todo el Perú.`;
 
   return (
     <div className="w-full">
-      {/* Disponible */}
-      <div className="flex items-center gap-2 mb-3">
-        <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-        <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider">
-          Disponible
-        </span>
-        <span className="text-xs text-slate-500 ml-2">
-          | {product.stock} unidades listas en almacén
-        </span>
-      </div>
-
-      {/* Título */}
-      <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight mb-3">
+      <h1 className="text-[clamp(2rem,3.6vw,3rem)] font-extrabold leading-[1.02] tracking-[-0.03em] text-foreground">
         {product.name}
       </h1>
 
-      {/* SKU + Rating */}
-      <div className="flex items-center gap-3 mb-4 flex-wrap">
-        <span className="text-xs text-slate-500 uppercase tracking-wider">
-          SKU: <span className="font-bold text-slate-700">{product.sku}</span>
+      <p className="mt-3 max-w-xl text-lg leading-relaxed text-muted-foreground">
+        {summary}
+      </p>
+
+      <div className="mt-5">
+        {hasPrice ? (
+          <>
+            <div className="flex flex-wrap items-baseline gap-3">
+              <span className="text-4xl font-bold tracking-tight text-secondary tabular-nums">
+                S/ {product.price.toFixed(2)}
+              </span>
+              {product.oldPrice > product.price && (
+                <span className="text-lg text-muted-foreground line-through tabular-nums">
+                  S/ {product.oldPrice.toFixed(2)}
+                </span>
+              )}
+            </div>
+            <p className="mt-1 text-base text-muted-foreground">
+              Precio en soles, incluido IGV.
+            </p>
+          </>
+        ) : (
+          <>
+            <p className="text-3xl font-bold tracking-tight text-foreground">
+              Precio por confirmar
+            </p>
+            <p className="mt-1 text-base text-muted-foreground">
+              Consulta disponibilidad y precio por WhatsApp.
+            </p>
+          </>
+        )}
+      </div>
+
+      <p className="mt-4 flex flex-wrap items-center gap-2 text-base text-muted-foreground">
+        <span
+          className={`h-2 w-2 rounded-full ${
+            available ? "bg-emerald-600" : "bg-muted-foreground"
+          }`}
+          aria-hidden="true"
+        />
+        <span className={available ? "text-foreground" : ""}>
+          {available ? "Disponible" : "Sin stock"}
         </span>
-        <div className="flex items-center gap-1">
-          <FiStar className="w-4 h-4 fill-amber-400 text-amber-400" />
-          <span className="text-sm font-bold text-slate-900">
-            {product.rating.toFixed(1)}
-          </span>
-          <span className="text-xs text-slate-500">
-            ({product.reviews} valoraciones)
-          </span>
-        </div>
+        {available && <span aria-hidden="true">·</span>}
+        {available && <span>{product.stock} unidades en almacén</span>}
+      </p>
+
+      <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-base text-muted-foreground">
+        <span className="font-medium text-foreground">{product.sku}</span>
+        <span aria-hidden="true">·</span>
+        <span className="capitalize">{product.category.replace(/-/g, " ")}</span>
+        {product.reviews > 0 && (
+          <>
+            <span aria-hidden="true">·</span>
+            <span className="flex items-center gap-1">
+              <FiStar
+                className="h-4 w-4 fill-secondary text-secondary"
+                aria-hidden="true"
+              />
+              <span className="font-medium text-foreground">
+                {product.rating.toFixed(1)}
+              </span>
+              <span>({product.reviews} valoraciones)</span>
+            </span>
+          </>
+        )}
       </div>
 
-      {/* Precio */}
-      <div className="bg-slate-50 rounded-2xl p-4 mb-4">
-        <div className="flex items-center gap-3 mb-2">
-          <span className="text-3xl font-extrabold text-slate-900">
-            S/ {product.price.toFixed(2)}
+      {hasPrice && available && (
+        <div className="mt-6">
+          <span className="text-base font-medium text-foreground">
+            Cantidad
           </span>
-          {product.oldPrice > product.price && (
-            <span className="text-sm text-slate-400 line-through">
-              S/ {product.oldPrice.toFixed(2)}
+          <div className="mt-2 flex items-center gap-3">
+            <div className="inline-flex items-center rounded-lg bg-muted">
+              <button
+                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                className="flex h-11 w-11 items-center justify-center rounded-l-lg text-foreground transition-colors hover:bg-accent disabled:opacity-40"
+                aria-label="Restar una unidad"
+                disabled={quantity <= 1}
+              >
+                <FiMinus className="h-4 w-4" aria-hidden="true" />
+              </button>
+              <span className="w-10 text-center text-base font-semibold text-foreground tabular-nums">
+                {quantity}
+              </span>
+              <button
+                onClick={() =>
+                  setQuantity(Math.min(maxQuantity, quantity + 1))
+                }
+                className="flex h-11 w-11 items-center justify-center rounded-r-lg text-foreground transition-colors hover:bg-accent disabled:opacity-40"
+                aria-label="Sumar una unidad"
+                disabled={quantity >= maxQuantity}
+              >
+                <FiPlus className="h-4 w-4" aria-hidden="true" />
+              </button>
+            </div>
+            <span className="text-base text-muted-foreground">
+              Máximo {maxQuantity} por compra
             </span>
-          )}
-          {product.discount > 0 && (
-            <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded">
-              AHORRAS {product.discount}%
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* Cantidad */}
-      <div className="mb-5">
-        <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-          Cantidad:
-        </label>
-        <div className="flex items-center gap-3">
-          <div className="inline-flex items-center border border-slate-200 rounded-lg">
-            <button
-              onClick={() => setQuantity(Math.max(1, quantity - 1))}
-              className="w-10 h-10 flex items-center justify-center hover:bg-slate-50 transition"
-              aria-label="Restar"
-            >
-              <FiMinus className="w-4 h-4 text-slate-600" />
-            </button>
-            <span className="w-12 text-center font-bold text-slate-900">
-              {quantity}
-            </span>
-            <button
-              onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-              className="w-10 h-10 flex items-center justify-center hover:bg-slate-50 transition"
-              aria-label="Sumar"
-            >
-              <FiPlus className="w-4 h-4 text-slate-600" />
-            </button>
           </div>
-          <span className="text-xs text-slate-500">
-            Máximo {product.stock} unidades
-          </span>
         </div>
+      )}
+
+      <div className="mt-6 space-y-3">
+        {hasPrice ? (
+          <button
+            onClick={agregarAlCarrito}
+            disabled={!available}
+            className={`flex min-h-12 w-full items-center justify-center gap-2 rounded-lg text-base font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 ${
+              isAdded
+                ? "bg-foreground text-background"
+                : "bg-primary text-primary-foreground hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground"
+            }`}
+          >
+            {isAdded ? (
+              <>
+                <FiCheck className="h-4 w-4" aria-hidden="true" />
+                Agregado al carrito
+              </>
+            ) : (
+              <>
+                <FiShoppingCart className="h-4 w-4" aria-hidden="true" />
+                {available ? "Añadir al carrito" : "Sin stock"}
+              </>
+            )}
+          </button>
+        ) : (
+          <a
+            href={whatsappHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-primary text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            <FiMessageCircle className="h-4 w-4" aria-hidden="true" />
+            Consultar por WhatsApp
+          </a>
+        )}
+
+        {hasPrice && (
+          <a
+            href={whatsappHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-muted text-base font-semibold text-foreground transition-colors hover:bg-accent"
+          >
+            <FiMessageCircle className="h-4 w-4" aria-hidden="true" />
+            Consultar por WhatsApp
+          </a>
+        )}
       </div>
 
-      {/* Botones */}
-      <div className="space-y-3 mb-6">
-        <button
-          onClick={agregarAlCarrito}
-          className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-cyan-400 text-white font-extrabold text-sm rounded-lg shadow-lg hover:shadow-xl hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 uppercase tracking-wider"
-        >
-          <FiShoppingCart className="w-4 h-4" />
-          Añadir al carrito
-        </button>
-        <button className="w-full py-3.5 bg-slate-900 text-white font-extrabold text-sm rounded-lg hover:bg-slate-800 active:scale-[0.98] transition-all flex items-center justify-center gap-2 uppercase tracking-wider">
-          Comprar ahora con envío express
-        </button>
-      </div>
-
-      {/* Garantías */}
-      <div className="space-y-2.5 pt-4 border-t border-slate-100">
-        <div className="flex items-center gap-2 text-sm text-slate-600">
-          <FiCheck className="w-4 h-4 text-emerald-500 shrink-0" />
-          Garantía de reemplazo inmediato de {product.warranty} autorizados por ATK eSports.
-        </div>
-        <div className="flex items-center gap-2 text-sm text-slate-600">
-          <FiTruck className="w-4 h-4 text-purple-600 shrink-0" />
-          Envío Exprés 24H en Lima Metropolitana y envíos a nivel nacional.
-        </div>
-        <div className="flex items-center gap-2 text-sm text-slate-600">
-          <FiShield className="w-4 h-4 text-cyan-600 shrink-0" />
-          Pago 100% encriptado con Visa, Mastercard y PayPal.
-        </div>
-      </div>
+      <ul className="mt-8 space-y-3 text-base text-foreground/80">
+        <li className="flex items-start gap-3">
+          <FiTruck
+            className="mt-0.5 h-5 w-5 shrink-0 text-primary"
+            aria-hidden="true"
+          />
+          Despacho en 24 h en Lima y envío a todo el Perú.
+        </li>
+        <li className="flex items-start gap-3">
+          <FiShield
+            className="mt-0.5 h-5 w-5 shrink-0 text-primary"
+            aria-hidden="true"
+          />
+          Garantía oficial de {product.warranty}.
+        </li>
+        <li className="flex items-start gap-3">
+          <FiCreditCard
+            className="mt-0.5 h-5 w-5 shrink-0 text-primary"
+            aria-hidden="true"
+          />
+          Hasta 12 cuotas con tarjetas participantes.
+        </li>
+      </ul>
     </div>
   );
 }

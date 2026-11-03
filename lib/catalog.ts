@@ -50,7 +50,8 @@ export function apiProductToEcommerce(product: ApiProduct): Product {
   const image = product.imageUrl || PLACEHOLDER_IMAGE;
   const imageHover = product.imageHoverUrl || image;
   const description =
-    product.description || "Producto registrado desde el panel de administración de NEXORA.";
+    product.description ||
+    `${categoryName} original, con garantía oficial y despacho a todo el Perú.`;
 
   return {
     id: product.id,

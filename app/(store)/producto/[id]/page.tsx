@@ -4,11 +4,11 @@
 import { use, useEffect, useState } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { FiChevronRight } from "react-icons/fi";
 import ProductGallery from "@/components/store/ProductGallery";
 import ProductInfo from "@/components/store/ProductInfo";
 import ProductTabs from "@/components/store/ProductTabs";
 import RelatedProducts from "@/components/store/RelatedProducts";
+import Reveal from "@/components/ui/reveal";
 import { newArrivals, moreProducts, Product } from "@/data/products";
 import { apiProductToEcommerce } from "@/lib/catalog";
 import { productService } from "@/services/product.service";
@@ -54,8 +54,16 @@ export default function ProductoPage({ params }: PageProps) {
 
   if (isLoading) {
     return (
-      <div className="w-full max-w-7xl mx-auto px-4 py-24 text-center text-sm text-slate-500">
-        Cargando producto…
+      <div className="mx-auto grid w-full max-w-[1400px] gap-10 px-5 py-10 sm:px-6 lg:grid-cols-2 lg:px-8">
+        <div className="aspect-square rounded-xl bg-muted" aria-hidden="true" />
+        <div className="space-y-4" aria-hidden="true">
+          <div className="h-4 w-32 rounded bg-muted" />
+          <div className="h-10 w-3/4 rounded bg-muted" />
+          <div className="h-4 w-48 rounded bg-muted" />
+          <div className="h-12 w-40 rounded bg-muted" />
+          <div className="h-12 w-full rounded bg-muted" />
+        </div>
+        <span className="sr-only">Cargando producto…</span>
       </div>
     );
   }
@@ -65,35 +73,38 @@ export default function ProductoPage({ params }: PageProps) {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 py-6">
-      {/* Breadcrumbs */}
-      <nav className="flex items-center gap-1.5 text-xs text-slate-500 mb-6 flex-wrap">
-        <Link href="/" className="hover:text-purple-600 transition-colors">
+    <div className="mx-auto w-full max-w-[1400px] px-5 pb-20 pt-6 sm:px-6 lg:px-8 lg:pt-8">
+      <nav
+        aria-label="Migas de pan"
+        className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground"
+      >
+        <Link href="/" className="transition-colors hover:text-foreground">
           Inicio
         </Link>
-        <FiChevronRight className="w-3 h-3" />
+        <span aria-hidden="true">/</span>
         <Link
-          href={`/productos?categoria=${product.category}`}
-          className="hover:text-purple-600 transition-colors capitalize"
+          href={`/productos?categoria=${encodeURIComponent(product.category)}`}
+          className="transition-colors hover:text-foreground"
         >
-          {product.category}
+          {product.category.replace(/-/g, " ").replace(/^./, (c) => c.toUpperCase())}
         </Link>
-        <FiChevronRight className="w-3 h-3" />
-        <span className="text-slate-700 font-medium line-clamp-1">
-          {product.name}
-        </span>
+        <span aria-hidden="true">/</span>
+        <span className="line-clamp-1 text-foreground">{product.name}</span>
       </nav>
 
-      {/* Producto: galería + info */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
-        <ProductGallery product={product} />
-        <ProductInfo product={product} />
+      <div className="mt-8 grid grid-cols-1 items-start gap-10 md:grid-cols-2 lg:mt-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-14 xl:gap-20">
+        <div className="hero-rise">
+          <ProductGallery product={product} />
+        </div>
+        <div className="hero-rise [animation-delay:80ms]">
+          <ProductInfo product={product} />
+        </div>
       </div>
 
-      {/* Tabs: descripción, specs, garantía */}
-      <ProductTabs product={product} />
+      <Reveal className="mt-14 lg:mt-20">
+        <ProductTabs product={product} />
+      </Reveal>
 
-      {/* Productos relacionados */}
       <RelatedProducts product={product} />
     </div>
   );

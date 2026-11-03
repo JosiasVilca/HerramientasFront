@@ -100,7 +100,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <img
             src={product.image}
             alt={product.name}
-            className="absolute inset-0 h-full w-full object-contain p-6 transition-opacity duration-300 group-hover:opacity-0"
+            className="absolute inset-0 h-full w-full object-contain p-6 mix-blend-multiply transition-opacity duration-300 group-hover:opacity-0"
             loading="lazy"
           />
           {product.imageHover && product.imageHover !== product.image && (
@@ -108,7 +108,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               src={product.imageHover}
               alt=""
               aria-hidden="true"
-              className="absolute inset-0 h-full w-full object-contain p-6 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+              className="absolute inset-0 h-full w-full object-contain p-6 opacity-0 mix-blend-multiply transition-opacity duration-300 group-hover:opacity-100"
               loading="lazy"
             />
           )}

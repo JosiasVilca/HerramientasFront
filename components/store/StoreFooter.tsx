@@ -32,7 +32,7 @@ export default function StoreFooter() {
             alt="NEXORA STORE"
             className="h-8 w-auto object-contain brightness-0 invert"
           />
-          <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/60">
+          <p className="mt-4 max-w-xs text-base leading-relaxed text-white/60">
             Tecnología gamer original, con despacho a todo el Perú y garantía
             oficial.
           </p>
@@ -50,7 +50,7 @@ export default function StoreFooter() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-white/60 transition-colors hover:text-white"
+                    className="text-base text-white/60 transition-colors hover:text-white"
                   >
                     {link.label}
                   </Link>
@@ -63,7 +63,7 @@ export default function StoreFooter() {
         {/* Contacto */}
         <div>
           <h2 className="text-sm font-semibold text-white">Contacto</h2>
-          <ul className="mt-4 space-y-2.5 text-sm text-white/60">
+          <ul className="mt-4 space-y-2.5 text-base text-white/60">
             <li>
               <a
                 href="mailto:ventas@nexora.pe"
