@@ -13,9 +13,7 @@
 # testing
 /coverage
 graphify-out/
-stitch_*/
 PRODUCT.md
-.impeccable/
 DESIGN.md
 AGENTS.md
 CLAUDE.md
@@ -48,3 +46,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Herramientas de diseño locales (capturas, manifiestos, artefactos)
+stitch_*/
+.stitch/
+.taste-skill/
+.impeccable/
