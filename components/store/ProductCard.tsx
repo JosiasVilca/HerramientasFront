@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { FiHeart, FiShoppingCart, FiCheck } from "react-icons/fi";
+import { FiHeart, FiShoppingCart, FiCheck, FiArrowRight } from "react-icons/fi";
 import { Product } from "@/data/products";
 
 interface ProductCardProps {
@@ -156,26 +156,36 @@ export default function ProductCard({ product }: ProductCardProps) {
           )}
         </div>
 
-        <button
-          onClick={handleAddToCart}
-          className={`mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 ${
-            isAdded
-              ? "bg-foreground text-background"
-              : "bg-primary text-primary-foreground hover:bg-primary/90"
-          }`}
-        >
-          {isAdded ? (
-            <>
-              <FiCheck className="h-4 w-4" aria-hidden="true" />
-              Agregado
-            </>
-          ) : (
-            <>
-              <FiShoppingCart className="h-4 w-4" aria-hidden="true" />
-              Agregar
-            </>
-          )}
-        </button>
+        {product.price > 0 ? (
+          <button
+            onClick={handleAddToCart}
+            className={`mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg text-base font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 ${
+              isAdded
+                ? "bg-foreground text-background"
+                : "bg-primary text-primary-foreground hover:bg-primary/90"
+            }`}
+          >
+            {isAdded ? (
+              <>
+                <FiCheck className="h-4 w-4" aria-hidden="true" />
+                Agregado
+              </>
+            ) : (
+              <>
+                <FiShoppingCart className="h-4 w-4" aria-hidden="true" />
+                Agregar
+              </>
+            )}
+          </button>
+        ) : (
+          <Link
+            href={`/producto/${product.id}`}
+            className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-muted text-base font-semibold text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+          >
+            Ver detalle
+            <FiArrowRight className="h-4 w-4" aria-hidden="true" />
+          </Link>
+        )}
       </div>
     </article>
   );
