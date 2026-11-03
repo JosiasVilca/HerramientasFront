@@ -4,8 +4,7 @@
 import type { Product } from "@/data/products";
 import type { ApiProduct } from "@/types/catalog";
 
-export const PLACEHOLDER_IMAGE =
-  "https://images.unsplash.com/photo-1527814050087-3793815479db?q=80&w=800&auto=format&fit=crop";
+export const PLACEHOLDER_IMAGE = "/producto-placeholder.svg";
 
 /**
  * Mapa nombre-de-categoría → slug del ecommerce.

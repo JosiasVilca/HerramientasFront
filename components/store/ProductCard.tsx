@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { FiHeart, FiShoppingCart, FiStar, FiCheck } from "react-icons/fi";
+import { FiHeart, FiShoppingCart, FiCheck } from "react-icons/fi";
 import { Product } from "@/data/products";
 
 interface ProductCardProps {
@@ -57,7 +57,14 @@ export default function ProductCard({ product }: ProductCardProps) {
 
     try {
       const stored = localStorage.getItem("carrito_compras");
-      const carrito: any[] = stored ? JSON.parse(stored) : [];
+      const carrito: {
+        id: string;
+        nombre: string;
+        especificacion: string;
+        precio: number;
+        cantidad: number;
+        imagen: string;
+      }[] = stored ? JSON.parse(stored) : [];
 
       const index = carrito.findIndex((item) => item.id === product.id);
       if (index > -1) {
@@ -69,7 +76,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           especificacion: product.sku,
           precio: product.price,
           cantidad: 1,
-          imagen: product.image
+          imagen: product.image,
         });
       }
 
@@ -80,101 +87,96 @@ export default function ProductCard({ product }: ProductCardProps) {
     }
   };
 
+  const hasDiscount = product.oldPrice > product.price;
+
   return (
-    <div className="group bg-white border border-slate-200 rounded-2xl overflow-hidden transition-all duration-300 ease-out hover:-translate-y-1.5 hover:shadow-[0_20px_45px_-15px_rgba(124,58,237,0.25)] motion-reduce:hover:translate-y-0 flex flex-col">
-      {/* Imagen con Link a detalle */}
-      <div className="relative aspect-square bg-slate-50 overflow-hidden">
+    <article className="group flex flex-col">
+      <div className="relative aspect-square overflow-hidden rounded-xl bg-[#f1f4fa]">
         <Link
           href={`/producto/${product.id}`}
           className="absolute inset-0 z-10"
           aria-label={`Ver ${product.name}`}
         >
-          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0">
-            <div className="absolute inset-8 bg-purple-500/20 blur-3xl rounded-full"></div>
-            <div className="absolute inset-4 bg-cyan-400/20 blur-2xl rounded-full"></div>
-            <div className="absolute inset-0 bg-gradient-to-t from-purple-900/10 to-transparent"></div>
-          </div>
-
           <img
             src={product.image}
             alt={product.name}
-            className="absolute inset-0 w-full h-full object-cover transition-all duration-500 opacity-100 group-hover:opacity-0 group-hover:scale-105 motion-reduce:transform-none"
+            className="absolute inset-0 h-full w-full object-contain p-6 transition-opacity duration-300 group-hover:opacity-0"
+            loading="lazy"
           />
-
-          <img
-            src={product.imageHover}
-            alt={`${product.name} - vista alternativa`}
-            className="absolute inset-0 w-full h-full object-cover transition-all duration-500 opacity-0 group-hover:opacity-100 group-hover:scale-105 motion-reduce:transform-none"
-          />
+          {product.imageHover && product.imageHover !== product.image && (
+            <img
+              src={product.imageHover}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 h-full w-full object-contain p-6 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+              loading="lazy"
+            />
+          )}
         </Link>
 
         <button
           onClick={toggleFavorite}
-          className={`absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-md z-20 transition-all duration-300 cursor-pointer ${
-            heartAnimated ? "scale-125 bg-rose-50" : "hover:scale-110"
-          } motion-reduce:transform-none`}
-          aria-label="Favorito"
+          className={`absolute right-3 top-3 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-card text-muted-foreground ring-1 ring-border/70 transition-transform hover:text-secondary ${
+            heartAnimated ? "scale-110" : ""
+          }`}
+          aria-label={isFavorite ? `Quitar ${product.name} de favoritos` : `Guardar ${product.name} en favoritos`}
+          aria-pressed={isFavorite}
         >
           <FiHeart
-            className={`w-4 h-4 transition-all duration-300 ${
-              isFavorite ? "fill-rose-500 text-rose-500 scale-110" : "text-slate-400"
+            className={`h-[18px] w-[18px] transition-colors ${
+              isFavorite ? "fill-secondary text-secondary" : ""
             }`}
           />
         </button>
       </div>
 
-      <div className="p-4 flex flex-col flex-1">
-        <p className="text-[10px] text-slate-400 font-semibold tracking-wider uppercase mb-1">
-          {product.sku}
-        </p>
+      <div className="flex flex-1 flex-col pt-4">
+        <p className="text-sm font-medium text-muted-foreground">{product.sku}</p>
 
-        <Link href={`/producto/${product.id}`}>
-          <h3 className="text-sm font-bold text-slate-900 mb-1 line-clamp-2 min-h-[40px] hover:text-purple-600 transition-colors cursor-pointer">
+        <Link href={`/producto/${product.id}`} className="mt-1">
+          <h3 className="line-clamp-2 min-h-[48px] text-base font-semibold leading-snug text-foreground transition-colors group-hover:text-primary">
             {product.name}
           </h3>
         </Link>
 
-        <p className="text-xs text-slate-500 mb-3 line-clamp-2 min-h-[32px]">
-          {product.description}
-        </p>
-
-        <div className="flex items-center gap-1 mb-3">
-          <FiStar className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-          <span className="text-xs font-semibold text-slate-700">
-            {product.rating.toFixed(1)}
-          </span>
-          <span className="text-xs text-slate-400">
-            ({product.reviews} reviews)
-          </span>
-        </div>
-
-        <div className="mb-4">
-          <span className="text-xl font-extrabold text-slate-900">
-            S/ {product.price.toFixed(2)}
-          </span>
+        <div className="mt-3 flex flex-wrap items-baseline gap-2">
+          {product.price > 0 ? (
+            <span className="text-lg font-bold tracking-tight text-secondary tabular-nums">
+              S/ {product.price.toFixed(2)}
+            </span>
+          ) : (
+            <span className="text-base font-semibold text-foreground">
+              Precio por confirmar
+            </span>
+          )}
+          {hasDiscount && (
+            <span className="text-sm text-muted-foreground line-through tabular-nums">
+              S/ {product.oldPrice.toFixed(2)}
+            </span>
+          )}
         </div>
 
         <button
           onClick={handleAddToCart}
-          className={`mt-auto w-full py-2.5 text-xs font-bold rounded-xl flex items-center justify-center gap-2 transition-all duration-300 uppercase tracking-wider cursor-pointer active:scale-95 motion-reduce:transform-none ${
+          className={`mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 ${
             isAdded
-              ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 scale-102"
-              : "bg-slate-900 text-white hover:bg-purple-600 hover:shadow-lg hover:shadow-purple-600/25"
+              ? "bg-foreground text-background"
+              : "bg-primary text-primary-foreground hover:bg-primary/90"
           }`}
         >
           {isAdded ? (
             <>
-              <FiCheck className="w-4 h-4 animate-bounce" />
-              <span>¡Agregado!</span>
+              <FiCheck className="h-4 w-4" aria-hidden="true" />
+              Agregado
             </>
           ) : (
             <>
-              <FiShoppingCart className="w-3.5 h-3.5" />
-              <span>Agregar</span>
+              <FiShoppingCart className="h-4 w-4" aria-hidden="true" />
+              Agregar
             </>
           )}
         </button>
       </div>
-    </div>
+    </article>
   );
 }

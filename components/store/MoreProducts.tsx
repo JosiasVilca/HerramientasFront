@@ -3,50 +3,52 @@
 
 import Link from "next/link";
 import ProductCard from "./ProductCard";
+import Reveal from "@/components/ui/reveal";
 import { useCombinedProducts } from "@/lib/use-combined-products";
 
 export default function MoreProducts() {
   const { allProducts, isLoaded } = useCombinedProducts();
 
+  // Mismo criterio que la portada: primero los productos con precio real.
+  const conPrecio = allProducts.filter((product) => product.price > 0);
+  const catalogo = conPrecio.length > 0 ? conPrecio : allProducts;
+
   // Mostrar del producto 8 en adelante (los que no salen en NewArrivals)
-  const productsToShow = allProducts.slice(8, 16);
+  const productsToShow = catalogo.slice(8, 16);
+
+  // Si el catálogo real no alcanza para una segunda tanda, la sección no se
+  // renderiza: un encabezado sin productos se lee como un fallo de carga.
+  if (isLoaded && productsToShow.length === 0) return null;
 
   return (
-    <section className="w-full max-w-7xl mx-auto px-4 py-6">
-      {/* Encabezado */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <section className="mx-auto w-full max-w-[1400px] px-5 py-16 sm:px-6 lg:px-8 lg:py-24">
+      <Reveal className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="w-2 h-2 rounded-full bg-purple-500"></span>
-            <span className="text-xs font-bold text-purple-600 tracking-widest uppercase">
-              Catálogo de Rendimiento
-            </span>
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Más novedades
+          <h2 className="text-3xl font-bold tracking-[-0.02em] text-foreground sm:text-4xl">
+            Más para tu setup
           </h2>
-          <p className="text-sm text-slate-500 mt-1">
-            Componentes, monitores, esports, audio y ergonomía para elevar tu
+          <p className="mt-2 max-w-lg text-base text-muted-foreground">
+            Componentes, monitores y ergonomía para completar la estación de
             juego.
           </p>
         </div>
 
         <Link
           href="/productos"
-          className="text-sm font-semibold text-purple-600 hover:text-purple-700 whitespace-nowrap"
+          className="inline-flex min-h-11 items-center whitespace-nowrap text-base font-semibold text-primary underline decoration-primary/30 underline-offset-4 transition-colors hover:decoration-primary"
         >
-          Ver todos los productos →
+          Ver todos los productos
         </Link>
-      </div>
+      </Reveal>
 
-      {/* Grid de productos (4 columnas) */}
-      {isLoaded && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-          {productsToShow.map((product) => (
-            <ProductCard key={product.id} product={product} />
+      <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 sm:gap-x-5 lg:grid-cols-4 lg:gap-x-6">
+        {isLoaded &&
+          productsToShow.map((product, index) => (
+            <Reveal key={product.id} delay={(index % 4) * 70}>
+              <ProductCard product={product} />
+            </Reveal>
           ))}
-        </div>
-      )}
+      </div>
     </section>
   );
 }

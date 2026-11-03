@@ -18,14 +18,14 @@ import {
 import { useAuth } from "@/context/auth-context";
 
 const categorias = [
-  "Periféricos",
-  "Notebooks",
-  "Mouse",
-  "Audífonos",
-  "Monitores",
-  "Micrófonos",
-  "Sillas Gamer",
-  "Accesorios",
+  { label: "Periféricos", value: "periféricos" },
+  { label: "Notebooks", value: "notebooks" },
+  { label: "Mouse", value: "mouse" },
+  { label: "Audífonos", value: "audífonos" },
+  { label: "Monitores", value: "monitores" },
+  { label: "Micrófonos", value: "micrófonos" },
+  { label: "Sillas Gamer", value: "sillas-gamer" },
+  { label: "Accesorios", value: "accesorios" },
 ];
 
 export default function StoreHeader() {
@@ -36,21 +36,25 @@ export default function StoreHeader() {
   const menuRef = useRef<HTMLDivElement>(null);
   const [cartCount, setCartCount] = useState<number>(0);
 
-// Sincroniza en tiempo real el contador numérico del carrito leyendo 
-// el 'carrito_compras' del localStorage y escuchando el evento 'cartUpdated'.
+  // Sincroniza el contador del carrito con el localStorage y con el evento que
+  // disparan las tarjetas de producto al agregar o quitar unidades.
   useEffect(() => {
     const updateCartCount = () => {
-      if (typeof window !== "undefined") {
+      try {
         const items = JSON.parse(localStorage.getItem("carrito_compras") || "[]");
-        const total = items.reduce((acc: number, item: any) => acc + (item.cantidad || 1), 0);
+        const total = items.reduce(
+          (acc: number, item: { cantidad?: number }) => acc + (item.cantidad || 1),
+          0,
+        );
         setCartCount(total);
+      } catch {
+        setCartCount(0);
       }
     };
 
-    updateCartCount(); 
-    window.addEventListener("cartUpdated", updateCartCount); // <--- Actualizado
-    
-    return () => window.removeEventListener("cartUpdated", updateCartCount); // <--- Actualizado
+    updateCartCount();
+    window.addEventListener("cartUpdated", updateCartCount);
+    return () => window.removeEventListener("cartUpdated", updateCartCount);
   }, []);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -83,50 +87,59 @@ export default function StoreHeader() {
   }, []);
 
   return (
-    <header className="w-full bg-white border-b border-slate-200 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center gap-4">
+    <header className="relative z-40 w-full bg-card">
+      <div className="mx-auto flex max-w-[1400px] flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3 lg:flex-nowrap lg:gap-6 lg:px-8">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 shrink-0">
-          <img
-            src="/logotipo.png"
-            alt="NEXORA STORE"
-            className="h-8 w-auto object-contain"
-          />
+        <Link href="/" className="flex shrink-0 items-center" aria-label="NEXORA STORE, inicio">
+          <img src="/logotipo.png" alt="NEXORA STORE" className="h-7 w-auto object-contain" />
         </Link>
 
         {/* Buscador */}
-        <form onSubmit={handleSearch} className="flex-1 max-w-2xl relative">
-          <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Buscar productos, marcas y categorías..."
-            className="w-full pl-10 pr-4 py-2 rounded-lg bg-slate-100 border border-transparent text-sm outline-none focus:bg-white focus:border-purple-500 transition"
-          />
+        <form
+          onSubmit={handleSearch}
+          role="search"
+          className="order-3 w-full min-w-0 lg:order-none lg:max-w-2xl lg:flex-1"
+        >
+          <label htmlFor="store-search" className="sr-only">
+            Buscar productos
+          </label>
+          <div className="relative">
+            <FiSearch
+              aria-hidden="true"
+              className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+            />
+            <input
+              id="store-search"
+              type="search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Buscar productos, marcas y categorías"
+              className="h-11 w-full rounded-lg bg-muted pl-10 pr-4 text-base text-foreground placeholder:text-muted-foreground focus:bg-background focus:outline-none focus:ring-2 focus:ring-ring/40"
+            />
+          </div>
         </form>
 
-        {/* Íconos */}
-        <div className="flex items-center gap-1 sm:gap-2">
-          {/* Favoritos */}
+        {/* Acciones */}
+        <div className="ml-auto flex items-center gap-1 sm:gap-2">
           <Link
             href="/favoritos"
-            className="p-2 rounded-lg hover:bg-slate-100 transition relative"
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-accent hover:text-primary"
             aria-label="Favoritos"
           >
-            <FiHeart className="w-5 h-5 text-slate-700" />
+            <FiHeart className="h-5 w-5" />
           </Link>
 
-          {/* Carrito */}
           <Link
             href="/carrito"
-            className="p-2 rounded-lg hover:bg-slate-100 transition relative"
-            aria-label="Carrito"
+            className="relative flex h-10 w-10 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-accent hover:text-primary"
+            aria-label={`Carrito, ${cartCount} artículos`}
           >
-            <FiShoppingCart className="w-5 h-5 text-slate-700" />
-              <span className="absolute top-1 right-1 bg-purple-600 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
-              {cartCount}
-            </span>
+            <FiShoppingCart className="h-5 w-5" />
+            {cartCount > 0 && (
+              <span className="absolute right-1 top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-secondary px-1 text-xs font-bold leading-none text-secondary-foreground">
+                {cartCount}
+              </span>
+            )}
           </Link>
 
           {/* Menú de usuario */}
@@ -135,70 +148,76 @@ export default function StoreHeader() {
               <>
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-slate-100 transition text-sm font-medium text-slate-700"
+                  className="flex min-h-10 items-center gap-2 rounded-lg px-1.5 text-sm font-medium text-foreground transition-colors hover:bg-accent sm:px-2"
+                  aria-expanded={userMenuOpen}
+                  aria-haspopup="menu"
                 >
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-600 to-cyan-400 flex items-center justify-center text-white font-bold text-sm shrink-0 uppercase">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold uppercase text-primary-foreground">
                     {user.fullName ? user.fullName.charAt(0) : "U"}
-                  </div>
-                  <span className="hidden sm:inline text-slate-600">
-                    Hola, <span className="font-bold text-slate-900">{user.fullName ? user.fullName.split(" ")[0] : "Usuario"}</span>
+                  </span>
+                  <span className="hidden text-muted-foreground sm:inline">
+                    Hola,{" "}
+                    <span className="font-semibold text-foreground">
+                      {user.fullName ? user.fullName.split(" ")[0] : "Usuario"}
+                    </span>
                   </span>
                   <FiChevronDown
-                    className={`w-3.5 h-3.5 transition-transform hidden sm:inline text-slate-400 ${
+                    aria-hidden="true"
+                    className={`hidden h-4 w-4 text-muted-foreground transition-transform sm:inline ${
                       userMenuOpen ? "rotate-180" : ""
                     }`}
                   />
                 </button>
 
                 {userMenuOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden z-50">
-                    <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
-                      <p className="text-xs text-slate-500">Conectado como</p>
-                      <p className="text-sm font-bold text-slate-900 truncate">
+                  <div className="absolute right-0 top-full z-50 mt-2 w-64 overflow-hidden rounded-xl bg-card shadow-lg ring-1 ring-border/60">
+                    <div className="bg-muted px-4 py-3">
+                      <p className="text-sm text-muted-foreground">Conectado como</p>
+                      <p className="truncate text-sm font-semibold text-foreground">
                         {user.email}
                       </p>
                     </div>
 
-                    <ul className="py-2">
+                    <ul className="py-1.5">
                       <li>
                         <Link
                           href="/perfil"
                           onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground transition-colors hover:bg-accent hover:text-primary"
                         >
-                          <FiUser className="w-4 h-4" />
-                          Mi Perfil
+                          <FiUser className="h-4 w-4" aria-hidden="true" />
+                          Mi perfil
                         </Link>
                       </li>
                       <li>
                         <Link
                           href="/perfil?tab=pedidos"
                           onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground transition-colors hover:bg-accent hover:text-primary"
                         >
-                          <FiPackage className="w-4 h-4" />
-                          Mis Pedidos
+                          <FiPackage className="h-4 w-4" aria-hidden="true" />
+                          Mis pedidos
                         </Link>
                       </li>
                       <li>
                         <Link
                           href="/perfil?tab=direcciones"
                           onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground transition-colors hover:bg-accent hover:text-primary"
                         >
-                          <FiMapPin className="w-4 h-4" />
-                          Ubicación
+                          <FiMapPin className="h-4 w-4" aria-hidden="true" />
+                          Direcciones
                         </Link>
                       </li>
                     </ul>
 
-                    <div className="border-t border-slate-100 py-1">
+                    <div className="bg-muted py-1.5">
                       <button
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                        className="flex w-full items-center gap-3 px-4 py-2.5 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
                       >
-                        <FiLogOut className="w-4 h-4" />
-                        Cerrar Sesión
+                        <FiLogOut className="h-4 w-4" aria-hidden="true" />
+                        Cerrar sesión
                       </button>
                     </div>
                   </div>
@@ -207,10 +226,10 @@ export default function StoreHeader() {
             ) : (
               <Link
                 href="/login"
-                className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-purple-600 to-cyan-400 text-white rounded-lg hover:opacity-90 transition text-sm font-bold shadow-sm"
+                className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-primary px-3.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 sm:px-4"
               >
-                <FiUser className="w-4 h-4" />
-                <span>Iniciar Sesión</span>
+                <FiUser className="h-4 w-4" aria-hidden="true" />
+                <span className="hidden sm:inline">Iniciar sesión</span>
               </Link>
             )}
           </div>
@@ -218,26 +237,30 @@ export default function StoreHeader() {
       </div>
 
       {/* Menú de categorías */}
-      <nav className="border-t border-slate-100 bg-white">
-        <div className="max-w-7xl mx-auto px-4">
-          <ul className="flex items-center justify-center gap-1 overflow-x-auto scrollbar-hide py-2">
-            {categorias.map((cat) => (
-              <li key={cat}>
-                <Link
-                  href={`/productos?categoria=${cat.toLowerCase().replace(/\s+/g, "-")}`}
-                  className="block px-3 py-1.5 text-sm text-slate-600 font-medium hover:text-purple-600 hover:bg-purple-50 rounded-md transition whitespace-nowrap"
-                >
-                  {cat}
-                </Link>
-              </li>
-            ))}
+      <nav aria-label="Categorías" className="bg-muted/60">
+        <div className="mx-auto max-w-[1400px] px-5 lg:px-8">
+          <ul className="flex flex-wrap items-center justify-center gap-1 py-1.5">
+            {categorias.map((cat) => {
+              const soloEscritorio = ["Notebooks", "Monitores", "Micrófonos", "Sillas Gamer", "Accesorios"].includes(
+                cat.label,
+              );
+              return (
+                <li key={cat.value} className={soloEscritorio ? "hidden md:block" : ""}>
+                  <Link
+                    href={`/productos?categoria=${encodeURIComponent(cat.value)}`}
+                    className="block whitespace-nowrap rounded-md px-3 py-2 text-base font-medium text-foreground/80 transition-colors hover:bg-card hover:text-primary"
+                  >
+                    {cat.label}
+                  </Link>
+                </li>
+              );
+            })}
             <li>
               <Link
-                href="/productos"
-                className="ml-1 inline-flex items-center gap-1.5 px-4 py-1.5 text-sm font-bold text-white bg-gradient-to-r from-purple-600 to-cyan-400 rounded-full hover:shadow-lg hover:shadow-purple-500/40 hover:scale-105 transition-all whitespace-nowrap"
+                href="/productos?categoria=ofertas"
+                className="ml-1 block whitespace-nowrap rounded-md bg-secondary px-4 py-2 text-base font-semibold text-secondary-foreground transition-colors hover:bg-secondary/90"
               >
                 Ofertas
-                <span className="text-xs">🔥</span>
               </Link>
             </li>
           </ul>

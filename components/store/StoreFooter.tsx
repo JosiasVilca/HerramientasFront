@@ -1,153 +1,92 @@
 // components/store/StoreFooter.tsx
 import Link from "next/link";
-import { FiFacebook, FiInstagram, FiYoutube, FiTwitter, FiMapPin } from "react-icons/fi";
-
-// Enlaces reales del pie; el resto de la lista sigue siendo decorativo.
-const LINK_HREFS: Record<string, string> = {
-  "Política de Privacidad": "/privacidad",
-};
 
 const columns = [
   {
-    title: "Información",
+    title: "Comprar",
     links: [
-      "Sobre Nosotros",
-      "Términos y Condiciones",
-      "Política de Privacidad",
-      "Garantía de Hardware",
-      "Trabaja con Nosotros",
+      { label: "Catálogo completo", href: "/productos" },
+      { label: "Favoritos", href: "/favoritos" },
+      { label: "Carrito", href: "/carrito" },
     ],
   },
   {
-    title: "Atención al Cliente",
+    title: "Ayuda",
     links: [
-      "Seguimiento de Pedido",
-      "Centro de Ayuda FAQ",
-      "Cambios y Devoluciones",
-      "Métodos de Pago y Sitios",
-      "Libro de Reclamaciones",
+      { label: "Seguimiento de pedido", href: "/tracking-list" },
+      { label: "Términos del servicio", href: "/terms" },
+      { label: "Política de privacidad", href: "/privacidad" },
+      { label: "Eliminación de datos", href: "/eliminacion-de-datos" },
     ],
   },
 ];
 
 export default function StoreFooter() {
   return (
-    <footer className="w-full bg-slate-900 text-white mt-12">
-      {/* Contenido principal */}
-      <div className="max-w-7xl mx-auto px-4 py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
-        {/* Columna 1: Logo + descripción */}
-        <div className="lg:col-span-1">
-          <div className="flex items-center gap-2 mb-4">
-            <img
-              src="/logotipo.png"
-              alt="NEXORA STORE"
-              className="h-8 w-auto object-contain brightness-0 invert"
-            />
-          </div>
-          <p className="text-xs text-slate-400 leading-relaxed mb-4">
-            Tu tienda de tecnología gamer de alto rendimiento. Envíos a todo el Perú con garantía oficial.
+    <footer className="mt-8 w-full bg-[#0b1c30] text-white">
+      <div className="mx-auto grid max-w-[1400px] gap-10 px-5 py-14 sm:grid-cols-2 sm:px-6 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr] lg:gap-12 lg:px-8 lg:py-16">
+        {/* Marca */}
+        <div>
+          <img
+            src="/logotipo.png"
+            alt="NEXORA STORE"
+            className="h-8 w-auto object-contain brightness-0 invert"
+          />
+          <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/60">
+            Tecnología gamer original, con despacho a todo el Perú y garantía
+            oficial.
           </p>
-          <div className="flex items-center gap-2 text-xs text-emerald-400 font-semibold">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            TIENDA ONLINE ACTIVA
-          </div>
+          <p className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-white/80">
+            <span className="h-2 w-2 rounded-full bg-[#35c46a]" aria-hidden="true" />
+            Tienda online activa
+          </p>
         </div>
 
-        {/* Columnas 2 y 3 */}
         {columns.map((col) => (
-          <div key={col.title}>
-            <h3 className="text-xs font-bold text-white tracking-widest uppercase mb-4">
-              {col.title}
-            </h3>
-            <ul className="space-y-2">
+          <nav key={col.title} aria-label={col.title}>
+            <h2 className="text-sm font-semibold text-white">{col.title}</h2>
+            <ul className="mt-4 space-y-2.5">
               {col.links.map((link) => (
-                <li key={link}>
+                <li key={link.href}>
                   <Link
-                    href={LINK_HREFS[link] ?? "#"}
-                    className="text-xs text-slate-400 hover:text-cyan-400 transition-colors"
+                    href={link.href}
+                    className="text-sm text-white/60 transition-colors hover:text-white"
                   >
-                    {link}
+                    {link.label}
                   </Link>
                 </li>
               ))}
             </ul>
-          </div>
+          </nav>
         ))}
 
-        {/* Columna 4: Contacto */}
+        {/* Contacto */}
         <div>
-          <h3 className="text-xs font-bold text-white tracking-widest uppercase mb-4">
-            Contacto
-          </h3>
-          <ul className="space-y-2 text-xs text-slate-400">
+          <h2 className="text-sm font-semibold text-white">Contacto</h2>
+          <ul className="mt-4 space-y-2.5 text-sm text-white/60">
             <li>
-              <a href="mailto:ventas@nexora.pe" className="hover:text-cyan-400 transition-colors">
+              <a
+                href="mailto:ventas@nexora.pe"
+                className="transition-colors hover:text-white"
+              >
                 ventas@nexora.pe
               </a>
             </li>
             <li>
-              <a href="tel:+51987654321" className="hover:text-cyan-400 transition-colors">
+              <a href="tel:+51987654321" className="transition-colors hover:text-white">
                 +51 987 654 321
               </a>
             </li>
-            <li>Lun - Sáb: 09:00 - 22:00</li>
+            <li>Lun a sáb, 09:00 – 22:00</li>
             <li>Lima, Perú</li>
-          </ul>
-        </div>
-
-        {/* Columna 5: Redes */}
-        <div>
-          <h3 className="text-xs font-bold text-white tracking-widest uppercase mb-4">
-            Comunidad Gamer
-          </h3>
-          <ul className="space-y-2.5 text-xs">
-            <li>
-              <Link href="#" className="flex items-center gap-2 text-slate-400 hover:text-cyan-400 transition-colors">
-                <FiFacebook className="w-4 h-4" />
-                Discord Server
-              </Link>
-            </li>
-            <li>
-              <Link href="#" className="flex items-center gap-2 text-slate-400 hover:text-cyan-400 transition-colors">
-                <FiInstagram className="w-4 h-4" />
-                75.5k @nexorastore.pe
-              </Link>
-            </li>
-            <li>
-              <Link href="#" className="flex items-center gap-2 text-slate-400 hover:text-cyan-400 transition-colors">
-                <FiYoutube className="w-4 h-4" />
-                @nexoragaming
-              </Link>
-            </li>
-            <li>
-              <Link href="#" className="flex items-center gap-2 text-slate-400 hover:text-cyan-400 transition-colors">
-                <FiTwitter className="w-4 h-4" />
-                @nexora_gaming
-              </Link>
-            </li>
           </ul>
         </div>
       </div>
 
-      {/* Línea inferior */}
-      <div className="border-t border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-500">
-          <p>
-            © 2026 NEXORA Ecommerce Gaming Tech Perú S.A.C. Todos los derechos reservados.
-          </p>
-          <div className="flex items-center gap-4">
-            <Link href="/terms" className="hover:text-cyan-400 transition-colors">
-              Términos de Servicio
-            </Link>
-            <span>•</span>
-            <Link href="/privacidad" className="hover:text-cyan-400 transition-colors">
-              Privacidad
-            </Link>
-            <span>•</span>
-            <Link href="#" className="hover:text-cyan-400 transition-colors">
-              Cookies
-            </Link>
-          </div>
+      <div className="bg-[#081426]">
+        <div className="mx-auto flex max-w-[1400px] flex-col gap-2 px-5 py-5 text-sm text-white/50 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+          <p>© 2026 NEXORA Ecommerce Gaming Tech Perú S.A.C.</p>
+          <p>Precios en soles peruanos, incluido IGV.</p>
         </div>
       </div>
     </footer>

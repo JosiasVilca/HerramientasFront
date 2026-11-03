@@ -1,42 +1,43 @@
 // components/store/Brands.tsx
+import Reveal from "@/components/ui/reveal";
+
 const brands = [
-  "LOGITECH G",
-  "RAZER",
-  "STEELSERIES",
-  "HYPERX",
-  "CORSAIR",
+  "Logitech G",
+  "Razer",
+  "SteelSeries",
+  "HyperX",
+  "Corsair",
   "ROG",
-  "GLORIOUS",
-  "ZOWIE",
+  "Glorious",
+  "Zowie",
 ];
 
 export default function Brands() {
   return (
-    <section className="w-full max-w-7xl mx-auto px-4 py-8">
-      <div className="flex flex-col items-center text-center mb-8">
-        <span className="text-xs font-bold text-cyan-600 tracking-widest uppercase mb-3">
-          Partners Oficiales
-        </span>
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-          Marcas que confían en nosotros
-        </h2>
-        <p className="text-sm text-slate-500 mt-2 max-w-xl">
-          Trabajamos directamente con los fabricantes líderes para garantizar
-          hardware 100% original en Perú.
-        </p>
-      </div>
+    <section className="mx-auto w-full max-w-[1400px] px-5 py-14 sm:px-6 lg:px-8 lg:py-20">
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:items-start lg:gap-16">
+        <Reveal>
+          <h2 className="text-2xl font-bold tracking-[-0.02em] text-foreground sm:text-3xl">
+            Marcas en catálogo
+          </h2>
+          <p className="mt-3 max-w-sm text-base text-muted-foreground">
+            Periféricos y componentes de las marcas que se usan en competencia,
+            con stock real en Perú.
+          </p>
+        </Reveal>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-3">
-        {brands.map((brand) => (
-          <div
-            key={brand}
-            className="group bg-white border border-slate-200 rounded-xl py-4 px-3 flex items-center justify-center hover:border-purple-300 hover:shadow-md transition-all cursor-pointer"
-          >
-            <span className="text-xs sm:text-sm font-extrabold text-slate-500 group-hover:text-purple-600 transition-colors tracking-wider text-center">
-              {brand}
-            </span>
-          </div>
-        ))}
+        <Reveal delay={100}>
+          <ul className="grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-3 md:grid-cols-4">
+            {brands.map((brand) => (
+              <li
+                key={brand}
+                className="text-lg font-semibold tracking-tight text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {brand}
+              </li>
+            ))}
+          </ul>
+        </Reveal>
       </div>
     </section>
   );
