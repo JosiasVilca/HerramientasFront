@@ -25,6 +25,10 @@ export interface GoogleAuthRequest {
   credential: string;
 }
 
+export interface FacebookAuthRequest {
+  accessToken: string;
+}
+
 export interface AuthResponse {
   token: string;
   refreshToken?: string;

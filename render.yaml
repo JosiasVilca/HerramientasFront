@@ -39,3 +39,13 @@ services:
       # ---------------------------------------------------------------------
       - key: NEXT_PUBLIC_GOOGLE_CLIENT_ID
         sync: false
+
+      # ---------------------------------------------------------------------
+      # Facebook Login — Client ID público (el App Secret es solo del backend)
+      # ---------------------------------------------------------------------
+      # Debe ser el MISMO valor que FACEBOOK_CLIENT_ID en el servicio del backend.
+      - key: NEXT_PUBLIC_FACEBOOK_CLIENT_ID
+        sync: false
+      # Versión de la Graph API; debe coincidir con FACEBOOK_API_VERSION.
+      - key: NEXT_PUBLIC_FACEBOOK_API_VERSION
+        value: v26.0

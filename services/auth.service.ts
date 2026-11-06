@@ -11,6 +11,9 @@ export const authService = {
   loginWithGoogle: (credential: string) =>
     fetchFromAPI<AuthResponse>("/api/v1/auth/google", { method: "POST", body: JSON.stringify({ credential }) }),
 
+  loginWithFacebook: (accessToken: string) =>
+    fetchFromAPI<AuthResponse>("/api/v1/auth/facebook", { method: "POST", body: JSON.stringify({ accessToken }) }),
+
   getCurrentUser: (token: string) =>
     fetchFromAPI<User>("/api/v1/auth/me", { headers: { Authorization: `Bearer ${token}` } }),
 

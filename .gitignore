@@ -39,6 +39,8 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# La plantilla sí se versiona: solo tiene marcadores, sin credenciales reales.
+!.env.example
 
 # vercel
 .vercel

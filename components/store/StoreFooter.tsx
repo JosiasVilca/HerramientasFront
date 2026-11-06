@@ -2,6 +2,11 @@
 import Link from "next/link";
 import { FiFacebook, FiInstagram, FiYoutube, FiTwitter, FiMapPin } from "react-icons/fi";
 
+// Enlaces reales del pie; el resto de la lista sigue siendo decorativo.
+const LINK_HREFS: Record<string, string> = {
+  "Política de Privacidad": "/privacidad",
+};
+
 const columns = [
   {
     title: "Información",
@@ -58,7 +63,7 @@ export default function StoreFooter() {
               {col.links.map((link) => (
                 <li key={link}>
                   <Link
-                    href="#"
+                    href={LINK_HREFS[link] ?? "#"}
                     className="text-xs text-slate-400 hover:text-cyan-400 transition-colors"
                   >
                     {link}
@@ -131,11 +136,11 @@ export default function StoreFooter() {
             © 2026 NEXORA Ecommerce Gaming Tech Perú S.A.C. Todos los derechos reservados.
           </p>
           <div className="flex items-center gap-4">
-            <Link href="#" className="hover:text-cyan-400 transition-colors">
+            <Link href="/terms" className="hover:text-cyan-400 transition-colors">
               Términos de Servicio
             </Link>
             <span>•</span>
-            <Link href="#" className="hover:text-cyan-400 transition-colors">
+            <Link href="/privacidad" className="hover:text-cyan-400 transition-colors">
               Privacidad
             </Link>
             <span>•</span>
