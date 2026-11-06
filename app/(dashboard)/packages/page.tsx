@@ -140,6 +140,20 @@ export default function PackagesPage() {
     }
   };
 
+  const handlePackageCreated = (newPackage: PackageItem) => {
+    const query = searchQuery.trim().toLowerCase();
+    const matchesStatus = statusFilter === "ALL" || newPackage.status === statusFilter;
+    const matchesSearch = !query || [
+      newPackage.trackingCode,
+      newPackage.senderName,
+      newPackage.receiverName,
+    ].some((value) => value.toLowerCase().includes(query));
+
+    if (matchesStatus && matchesSearch) {
+      setPackages((current) => [newPackage, ...current.filter((item) => item.id !== newPackage.id)]);
+    }
+  };
+
   return (
     <div className="space-y-6">
       
@@ -161,7 +175,7 @@ export default function PackagesPage() {
         </div>
         <div className="flex gap-2">
           <ScannerModal onStatusUpdated={loadPackages} />
-          <CreatePackageDialog onSuccess={() => loadPackages()} />
+          <CreatePackageDialog onSuccess={handlePackageCreated} />
         </div>
       </div>
 
