@@ -9,8 +9,6 @@ import {
   FiHeart,
   FiShoppingCart,
   FiUser,
-  FiPackage,
-  FiMapPin,
   FiLogOut,
   FiChevronDown,
 } from "react-icons/fi";
@@ -191,22 +189,25 @@ export default function StoreHeader() {
                       </li>
                       <li>
                         <Link
-                          href="/perfil?tab=pedidos"
+                          href="/favoritos"
                           onClick={() => setUserMenuOpen(false)}
                           className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground transition-colors hover:bg-accent hover:text-primary"
                         >
-                          <FiPackage className="h-4 w-4" aria-hidden="true" />
-                          Mis pedidos
+                          <FiHeart className="h-4 w-4" aria-hidden="true" />
+                          Favoritos
                         </Link>
                       </li>
                       <li>
                         <Link
-                          href="/perfil?tab=direcciones"
+                          href="/carrito"
                           onClick={() => setUserMenuOpen(false)}
                           className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground transition-colors hover:bg-accent hover:text-primary"
                         >
-                          <FiMapPin className="h-4 w-4" aria-hidden="true" />
-                          Direcciones
+                          <FiShoppingCart
+                            className="h-4 w-4"
+                            aria-hidden="true"
+                          />
+                          Mi carrito
                         </Link>
                       </li>
                     </ul>
