@@ -13,7 +13,6 @@ const columns = [
   {
     title: "Ayuda",
     links: [
-      { label: "Seguimiento de pedido", href: "/tracking-list" },
       { label: "Términos del servicio", href: "/terms" },
       { label: "Política de privacidad", href: "/privacidad" },
       { label: "Eliminación de datos", href: "/eliminacion-de-datos" },
