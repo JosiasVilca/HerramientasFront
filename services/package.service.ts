@@ -3,7 +3,7 @@ import { PackageItem, CreatePackageDTO, UpdatePackageStatusDTO, PackageStatus } 
 
 let MOCK_PACKAGES: PackageItem[] = [
   {
-    id: 1,
+    id: "mock-1",
     trackingCode: "SW-9843-XY",
     senderName: "Distribuidora Andina S.A.",
     senderPhone: "+51987654321",
@@ -19,7 +19,7 @@ let MOCK_PACKAGES: PackageItem[] = [
     updatedAt: "2026-08-28 10:15",
   },
   {
-    id: 2,
+    id: "mock-2",
     trackingCode: "TRK-1111-AA",
     senderName: "Calzados del Norte",
     senderPhone: "+51933445566",
@@ -35,7 +35,7 @@ let MOCK_PACKAGES: PackageItem[] = [
     updatedAt: "2026-08-26 14:20",
   },
   {
-    id: 3,
+    id: "mock-3",
     trackingCode: "SW-4321-LZ",
     senderName: "Clientenomberaca",
     senderPhone: "+51912345678",
@@ -51,7 +51,7 @@ let MOCK_PACKAGES: PackageItem[] = [
     updatedAt: "2026-08-28 07:15",
   },
   {
-    id: 4,
+    id: "mock-4",
     trackingCode: "SW-8877-QR",
     senderName: "Importaciones Lima",
     senderPhone: "+51955223344",
@@ -67,7 +67,7 @@ let MOCK_PACKAGES: PackageItem[] = [
     updatedAt: "2026-08-28 11:30",
   },
   {
-    id: 5,
+    id: "mock-5",
     trackingCode: "SW-5566-ER",
     senderName: "TechStore Sac",
     senderPhone: "+51999888777",
@@ -119,43 +119,13 @@ export const packageService = {
   },
 
   create: async (dto: CreatePackageDTO): Promise<PackageItem> => {
-    try {
-      return await fetchFromAPI<PackageItem>("/api/v1/packages", {
-        method: "POST",
-        body: JSON.stringify(dto),
-      });
-    } catch (error) {
-      console.warn("Backend REST API offline. Mocking package creation.", error);
-      
-      const newCode = `SW-${Math.floor(1000 + Math.random() * 9000)}-${Array.from({ length: 2 }, () =>
-        String.fromCharCode(65 + Math.floor(Math.random() * 26))
-      ).join("")}`;
-      
-      const now = new Date().toISOString().replace("T", " ").substring(0, 16);
-      
-      const newPackage: PackageItem = {
-        id: MOCK_PACKAGES.length + 1,
-        trackingCode: newCode,
-        senderName: dto.senderName,
-        senderPhone: dto.senderPhone,
-        receiverName: dto.receiverName,
-        receiverPhone: dto.receiverPhone,
-        originCity: "Lima", // Assuming origin Hub
-        destinationCity: dto.destinationCity,
-        destinationAddress: dto.destinationAddress,
-        weightKg: dto.weightKg,
-        status: "REGISTRADO",
-        description: dto.description,
-        createdAt: now,
-        updatedAt: now,
-      };
-      
-      MOCK_PACKAGES = [newPackage, ...MOCK_PACKAGES];
-      return newPackage;
-    }
+    return fetchFromAPI<PackageItem>("/api/v1/packages", {
+      method: "POST",
+      body: JSON.stringify(dto),
+    });
   },
 
-  getById: async (id: number): Promise<PackageItem> => {
+  getById: async (id: string): Promise<PackageItem> => {
     try {
       return await fetchFromAPI<PackageItem>(`/api/v1/packages/${id}`, {
         method: "GET",

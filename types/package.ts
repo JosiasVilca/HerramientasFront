@@ -7,7 +7,8 @@ export type PackageStatus =
   | "INCIDENCIA";
 
 export interface PackageItem {
-  id: number;
+  // The backend persists package IDs as UUIDs.
+  id: string;
   trackingCode: string;
   senderName: string;
   senderPhone?: string;
@@ -35,7 +36,7 @@ export interface CreatePackageDTO {
 }
 
 export interface UpdatePackageStatusDTO {
-  packageId: number;
+  packageId: string;
   newStatus: PackageStatus;
   notes?: string;
   location?: string;
