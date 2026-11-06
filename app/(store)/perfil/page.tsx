@@ -230,7 +230,7 @@ function AccountView({ user }: { user: User }) {
 
             <div className="min-w-0">
               <p className="text-xl font-semibold leading-tight">{name}</p>
-              <p className="mt-1 break-all text-base text-white/60">
+              <p className="mt-1 break-all text-sm text-white/60">
                 {user.email}
               </p>
             </div>

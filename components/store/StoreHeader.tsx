@@ -111,7 +111,7 @@ export default function StoreHeader() {
               type="search"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Buscar productos, marcas y categorías"
+              placeholder="Buscar productos"
               className="h-11 w-full rounded-lg bg-muted pl-10 pr-4 text-base text-foreground placeholder:text-muted-foreground focus:bg-background focus:outline-none focus:ring-2 focus:ring-ring/40"
             />
           </div>
