@@ -7,46 +7,12 @@ import { FiCheck, FiHeart, FiShoppingCart, FiTrash2 } from "react-icons/fi";
 import ProductCard from "@/components/store/ProductCard";
 import Reveal from "@/components/ui/reveal";
 import { useCombinedProducts } from "@/lib/use-combined-products";
-
-const FAVORITES_KEY = "favorites";
-const EMPTY_IDS: string[] = [];
-
-let favoritesCache: { raw: string | null; ids: string[] } = {
-  raw: null,
-  ids: EMPTY_IDS,
-};
-
-function readFavorites(): string[] {
-  const raw = window.localStorage.getItem(FAVORITES_KEY);
-  if (raw !== favoritesCache.raw) {
-    try {
-      const parsed = JSON.parse(raw ?? "[]");
-      favoritesCache = {
-        raw,
-        ids: Array.isArray(parsed)
-          ? parsed.filter((id): id is string => typeof id === "string")
-          : EMPTY_IDS,
-      };
-    } catch {
-      favoritesCache = { raw, ids: EMPTY_IDS };
-    }
-  }
-  return favoritesCache.ids;
-}
-
-function subscribeToFavorites(callback: () => void) {
-  window.addEventListener("storage", callback);
-  window.addEventListener("favoritesChanged", callback);
-  return () => {
-    window.removeEventListener("storage", callback);
-    window.removeEventListener("favoritesChanged", callback);
-  };
-}
-
-function writeFavorites(ids: string[]) {
-  window.localStorage.setItem(FAVORITES_KEY, JSON.stringify(ids));
-  window.dispatchEvent(new Event("favoritesChanged"));
-}
+import {
+  EMPTY_FAVORITES,
+  readFavorites,
+  subscribeToFavorites,
+  writeFavorites,
+} from "@/lib/favorites";
 
 interface CartItem {
   id: string;
@@ -61,7 +27,7 @@ export default function FavoritosPage() {
   const favoriteIds = useSyncExternalStore(
     subscribeToFavorites,
     readFavorites,
-    () => EMPTY_IDS,
+    () => EMPTY_FAVORITES,
   );
   const { allProducts, isLoaded } = useCombinedProducts();
   const [feedback, setFeedback] = useState("");
