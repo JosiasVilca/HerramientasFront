@@ -2,6 +2,8 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+
 import {
   FiCheck,
   FiShoppingCart,
@@ -23,6 +25,8 @@ interface ProductInfoProps {
 export default function ProductInfo({ product }: ProductInfoProps) {
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
+  const router = useRouter();
+
 
   const hasPrice = product.price > 0;
   const available = product.stock > 0;
@@ -32,7 +36,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
     `Hola, quiero consultar por ${product.name} (SKU ${product.sku}).`,
   )}`;
 
-const agregarAlCarrito = () => {
+const agregarAlCarrito = (irAlCheckout = false) => {
   if (!hasPrice || !available) return;
 
   try {
@@ -46,6 +50,12 @@ const agregarAlCarrito = () => {
       },
       quantity,
     );
+
+    if (irAlCheckout) {
+      router.push("/checkout");
+      return;
+    }
+
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 1600);
   } catch (error) {
@@ -176,7 +186,7 @@ const agregarAlCarrito = () => {
       <div className="mt-6 space-y-3">
         {hasPrice ? (
           <button
-            onClick={agregarAlCarrito}
+            onClick={() => agregarAlCarrito()}
             disabled={!available}
             className={`flex min-h-12 w-full items-center justify-center gap-2 rounded-lg text-base font-semibold transition-[transform,box-shadow,opacity] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-600/60 focus-visible:ring-offset-2 ${
               isAdded
@@ -207,6 +217,17 @@ const agregarAlCarrito = () => {
             Consultar por WhatsApp
           </a>
         )}
+
+        {hasPrice && available && (
+  <button
+    onClick={() => agregarAlCarrito(true)}
+    className="flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-secondary text-base font-semibold text-white transition-opacity hover:opacity-90 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/60 focus-visible:ring-offset-2"
+  >
+    <FiCreditCard className="h-4 w-4" aria-hidden="true" />
+    Comprar ahora
+  </button>
+)}
+
 
         {hasPrice && (
           <a
