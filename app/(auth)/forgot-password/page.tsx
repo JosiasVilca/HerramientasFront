@@ -1,3 +1,4 @@
+// app/(auth)/forgot-password/page.tsx
 "use client";
 
 import React, { useState } from "react";
@@ -47,88 +48,86 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <Card className="border-zinc-200/80 dark:border-zinc-800 shadow-xl shadow-zinc-100/50 dark:shadow-none bg-white dark:bg-zinc-900 transition-all duration-300 w-full animate-fadeIn">
-      <CardHeader className="space-y-1.5 pb-6">
-        <CardTitle className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
-          ¿Olvidaste tu contraseña?
+    <Card className="w-full max-w-md bg-white rounded-3xl shadow-2xl p-6 sm:p-10 transition-all duration-500 border-none">
+      <CardHeader className="space-y-1.5 pb-8 text-center px-0">
+        <CardTitle className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-purple-600 to-cyan-500 bg-clip-text text-transparent tracking-tight text-center mb-2 uppercase">
+          Recuperar Contraseña
         </CardTitle>
-        <CardDescription className="text-zinc-500 dark:text-zinc-400 text-sm">
+        <CardDescription className="text-sm text-slate-500 text-center font-normal">
           Ingresa tu correo electrónico registrado y te enviaremos instrucciones para restablecerla.
         </CardDescription>
       </CardHeader>
       
-      <CardContent>
-        {/* Error Message */}
+      <CardContent className="p-0">
+        {/* Mensaje de Error */}
         {errorMsg && (
-          <div className="mb-4 p-4 rounded-lg bg-red-50 border border-red-200 text-red-800 text-sm flex items-center gap-2">
-            <span className="material-symbols-outlined text-red-600 text-[18px]">error</span>
-            <span>{errorMsg}</span>
+          <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-800 text-sm">
+            {errorMsg}
           </div>
         )}
 
-        {/* Success Message */}
+        {/* Mensaje de Éxito */}
         {successMsg && (
-          <div className="mb-4 p-4 rounded-lg bg-green-50 border border-green-200 text-green-800 text-sm flex flex-col gap-1 shadow-sm">
+          <div className="mb-4 p-3 rounded-lg bg-green-50 border border-green-200 text-green-800 text-sm flex flex-col gap-1">
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-green-600 text-[18px]">check_circle</span>
-              <span className="font-bold text-sm">Correo de recuperación enviado</span>
+              <span className="font-bold">Correo enviado</span>
             </div>
-            <p className="text-xs mt-1 leading-relaxed text-zinc-600 dark:text-zinc-400">
+            <p className="text-xs mt-1 leading-relaxed text-green-700">
               {successMsg}
             </p>
           </div>
         )}
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           
           {/* Email Field */}
           <div className="flex flex-col gap-2">
-            <Label htmlFor="email" className="text-zinc-700 dark:text-zinc-300 font-semibold text-sm">
+            <Label htmlFor="email" className="text-sm font-medium text-slate-700">
               Correo Electrónico
             </Label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
-                <Mail className="w-4 h-4" />
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <Mail className="w-5 h-5" />
               </div>
               <Input
                 id="email"
                 type="email"
                 disabled={isSubmitting}
-                placeholder="ejemplo@empresa.com"
-                className={`pl-9 bg-zinc-50/30 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary focus-visible:ring-offset-2 transition-all ${
-                  errors.email ? "border-red-500 focus-visible:ring-red-500" : ""
+                placeholder="" 
+                className={`pl-11 pr-4 py-6 bg-slate-50 border rounded-xl text-sm font-normal transition outline-none focus:bg-white focus:ring-2 focus:ring-purple-500 ${
+                  errors.email ? "border-red-500" : "border-slate-200 focus:border-transparent"
                 }`}
                 {...register("email")}
               />
             </div>
             {errors.email && (
-              <p className="text-red-500 text-xs font-semibold">{errors.email.message}</p>
+              <p className="text-red-500 text-xs font-medium mt-1">{errors.email.message}</p>
             )}
           </div>
 
           {/* Submit Button */}
-          <div>
+          <div className="pt-2">
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="w-full h-10 font-medium active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md"
+              className="w-full py-6 bg-gradient-to-r from-purple-600 to-cyan-400 text-white font-bold text-sm tracking-wide rounded-xl shadow-lg hover:shadow-xl hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-60 uppercase cursor-pointer"
             >
               {isSubmitting ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
                 <>
                   <span>Enviar instrucciones</span>
-                  <Send className="w-3.5 h-3.5" />
+                  <Send className="w-4 h-4" />
                 </>
               )}
             </Button>
           </div>
 
           {/* Back to Login Link */}
-          <div className="mt-4 text-center">
+          <div className="text-center pt-2">
             <Link
               href="/login"
-              className="text-sm font-semibold text-primary hover:text-primary/95 transition-colors flex items-center justify-center gap-1.5"
+              className="text-sm font-medium text-purple-600 hover:text-purple-700 transition-colors flex items-center justify-center gap-1.5"
             >
               <ArrowLeft className="w-4 h-4" />
               Volver al inicio de sesión
