@@ -3,6 +3,8 @@
 
 import { useSyncExternalStore } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+
 import {
   FiArrowLeft,
   FiMessageCircle,
@@ -13,6 +15,7 @@ import {
 import ProductCard from "@/components/store/ProductCard";
 import Reveal from "@/components/ui/reveal";
 import { useCombinedProducts } from "@/lib/use-combined-products";
+import { useAuth } from "@/context/auth-context";
 
 import {
   EMPTY_CART,
@@ -29,6 +32,16 @@ export default function CarritoPage() {
     () => EMPTY_CART,
   );
   const { allProducts, isLoaded } = useCombinedProducts();
+  const router = useRouter();
+const { user } = useAuth();
+
+const finalizarCompra = () => {
+  if (!user) {
+    router.push("/login");
+    return;
+  }
+  router.push("/checkout");
+};
 
   const idsEnCarrito = new Set(carrito.map((item) => item.id));
   const recomendados = isLoaded
@@ -233,12 +246,18 @@ export default function CarritoPage() {
                   </dd>
                 </div>
               </dl>
+<button
+  onClick={finalizarCompra}
+  disabled={carrito.length === 0}
+  className="mt-6 flex min-h-12 w-full items-center justify-center rounded-lg bg-secondary text-base font-semibold text-secondary-foreground transition-colors hover:bg-secondary/90 disabled:cursor-not-allowed disabled:opacity-50"
+>
+  Finalizar compra
+</button>
 
-              <a
-                href={whatsappHref}
+              <a href={whatsappHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-6 flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-primary text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+                className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-primary text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
               >
                 <FiMessageCircle className="h-5 w-5" aria-hidden="true" />
                 Confirmar por WhatsApp
