@@ -111,11 +111,11 @@ export default function ProductsGrid() {
     <div>
       {/* Título dinámico según filtro */}
       {busquedaParam && busquedaParam.trim() && (
-        <div className="mb-4">
-          <p className="text-xs text-slate-500">Resultados para:</p>
-          <h2 className="text-lg font-bold text-slate-900">
+        <div className="mb-3">
+          <p className="text-[11px] text-slate-500">Resultados para:</p>
+          <h2 className="text-base font-bold text-slate-900">
             &ldquo;{busquedaParam}&rdquo;
-            <span className="text-sm font-normal text-slate-500 ml-2">
+            <span className="text-xs font-normal text-slate-500 ml-2">
               ({sortedProducts.length}{" "}
               {sortedProducts.length === 1 ? "resultado" : "resultados"})
             </span>
@@ -125,15 +125,15 @@ export default function ProductsGrid() {
 
       {/* Título de categoría */}
       {categoriaParam && !busquedaParam && (
-        <div className="mb-4">
-          <h2 className="text-lg font-bold text-slate-900 capitalize">
+        <div className="mb-3">
+          <h2 className="text-base font-bold text-slate-900 capitalize">
             {categoriaParam.replace(/-/g, " ")}
           </h2>
         </div>
       )}
 
       {/* Barra superior */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-3 mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="bg-white border border-slate-200 rounded-xl p-3 mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-xs text-slate-500">
             <span className="font-bold text-slate-900">
@@ -150,7 +150,7 @@ export default function ProductsGrid() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="appearance-none pl-3 pr-8 py-2 bg-slate-100 border border-transparent rounded-lg text-xs font-medium text-slate-700 outline-none focus:border-purple-500 cursor-pointer"
+              className="appearance-none pl-3 pr-8 py-1.5 bg-slate-100 border border-transparent rounded-lg text-xs font-medium text-slate-700 outline-none focus:border-purple-500 cursor-pointer"
             >
               <option value="populares">Más populares</option>
               <option value="nuevos">Más nuevos</option>
@@ -174,12 +174,12 @@ export default function ProductsGrid() {
 
       {/* Grid de productos */}
       {!isLoaded ? (
-        <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
+        <div className="bg-white border border-slate-200 rounded-xl p-10 text-center">
           <p className="text-sm text-slate-500">Cargando productos...</p>
         </div>
       ) : sortedProducts.length === 0 ? (
-        <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
-          <p className="text-lg font-bold text-slate-900 mb-2">
+        <div className="bg-white border border-slate-200 rounded-xl p-10 text-center">
+          <p className="text-base font-bold text-slate-900 mb-2">
             No hay productos
           </p>
           <p className="text-sm text-slate-500">
@@ -188,7 +188,7 @@ export default function ProductsGrid() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 mb-6">
           {sortedProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
@@ -199,7 +199,7 @@ export default function ProductsGrid() {
       {sortedProducts.length > 0 && (
         <div className="flex items-center justify-center gap-1.5">
           <button
-            className="w-9 h-9 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-slate-50 disabled:opacity-40"
+            className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-slate-50 disabled:opacity-40 text-xs"
             disabled
           >
             ‹
@@ -207,7 +207,7 @@ export default function ProductsGrid() {
           {[1, 2, 3].map((n) => (
             <button
               key={n}
-              className={`w-9 h-9 rounded-lg text-xs font-bold transition-colors ${
+              className={`w-8 h-8 rounded-lg text-xs font-bold transition-colors ${
                 n === 1
                   ? "bg-purple-600 text-white"
                   : "border border-slate-200 text-slate-600 hover:bg-slate-50"
@@ -217,10 +217,10 @@ export default function ProductsGrid() {
             </button>
           ))}
           <span className="text-slate-400 px-1 text-xs">...</span>
-          <button className="w-9 h-9 rounded-lg border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50">
+          <button className="w-8 h-8 rounded-lg border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50">
             11
           </button>
-          <button className="w-9 h-9 rounded-lg border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50">
+          <button className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50 text-xs">
             ›
           </button>
         </div>

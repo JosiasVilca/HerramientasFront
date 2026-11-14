@@ -26,24 +26,24 @@ export default function RelatedProducts({ product }: RelatedProductsProps) {
 
   return (
     <section className="w-full">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
         <div>
-          <span className="text-xs font-bold text-purple-600 tracking-widest uppercase mb-2 block">
+          <span className="text-[10px] font-bold text-purple-600 tracking-widest uppercase mb-1.5 block">
             Completa tu battle station
           </span>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
             Recomendados con el {product.name}
           </h2>
         </div>
         <Link
           href="/productos"
-          className="text-sm font-semibold text-purple-600 hover:text-purple-700 whitespace-nowrap"
+          className="text-xs font-semibold text-purple-600 hover:text-purple-700 whitespace-nowrap"
         >
           Ver todo el catálogo →
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
         {finalRelated.map((p) => (
           <ProductCard key={p.id} product={p} />
         ))}

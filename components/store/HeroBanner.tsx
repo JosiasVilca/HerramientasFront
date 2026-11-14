@@ -40,8 +40,8 @@ export default function HeroBanner() {
     setCurrent((prev) => (prev - 1 + slides.length) % slides.length);
 
   return (
-    <section className="relative w-full max-w-7xl mx-auto px-4 py-6">
-      <div className="relative rounded-3xl overflow-hidden bg-slate-900 min-h-[420px] sm:min-h-[480px] shadow-2xl">
+    <section className="relative w-full max-w-7xl mx-auto px-4 py-4">
+      <div className="relative rounded-3xl overflow-hidden bg-slate-900 min-h-[200px] sm:min-h-[240px] shadow-2xl">
         {/* Imagen de fondo */}
         <div
           className="absolute inset-0 bg-cover bg-center"
@@ -51,51 +51,53 @@ export default function HeroBanner() {
         </div>
 
         {/* Contenido */}
-        <div className="relative z-10 p-8 sm:p-12 max-w-2xl">
+        <div className="relative z-10 p-5 sm:p-7 max-w-2xl">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-emerald-500/20 border border-emerald-400/40 rounded-full px-4 py-1.5 mb-6">
+          <div className="inline-flex items-center gap-2 bg-emerald-500/20 border border-emerald-400/40 rounded-full px-3 py-1 mb-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span className="text-xs font-semibold text-emerald-300 tracking-wider uppercase">
+            <span className="text-[10px] font-semibold text-emerald-300 tracking-wider uppercase">
               {slide.badge}
             </span>
           </div>
 
           {/* Título */}
-          <h1 className="text-4xl sm:text-6xl font-extrabold text-white tracking-tight mb-4 leading-none">
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-2 leading-none">
             {slide.title}
           </h1>
 
-          <p className="text-sm sm:text-base text-slate-300 mb-3 leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-300 mb-1 leading-relaxed">
             {slide.subtitle}
           </p>
 
-          <p className="text-sm text-slate-400 mb-8">{slide.description}</p>
+          <p className="text-xs text-slate-400 mb-4">{slide.description}</p>
 
           {/* Botones */}
-          <div className="flex flex-wrap gap-3 mb-8">
+          <div className="flex flex-wrap gap-2 mb-4">
             <Link
               href="/productos"
-              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-cyan-400 text-white font-semibold text-sm rounded-lg shadow-lg hover:shadow-xl hover:opacity-90 active:scale-[0.98] transition-all"
+              className="px-5 py-2 bg-gradient-to-r from-purple-600 to-cyan-400 text-white font-semibold text-xs rounded-lg shadow-lg hover:shadow-xl hover:opacity-90 active:scale-[0.98] transition-all"
             >
               Comprar ahora →
             </Link>
             <Link
               href="/productos"
-              className="px-6 py-3 border-2 border-white/30 text-white font-semibold text-sm rounded-lg hover:bg-white/10 transition-all"
+              className="px-5 py-2 border-2 border-white/30 text-white font-semibold text-xs rounded-lg hover:bg-white/10 transition-all"
             >
               Ver ofertas
             </Link>
           </div>
 
           {/* Specs */}
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-2">
             {slide.specs.map((spec, i) => (
               <div
                 key={i}
-                className="bg-slate-800/60 border border-white/10 backdrop-blur-sm rounded-lg px-4 py-3 min-w-[140px]"
+                className="bg-slate-800/60 border border-white/10 backdrop-blur-sm rounded-lg px-3 py-1.5 min-w-[110px]"
               >
-                <div className="text-lg font-bold text-white">{spec.label}</div>
-                <div className="text-[10px] text-slate-400 tracking-widest uppercase">
+                <div className="text-sm font-bold text-white">
+                  {spec.label}
+                </div>
+                <div className="text-[9px] text-slate-400 tracking-widest uppercase">
                   {spec.sub}
                 </div>
               </div>
@@ -124,7 +126,7 @@ export default function HeroBanner() {
         )}
 
         {/* Dots */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 z-20">
           {slides.map((_, i) => (
             <button
               key={i}
