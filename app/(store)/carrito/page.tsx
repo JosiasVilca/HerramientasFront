@@ -14,54 +14,13 @@ import ProductCard from "@/components/store/ProductCard";
 import Reveal from "@/components/ui/reveal";
 import { useCombinedProducts } from "@/lib/use-combined-products";
 
-interface CartItem {
-  id: string;
-  nombre: string;
-  especificacion?: string;
-  precio: number;
-  cantidad: number;
-  imagen: string;
-}
-
-const CART_KEY = "carrito_compras";
-const EMPTY_CART: CartItem[] = [];
-
-// Snapshot cacheado: useSyncExternalStore exige devolver la misma referencia
-// mientras el contenido de localStorage no cambie.
-let cartCache: { raw: string | null; items: CartItem[] } = {
-  raw: null,
-  items: EMPTY_CART,
-};
-
-function readCart(): CartItem[] {
-  const raw = window.localStorage.getItem(CART_KEY);
-  if (raw !== cartCache.raw) {
-    try {
-      const parsed = JSON.parse(raw ?? "[]");
-      cartCache = {
-        raw,
-        items: Array.isArray(parsed) ? (parsed as CartItem[]) : EMPTY_CART,
-      };
-    } catch {
-      cartCache = { raw, items: EMPTY_CART };
-    }
-  }
-  return cartCache.items;
-}
-
-function subscribeToCart(callback: () => void) {
-  window.addEventListener("storage", callback);
-  window.addEventListener("cartUpdated", callback);
-  return () => {
-    window.removeEventListener("storage", callback);
-    window.removeEventListener("cartUpdated", callback);
-  };
-}
-
-function writeCart(items: CartItem[]) {
-  window.localStorage.setItem(CART_KEY, JSON.stringify(items));
-  window.dispatchEvent(new Event("cartUpdated"));
-}
+import {
+  EMPTY_CART,
+  readCart,
+  subscribeToCart,
+  writeCart,
+  type CartItem,
+} from "@/lib/cart";
 
 export default function CarritoPage() {
   const carrito = useSyncExternalStore(
