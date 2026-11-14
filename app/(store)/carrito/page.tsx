@@ -138,11 +138,11 @@ const finalizarCompra = () => {
           </p>
 
           <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-14">
-            <ul className="space-y-6">
+            <ul className="space-y-4">
               {carrito.map((item, index) => (
                 <li
                   key={item.id}
-                  className="hero-rise flex flex-wrap items-start gap-4 sm:flex-nowrap sm:gap-6"
+                  className="hero-rise flex flex-wrap items-start gap-4 rounded-xl border border-border bg-card p-4 sm:flex-nowrap sm:gap-6 sm:p-5"
                   style={{ animationDelay: `${120 + index * 70}ms` }}
                 >
                   <Link
@@ -219,7 +219,7 @@ const finalizarCompra = () => {
               ))}
             </ul>
 
-            <aside className="hero-rise rounded-xl bg-card p-6 [animation-delay:260ms] lg:sticky lg:top-8">
+            <aside className="hero-rise rounded-xl border border-border bg-card p-6 shadow-sm [animation-delay:260ms] lg:sticky lg:top-8">
               <h2 className="text-xl font-semibold text-foreground">
                 Resumen del pedido
               </h2>
