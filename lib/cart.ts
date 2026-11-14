@@ -47,3 +47,16 @@ export function writeCart(items: CartItem[]) {
   window.localStorage.setItem(CART_KEY, JSON.stringify(items));
   window.dispatchEvent(new Event("cartUpdated"));
 }
+
+export function addToCart(item: Omit<CartItem, "cantidad">, cantidad = 1) {
+  const items = [...readCart()];
+  const index = items.findIndex((i) => i.id === item.id);
+
+  if (index > -1) {
+    items[index] = { ...items[index], cantidad: items[index].cantidad + cantidad };
+  } else {
+    items.push({ ...item, cantidad });
+  }
+
+  writeCart(items);
+}

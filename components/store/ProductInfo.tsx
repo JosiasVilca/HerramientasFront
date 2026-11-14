@@ -14,6 +14,7 @@ import {
   FiMessageCircle,
 } from "react-icons/fi";
 import { Product } from "@/data/products";
+import { addToCart } from "@/lib/cart";
 
 interface ProductInfoProps {
   product: Product;
@@ -31,38 +32,27 @@ export default function ProductInfo({ product }: ProductInfoProps) {
     `Hola, quiero consultar por ${product.name} (SKU ${product.sku}).`,
   )}`;
 
-  const agregarAlCarrito = () => {
-    if (!hasPrice || !available) return;
+const agregarAlCarrito = () => {
+  if (!hasPrice || !available) return;
 
-    try {
-      const carritoActual = JSON.parse(
-        localStorage.getItem("carrito_compras") || "[]",
-      );
-      const indexExistente = carritoActual.findIndex(
-        (item: { id: string }) => item.id === product.id,
-      );
+  try {
+    addToCart(
+      {
+        id: product.id,
+        nombre: product.name,
+        especificacion: product.sku,
+        precio: product.price,
+        imagen: product.image,
+      },
+      quantity,
+    );
+    setIsAdded(true);
+    setTimeout(() => setIsAdded(false), 1600);
+  } catch (error) {
+    console.error("Error al agregar al carrito:", error);
+  }
+};
 
-      if (indexExistente >= 0) {
-        carritoActual[indexExistente].cantidad += quantity;
-      } else {
-        carritoActual.push({
-          id: product.id,
-          nombre: product.name,
-          especificacion: product.sku,
-          precio: product.price,
-          cantidad: quantity,
-          imagen: product.image,
-        });
-      }
-
-      localStorage.setItem("carrito_compras", JSON.stringify(carritoActual));
-      window.dispatchEvent(new Event("cartUpdated"));
-      setIsAdded(true);
-      setTimeout(() => setIsAdded(false), 1600);
-    } catch (error) {
-      console.error("Error al agregar al carrito:", error);
-    }
-  };
 
   const categoryLabel = product.category
     .replace(/-/g, " ")

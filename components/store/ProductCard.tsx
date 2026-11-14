@@ -5,6 +5,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { FiHeart, FiShoppingCart, FiCheck, FiArrowRight } from "react-icons/fi";
 import { Product } from "@/data/products";
+import { addToCart } from "@/lib/cart";
 
 interface ProductCardProps {
   product: Product;
@@ -51,41 +52,23 @@ export default function ProductCard({ product }: ProductCardProps) {
     }
   };
 
-  const handleAddToCart = () => {
-    setIsAdded(true);
-    setTimeout(() => setIsAdded(false), 1600);
+const handleAddToCart = () => {
+  setIsAdded(true);
+  setTimeout(() => setIsAdded(false), 1600);
 
-    try {
-      const stored = localStorage.getItem("carrito_compras");
-      const carrito: {
-        id: string;
-        nombre: string;
-        especificacion: string;
-        precio: number;
-        cantidad: number;
-        imagen: string;
-      }[] = stored ? JSON.parse(stored) : [];
+  try {
+    addToCart({
+      id: product.id,
+      nombre: product.name,
+      especificacion: product.sku,
+      precio: product.price,
+      imagen: product.image,
+    });
+  } catch (e) {
+    console.error("Error al agregar al carrito:", e);
+  }
+};
 
-      const index = carrito.findIndex((item) => item.id === product.id);
-      if (index > -1) {
-        carrito[index].cantidad += 1;
-      } else {
-        carrito.push({
-          id: product.id,
-          nombre: product.name,
-          especificacion: product.sku,
-          precio: product.price,
-          cantidad: 1,
-          imagen: product.image,
-        });
-      }
-
-      localStorage.setItem("carrito_compras", JSON.stringify(carrito));
-      window.dispatchEvent(new Event("cartUpdated"));
-    } catch (e) {
-      console.error("Error al agregar al carrito:", e);
-    }
-  };
 
   const hasDiscount = product.oldPrice > product.price;
 
