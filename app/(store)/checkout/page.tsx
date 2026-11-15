@@ -17,9 +17,9 @@ const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const PAYMENT_OPTIONS: { value: PaymentMethod; label: string }[] = [
-  { value: "YAPE_PLIN", label: "Yape / Plin" },
+  { value: "YAPE", label: "Yape / Plin" },
   { value: "TRANSFERENCIA", label: "Transferencia bancaria" },
-  { value: "CONTRA_ENTREGA", label: "Pago contra entrega" },
+  { value: "EFECTIVO", label: "Pago contra entrega" },
 ];
 
 interface FormState {
@@ -69,7 +69,7 @@ export default function CheckoutPage() {
   // Solo guardamos lo que la usuaria edita; el resto viene de su perfil.
   const [edits, setEdits] = useState<Partial<FormState>>({});
   const [paymentMethod, setPaymentMethod] =
-    useState<PaymentMethod>("YAPE_PLIN");
+    useState<PaymentMethod>("YAPE");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});

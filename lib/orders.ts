@@ -40,7 +40,7 @@ export async function createOrder(
     const message =
       body.message ||
       body.error ||
-      (response.status === 401
+      (response.status === 401 || response.status === 403
         ? "Debes iniciar sesión para finalizar la compra."
         : `Error ${response.status}: no se pudo crear el pedido.`);
 

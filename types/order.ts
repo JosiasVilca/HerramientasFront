@@ -1,8 +1,8 @@
-// types/order.ts
-// Contrato PROVISIONAL de POST /api/orders. Pendiente de confirmar con backend.
+// Contrato de POST /api/orders. `customer` (datos de entrega) pendiente de que el backend lo guarde.
 // El cliente NO envía precios ni totales: los calcula el servidor.
 
-export type PaymentMethod = "YAPE_PLIN" | "TRANSFERENCIA" | "CONTRA_ENTREGA";
+
+export type PaymentMethod = "YAPE" | "TRANSFERENCIA" | "EFECTIVO";
 
 export interface CreateOrderItem {
   productId: string; // UUID del producto en el backend
@@ -26,16 +26,19 @@ export interface CreateOrderRequest {
 
 export interface OrderLine {
   productId: string;
-  name: string;
+  productName: string;
   unitPrice: number;
   quantity: number;
   subtotal: number;
 }
 
 export interface OrderResponse {
-  orderId: string;
+  id: string;
   orderNumber: string;
   status: string;
+  paymentMethod: string;
+  paymentStatus: string;
+  createdAt: string;
   items: OrderLine[];
   total: number;
 }

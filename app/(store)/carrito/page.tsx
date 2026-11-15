@@ -1,459 +1,387 @@
+// app/(store)/carrito/page.tsx
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
-import type { FormEvent, ReactNode } from "react";
+import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+
 import {
-  Banknote,
-  Building2,
-  Check,
-  Landmark,
-  Lock,
-  Mail,
-  MapPin,
-  Phone,
-  Smartphone,
-  User,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+  FiArrowLeft,
+  FiCreditCard,
+  FiMessageCircle,
+  FiMinus,
+  FiPlus,
+  FiShield,
+  FiShoppingBag,
+  FiTrash2,
+  FiTruck,
+} from "react-icons/fi";
+import ProductCard from "@/components/store/ProductCard";
+import Reveal from "@/components/ui/reveal";
+import { useCombinedProducts } from "@/lib/use-combined-products";
 import { useAuth } from "@/context/auth-context";
-import { EMPTY_CART, readCart, subscribeToCart, writeCart } from "@/lib/cart";
-import { createOrder, OrderError } from "@/lib/orders";
-import type {
-  CreateOrderRequest,
-  OrderResponse,
-  PaymentMethod,
-} from "@/types/order";
 
-const UUID_REGEX =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+import {
+  EMPTY_CART,
+  readCart,
+  subscribeToCart,
+  writeCart,
+  type CartItem,
+} from "@/lib/cart";
 
-const PAYMENT_OPTIONS: {
-  value: PaymentMethod;
-  label: string;
-  description: string;
-  icon: LucideIcon;
-}[] = [
-  {
-    value: "YAPE_PLIN",
-    label: "Yape / Plin",
-    description: "Paga desde tu celular",
-    icon: Smartphone,
-  },
-  {
-    value: "TRANSFERENCIA",
-    label: "Transferencia bancaria",
-    description: "Depósito o transferencia",
-    icon: Landmark,
-  },
-  {
-    value: "CONTRA_ENTREGA",
-    label: "Pago contra entrega",
-    description: "Paga cuando recibas tu pedido",
-    icon: Banknote,
-  },
-];
+const gradientBg = "bg-gradient-to-r from-purple-600 to-cyan-400";
+const gradientText =
+  "bg-gradient-to-r from-purple-400 to-cyan-300 bg-clip-text text-transparent";
 
-interface FormState {
-  fullName: string;
-  email: string;
-  phone: string;
-  address: string;
-  city: string;
-  notes: string;
-}
+const pasos = ["Carrito", "Datos", "Confirmación"];
 
-const TEXT_FIELDS: {
-  name: keyof FormState;
-  label: string;
-  type?: string;
-  autoComplete: string;
-  icon: LucideIcon;
-  full?: boolean;
-}[] = [
-  { name: "fullName", label: "Nombre completo", autoComplete: "name", icon: User, full: true },
-  { name: "email", label: "Correo", type: "email", autoComplete: "email", icon: Mail },
-  { name: "phone", label: "Teléfono", type: "tel", autoComplete: "tel", icon: Phone },
-  { name: "address", label: "Dirección", autoComplete: "street-address", icon: MapPin, full: true },
-  { name: "city", label: "Ciudad", autoComplete: "address-level2", icon: Building2, full: true },
-];
-
-const inputClass =
-  "min-h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 transition focus:border-purple-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/30";
-
-const gradientButton =
-  "bg-gradient-to-r from-purple-600 to-cyan-400 text-white shadow-lg shadow-purple-500/20 transition hover:brightness-110";
-
-const primaryLinkClass = `mt-6 inline-flex min-h-11 items-center rounded-xl px-6 text-sm font-bold uppercase tracking-wide ${gradientButton}`;
-
-const formatPrice = (value: number) => `S/ ${value.toFixed(2)}`;
-
-function Shell({ children }: { children: ReactNode }) {
-  return <main className="mx-auto max-w-6xl px-4 py-10">{children}</main>;
-}
-
-function Steps({ current }: { current: 1 | 2 | 3 }) {
-  const steps = ["Carrito", "Datos", "Confirmación"];
-  return (
-    <ol className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-wide">
-      {steps.map((label, idx) => {
-        const n = idx + 1;
-        const done = n < current;
-        const active = n === current;
-        return (
-          <li key={label} className="flex items-center gap-2">
-            <span
-              className={`flex h-6 w-6 items-center justify-center rounded-full text-xs ${
-                active || done
-                  ? "bg-gradient-to-r from-purple-600 to-cyan-400 text-white"
-                  : "border border-slate-300 text-slate-500"
-              }`}
-            >
-              {done ? <Check className="h-3.5 w-3.5" /> : n}
-            </span>
-            <span className={active ? "text-slate-900" : "text-slate-500"}>
-              {label}
-            </span>
-            {n < steps.length && <span className="h-px w-8 bg-slate-300" />}
-          </li>
-        );
-      })}
-    </ol>
-  );
-}
-
-function Card({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-      <h2 className="text-lg font-bold text-slate-900">{title}</h2>
-      <div className="mt-4">{children}</div>
-    </section>
-  );
-}
-
-export default function CheckoutPage() {
-  const router = useRouter();
-  const { user, loading } = useAuth();
-
-  const items = useSyncExternalStore(
+export default function CarritoPage() {
+  const carrito = useSyncExternalStore(
     subscribeToCart,
     readCart,
     () => EMPTY_CART,
   );
+  const { allProducts, isLoaded } = useCombinedProducts();
+  const router = useRouter();
+  const { user } = useAuth();
 
-  // Solo guardamos lo que la usuaria edita; el resto viene de su perfil.
-  const [edits, setEdits] = useState<Partial<FormState>>({});
-  const [paymentMethod, setPaymentMethod] =
-    useState<PaymentMethod>("YAPE_PLIN");
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [order, setOrder] = useState<OrderResponse | null>(null);
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.replace("/login");
-    }
-  }, [loading, user, router]);
-
-  const values: FormState = {
-    fullName: edits.fullName ?? user?.fullName ?? "",
-    email: edits.email ?? user?.email ?? "",
-    phone: edits.phone ?? user?.phone ?? "",
-    address: edits.address ?? "",
-    city: edits.city ?? "",
-    notes: edits.notes ?? "",
-  };
-
-  const setField = (field: keyof FormState, value: string) =>
-    setEdits((prev) => ({ ...prev, [field]: value }));
-
-  const total = items.reduce((sum, i) => sum + i.precio * i.cantidad, 0);
-
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError(null);
-    setFieldErrors({});
-
-    if (items.some((i) => !UUID_REGEX.test(i.id))) {
-      setError(
-        "Tu carrito tiene productos de prueba que no se pueden comprar. Vacía el carrito y agrega productos del catálogo.",
-      );
+  const finalizarCompra = () => {
+    if (!user) {
+      router.push("/login");
       return;
     }
-
-    const request: CreateOrderRequest = {
-      items: items.map((i) => ({ productId: i.id, quantity: i.cantidad })),
-      customer: {
-        fullName: values.fullName.trim(),
-        email: values.email.trim(),
-        phone: values.phone.trim(),
-        address: values.address.trim(),
-        city: values.city.trim(),
-        notes: values.notes.trim() || undefined,
-      },
-      paymentMethod,
-    };
-
-    setSubmitting(true);
-    try {
-      const created = await createOrder(request);
-      writeCart([]);
-      setOrder(created);
-    } catch (err) {
-      if (err instanceof OrderError) {
-        setError(err.message);
-        setFieldErrors(err.details ?? {});
-      } else {
-        setError("No se pudo crear el pedido. Inténtalo de nuevo.");
-      }
-    } finally {
-      setSubmitting(false);
-    }
+    router.push("/checkout");
   };
 
-  if (loading || !user) {
-    return (
-      <Shell>
-        <p className="text-sm text-slate-500">Cargando...</p>
-      </Shell>
-    );
-  }
+  const idsEnCarrito = new Set(carrito.map((item) => item.id));
+  const recomendados = isLoaded
+    ? allProducts.filter((product) => !idsEnCarrito.has(product.id)).slice(0, 4)
+    : [];
 
-  if (order) {
-    return (
-      <Shell>
-        <div className="mx-auto max-w-xl rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-          <div className="mb-6 flex justify-center">
-            <Steps current={3} />
-          </div>
-          <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-r from-purple-600 to-cyan-400 text-white">
-            <Check className="h-7 w-7" />
-          </span>
-          <h1 className="mt-4 text-2xl font-extrabold text-slate-900">
-            ¡Pedido creado!
-          </h1>
-          <p className="mt-2 text-slate-600">
-            Tu número de pedido es <strong>{order.orderNumber}</strong>.
-          </p>
-          <p className="mt-1 text-lg font-bold text-slate-900">
-            Total: {formatPrice(order.total)}
-          </p>
-          <Link href="/productos" className={primaryLinkClass}>
-            Seguir comprando
-          </Link>
-        </div>
-      </Shell>
-    );
-  }
+  const guardarCarrito = (items: CartItem[]) => {
+    writeCart(items);
+  };
 
-  if (items.length === 0) {
-    return (
-      <Shell>
-        <div className="mx-auto max-w-xl rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-          <h1 className="text-2xl font-extrabold text-slate-900">
-            Tu carrito está vacío
-          </h1>
-          <Link href="/productos" className={primaryLinkClass}>
-            Ver productos
-          </Link>
-        </div>
-      </Shell>
-    );
-  }
+  const cambiarCantidad = (id: string, delta: number) => {
+    const actualizado = carrito
+      .map((item) =>
+        item.id === id ? { ...item, cantidad: item.cantidad + delta } : item,
+      )
+      .filter((item) => item.cantidad > 0);
+    guardarCarrito(actualizado);
+  };
+
+  const eliminarProducto = (id: string) => {
+    guardarCarrito(carrito.filter((item) => item.id !== id));
+  };
+
+  const vaciarCarrito = () => {
+    if (!window.confirm("¿Vaciar el carrito? Esta acción no se puede deshacer.")) {
+      return;
+    }
+    guardarCarrito([]);
+  };
+
+  const totalItems = carrito.reduce((acc, item) => acc + item.cantidad, 0);
+  const subtotal = carrito.reduce(
+    (acc, item) => acc + item.precio * item.cantidad,
+    0,
+  );
+
+  const mensajeWhatsApp = [
+    "Hola NEXORA, quiero coordinar este pedido:",
+    "",
+    ...carrito.map(
+      (item) =>
+        `• ${item.nombre}${item.especificacion ? ` (${item.especificacion})` : ""} x${item.cantidad} — S/ ${(item.precio * item.cantidad).toFixed(2)}`,
+    ),
+    "",
+    `Total: S/ ${subtotal.toFixed(2)}`,
+  ].join("\n");
+
+  const whatsappHref = `https://wa.me/51987654321?text=${encodeURIComponent(
+    mensajeWhatsApp,
+  )}`;
 
   return (
-    <Shell>
-      <div className="flex flex-wrap items-end justify-between gap-4">
+    <div className="mx-auto w-full max-w-[1400px] px-5 pb-20 pt-8 sm:px-6 lg:px-8 lg:pt-10">
+      <nav
+        aria-label="Migas de pan"
+        className="hero-rise flex items-center gap-2 text-sm text-muted-foreground"
+      >
+        <Link href="/" className="transition-colors hover:text-foreground">
+          Inicio
+        </Link>
+        <span aria-hidden="true">/</span>
+        <span className="font-medium text-foreground">Carrito</span>
+      </nav>
+
+      <div className="mt-5 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-slate-900">
-            Finalizar compra
+          <h1 className="hero-rise text-4xl font-extrabold tracking-[-0.03em] text-[#0b1c30] sm:text-5xl [animation-delay:60ms]">
+            Tu carrito
           </h1>
-          <p className="mt-2 text-sm text-slate-600">
-            Completa tus datos y elige cómo quieres pagar.
+          <p className="hero-rise mt-3 max-w-xl text-lg leading-relaxed text-muted-foreground [animation-delay:120ms]">
+            Revisa tus productos, ajusta las cantidades y continúa con tu compra.
           </p>
         </div>
-        <Steps current={2} />
+
+        <ol
+          aria-label="Pasos de compra"
+          className="hero-rise flex items-center gap-3 text-xs font-extrabold uppercase tracking-wider [animation-delay:160ms]"
+        >
+          {pasos.map((paso, i) => (
+            <li key={paso} className="flex items-center gap-3">
+              <span
+                className={`flex h-7 w-7 items-center justify-center rounded-full text-xs ${
+                  i === 0
+                    ? `${gradientBg} text-white`
+                    : "border border-border bg-card text-muted-foreground"
+                }`}
+              >
+                {i + 1}
+              </span>
+              <span
+                className={i === 0 ? "text-[#0b1c30]" : "text-muted-foreground"}
+              >
+                {paso}
+              </span>
+              {i < pasos.length - 1 && (
+                <span
+                  aria-hidden="true"
+                  className="hidden h-px w-8 bg-border sm:block"
+                />
+              )}
+            </li>
+          ))}
+        </ol>
       </div>
 
-      <form
-        onSubmit={handleSubmit}
-        className="mt-8 grid gap-6 lg:grid-cols-[1fr_380px] lg:items-start"
-      >
-        <div className="space-y-6">
-          <Card title="Datos de envío">
-            <div className="grid gap-4 sm:grid-cols-2">
-              {TEXT_FIELDS.map((f) => {
-                const Icon = f.icon;
-                return (
-                  <div key={f.name} className={f.full ? "sm:col-span-2" : ""}>
-                    <label
-                      htmlFor={f.name}
-                      className="mb-1 block text-sm font-semibold text-slate-700"
-                    >
-                      {f.label}
-                    </label>
-                    <div className="relative">
-                      <Icon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                      <input
-                        id={f.name}
-                        name={f.name}
-                        type={f.type ?? "text"}
-                        autoComplete={f.autoComplete}
-                        required
-                        value={values[f.name]}
-                        onChange={(e) => setField(f.name, e.target.value)}
-                        aria-invalid={fieldErrors[f.name] ? true : undefined}
-                        className={`${inputClass} pl-10`}
-                      />
-                    </div>
-                    {fieldErrors[f.name] && (
-                      <p className="mt-1 text-sm text-red-600">
-                        {fieldErrors[f.name]}
-                      </p>
-                    )}
-                  </div>
-                );
-              })}
-
-              <div className="sm:col-span-2">
-                <label
-                  htmlFor="notes"
-                  className="mb-1 block text-sm font-semibold text-slate-700"
-                >
-                  Notas (opcional)
-                </label>
-                <textarea
-                  id="notes"
-                  name="notes"
-                  rows={3}
-                  value={values.notes}
-                  onChange={(e) => setField("notes", e.target.value)}
-                  placeholder="Referencias de entrega, horario, etc."
-                  className={`${inputClass} py-2`}
-                />
-              </div>
-            </div>
-          </Card>
-
-          <Card title="Método de pago">
-            <fieldset>
-              <legend className="sr-only">Método de pago</legend>
-              <div className="grid gap-3 sm:grid-cols-3">
-                {PAYMENT_OPTIONS.map((opt) => {
-                  const Icon = opt.icon;
-                  const selected = paymentMethod === opt.value;
-                  return (
-                    <label
-                      key={opt.value}
-                      className={`relative flex cursor-pointer flex-col gap-2 rounded-xl border-2 p-4 transition ${
-                        selected
-                          ? "border-purple-500 bg-purple-50 shadow-md shadow-purple-500/10"
-                          : "border-slate-200 bg-white hover:border-purple-300"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        value={opt.value}
-                        checked={selected}
-                        onChange={() => setPaymentMethod(opt.value)}
-                        className="sr-only"
-                      />
-                      <span
-                        className={`flex h-9 w-9 items-center justify-center rounded-lg ${
-                          selected
-                            ? "bg-gradient-to-r from-purple-600 to-cyan-400 text-white"
-                            : "bg-slate-100 text-slate-600"
-                        }`}
-                      >
-                        <Icon className="h-5 w-5" />
-                      </span>
-                      <span className="text-sm font-bold text-slate-900">
-                        {opt.label}
-                      </span>
-                      <span className="text-xs text-slate-500">
-                        {opt.description}
-                      </span>
-                      {selected && (
-                        <Check className="absolute right-3 top-3 h-4 w-4 text-purple-600" />
-                      )}
-                    </label>
-                  );
-                })}
-              </div>
-            </fieldset>
-          </Card>
-        </div>
-
-        <aside className="rounded-2xl bg-[#0b1c30] p-6 text-white shadow-xl lg:sticky lg:top-24">
-          <h2 className="text-lg font-bold">Resumen del pedido</h2>
-
-          <ul className="mt-4 space-y-3">
-            {items.map((i) => (
-              <li key={i.id} className="flex items-center gap-3">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={i.imagen}
-                  alt={i.nombre}
-                  className="h-12 w-12 shrink-0 rounded-lg bg-white/10 object-cover"
-                />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold">{i.nombre}</p>
-                  <p className="text-xs text-slate-400">
-                    Cantidad: {i.cantidad}
-                  </p>
-                </div>
-                <span className="text-sm font-semibold">
-                  {formatPrice(i.precio * i.cantidad)}
-                </span>
-              </li>
-            ))}
-          </ul>
-
-          <div className="mt-5 border-t border-white/10 pt-4">
-            <div className="flex items-end justify-between">
-              <span className="font-bold">Total estimado</span>
-              <span className="bg-gradient-to-r from-purple-400 to-cyan-300 bg-clip-text text-2xl font-extrabold text-transparent">
-                {formatPrice(total)}
-              </span>
-            </div>
-            <p className="mt-1 text-xs text-slate-400">
-              El total final lo confirma el servidor.
-            </p>
-          </div>
-
-          {error && (
-            <p
-              role="alert"
-              className="mt-4 rounded-lg bg-red-500/10 p-3 text-sm text-red-300"
-            >
-              {error}
-            </p>
-          )}
-
-          <button
-            type="submit"
-            disabled={submitting}
-            className={`mt-5 min-h-12 w-full rounded-xl text-sm font-bold uppercase tracking-wide disabled:opacity-60 ${gradientButton}`}
+      {carrito.length === 0 ? (
+        <div className="hero-rise mt-10 flex flex-col items-center rounded-2xl border border-border bg-card p-10 text-center sm:p-16 [animation-delay:180ms]">
+          <span
+            className={`flex h-16 w-16 items-center justify-center rounded-full ${gradientBg} text-white`}
           >
-            {submitting ? "Enviando..." : "Confirmar pedido"}
-          </button>
-
-          <p className="mt-4 flex items-center justify-center gap-2 text-xs text-slate-400">
-            <Lock className="h-3.5 w-3.5" />
-            Revisa tus datos antes de confirmar.
+            <FiShoppingBag className="h-7 w-7" aria-hidden="true" />
+          </span>
+          <h2 className="mt-6 text-2xl font-extrabold text-[#0b1c30]">
+            Tu carrito está vacío
+          </h2>
+          <p className="mt-2 max-w-md text-base text-muted-foreground">
+            Explora el catálogo y agrega los periféricos que quieras sumar a tu
+            setup.
+          </p>
+          <Link
+            href="/productos"
+            className={`mt-8 inline-flex min-h-12 items-center justify-center rounded-lg ${gradientBg} px-6 py-3 text-sm font-extrabold uppercase tracking-wider text-white transition-[transform,box-shadow,opacity] duration-200 hover:opacity-90 hover:shadow-xl active:scale-[0.98]`}
+          >
+            Explorar catálogo
+          </Link>
+        </div>
+      ) : (
+        <>
+          <p className="mt-8 text-base font-medium text-muted-foreground">
+            {totalItems} {totalItems === 1 ? "unidad" : "unidades"} en{" "}
+            {carrito.length} {carrito.length === 1 ? "producto" : "productos"}
           </p>
 
-          <Link
-            href="/carrito"
-            className="mt-4 block text-center text-xs font-semibold text-cyan-300 underline-offset-4 hover:underline"
-          >
-            ← Volver al carrito
-          </Link>
-        </aside>
-      </form>
-    </Shell>
+          <div className="mt-4 grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start lg:gap-12">
+            <ul className="space-y-4">
+              {carrito.map((item, index) => (
+                <li
+                  key={item.id}
+                  className="hero-rise flex flex-wrap items-start gap-4 rounded-2xl border border-border bg-card p-4 transition-shadow duration-200 hover:shadow-lg sm:flex-nowrap sm:gap-6 sm:p-5"
+                  style={{ animationDelay: `${120 + index * 70}ms` }}
+                >
+                  <Link
+                    href={`/producto/${item.id}`}
+                    className="block h-28 w-28 shrink-0 overflow-hidden rounded-xl bg-[#f1f4fa] sm:h-32 sm:w-32"
+                    aria-label={`Ver ${item.nombre}`}
+                  >
+                    <img
+                      src={item.imagen || "/producto-placeholder.svg"}
+                      alt={item.nombre}
+                      className="h-full w-full object-contain p-2 mix-blend-multiply"
+                    />
+                  </Link>
+
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
+                      <div className="min-w-0">
+                        {item.especificacion && (
+                          <p className="text-xs font-extrabold uppercase tracking-wider text-purple-600">
+                            {item.especificacion}
+                          </p>
+                        )}
+                        <Link
+                          href={`/producto/${item.id}`}
+                          className="mt-1 block text-lg font-bold leading-snug text-[#0b1c30] transition-colors hover:text-purple-600"
+                        >
+                          {item.nombre}
+                        </Link>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          {item.precio > 0
+                            ? `S/ ${item.precio.toFixed(2)} por unidad`
+                            : "Precio por confirmar"}
+                        </p>
+                      </div>
+
+                      <p className="text-xl font-extrabold text-[#0b1c30] tabular-nums">
+                        {item.precio > 0
+                          ? `S/ ${(item.precio * item.cantidad).toFixed(2)}`
+                          : "Por confirmar"}
+                      </p>
+                    </div>
+
+                    <div className="mt-5 flex flex-wrap items-center justify-between gap-4">
+                      <div className="inline-flex items-center rounded-lg border border-border bg-white">
+                        <button
+                          onClick={() => cambiarCantidad(item.id, -1)}
+                          className="flex h-10 w-10 items-center justify-center rounded-l-lg text-[#0b1c30] transition-colors hover:bg-purple-50 hover:text-purple-600"
+                          aria-label={`Quitar una unidad de ${item.nombre}`}
+                        >
+                          <FiMinus className="h-4 w-4" aria-hidden="true" />
+                        </button>
+                        <span className="w-10 text-center text-base font-bold text-[#0b1c30] tabular-nums">
+                          {item.cantidad}
+                        </span>
+                        <button
+                          onClick={() => cambiarCantidad(item.id, 1)}
+                          className="flex h-10 w-10 items-center justify-center rounded-r-lg text-[#0b1c30] transition-colors hover:bg-purple-50 hover:text-purple-600"
+                          aria-label={`Agregar una unidad de ${item.nombre}`}
+                        >
+                          <FiPlus className="h-4 w-4" aria-hidden="true" />
+                        </button>
+                      </div>
+
+                      <button
+                        onClick={() => eliminarProducto(item.id)}
+                        className="inline-flex min-h-10 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-muted-foreground transition-colors hover:bg-red-50 hover:text-destructive"
+                      >
+                        <FiTrash2 className="h-4 w-4" aria-hidden="true" />
+                        Eliminar
+                      </button>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            <aside className="hero-rise rounded-2xl bg-[#0b1c30] p-6 text-white shadow-xl [animation-delay:260ms] sm:p-7 lg:sticky lg:top-8">
+              <h2 className="text-xl font-extrabold">Resumen del pedido</h2>
+
+              <dl className="mt-6 space-y-3 text-base">
+                <div className="flex items-baseline justify-between gap-4">
+                  <dt className="text-white/70">Artículos ({totalItems})</dt>
+                  <dd className="font-semibold tabular-nums">
+                    S/ {subtotal.toFixed(2)}
+                  </dd>
+                </div>
+                <div className="flex items-baseline justify-between gap-4">
+                  <dt className="text-white/70">Envío</dt>
+                  <dd className="font-semibold">A coordinar</dd>
+                </div>
+                <div className="flex items-baseline justify-between gap-4 border-t border-white/15 pt-4">
+                  <dt className="text-lg font-bold">Total</dt>
+                  <dd
+                    className={`text-3xl font-extrabold tabular-nums ${gradientText}`}
+                  >
+                    S/ {subtotal.toFixed(2)}
+                  </dd>
+                </div>
+              </dl>
+
+              <button
+                onClick={finalizarCompra}
+                disabled={carrito.length === 0}
+                className={`mt-6 inline-flex min-h-12 w-full items-center justify-center rounded-lg ${gradientBg} px-6 py-3 text-sm font-extrabold uppercase tracking-wider text-white transition-[transform,box-shadow,opacity] duration-200 hover:opacity-90 hover:shadow-xl active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1c30] disabled:cursor-not-allowed disabled:opacity-50`}
+              >
+                Finalizar compra
+              </button>
+
+              <a
+                href={whatsappHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg border border-white/25 bg-white/5 px-6 py-3 text-sm font-extrabold uppercase tracking-wider text-white transition-colors hover:border-cyan-300/60 hover:bg-white/10 hover:text-cyan-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1c30]"
+              >
+                <FiMessageCircle className="h-5 w-5" aria-hidden="true" />
+                Confirmar por WhatsApp
+              </a>
+
+              <ul className="mt-6 space-y-3 border-t border-white/15 pt-5 text-sm text-white/75">
+                <li className="flex items-start gap-3">
+                  <FiShield
+                    className="mt-0.5 h-4 w-4 shrink-0 text-cyan-300"
+                    aria-hidden="true"
+                  />
+                  No se realiza ningún cobro en esta web.
+                </li>
+                <li className="flex items-start gap-3">
+                  <FiTruck
+                    className="mt-0.5 h-4 w-4 shrink-0 text-cyan-300"
+                    aria-hidden="true"
+                  />
+                  Coordinamos stock y envío contigo.
+                </li>
+                <li className="flex items-start gap-3">
+                  <FiCreditCard
+                    className="mt-0.5 h-4 w-4 shrink-0 text-cyan-300"
+                    aria-hidden="true"
+                  />
+                  La forma de pago se acuerda por WhatsApp.
+                </li>
+              </ul>
+
+              <div className="mt-6 flex items-center justify-between gap-4 border-t border-white/15 pt-5">
+                <Link
+                  href="/productos"
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-300 underline decoration-cyan-300/30 underline-offset-4 transition-colors hover:decoration-cyan-300"
+                >
+                  <FiArrowLeft className="h-4 w-4" aria-hidden="true" />
+                  Seguir comprando
+                </Link>
+                <button
+                  onClick={vaciarCarrito}
+                  className="text-sm font-medium text-white/60 underline decoration-white/20 underline-offset-4 transition-colors hover:text-red-300 hover:decoration-red-300"
+                >
+                  Vaciar carrito
+                </button>
+              </div>
+            </aside>
+          </div>
+
+          {recomendados.length > 0 && (
+            <section className="mt-20">
+              <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <span
+                    aria-hidden="true"
+                    className={`block h-1 w-12 rounded-full ${gradientBg}`}
+                  />
+                  <h2 className="mt-4 text-3xl font-extrabold tracking-[-0.02em] text-[#0b1c30] sm:text-4xl">
+                    Suma algo más a tu setup
+                  </h2>
+                </div>
+                <Link
+                  href="/productos"
+                  className="inline-flex min-h-11 items-center whitespace-nowrap text-sm font-extrabold uppercase tracking-wider text-purple-600 underline decoration-purple-600/30 underline-offset-4 transition-colors hover:decoration-purple-600"
+                >
+                  Ver todo el catálogo
+                </Link>
+              </div>
+
+              <div className="grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-4">
+                {recomendados.map((product, index) => (
+                  <Reveal key={product.id} delay={(index % 4) * 70}>
+                    <ProductCard product={product} />
+                  </Reveal>
+                ))}
+              </div>
+            </section>
+          )}
+        </>
+      )}
+    </div>
   );
 }
