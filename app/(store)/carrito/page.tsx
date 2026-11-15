@@ -106,12 +106,11 @@ const finalizarCompra = () => {
         <span className="text-foreground">Carrito</span>
       </nav>
 
-      <h1 className="hero-rise mt-5 text-[clamp(2.75rem,6vw,4.75rem)] font-extrabold leading-[0.95] tracking-[-0.04em] text-foreground [animation-delay:60ms]">
+<h1 className="hero-rise mt-5 text-3xl font-extrabold tracking-[-0.03em] text-foreground sm:text-4xl [animation-delay:60ms]">
         Carrito
       </h1>
       <p className="hero-rise mt-4 max-w-xl text-lg leading-relaxed text-muted-foreground [animation-delay:120ms]">
-        Revisa lo que llevas y confirma disponibilidad, envío y forma de pago
-        con nuestro equipo por WhatsApp.
+        Revisa tus productos, ajusta las cantidades y continúa con tu compra.
       </p>
 
       {carrito.length === 0 ? (
