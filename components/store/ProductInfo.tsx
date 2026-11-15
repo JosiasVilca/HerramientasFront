@@ -188,10 +188,10 @@ const agregarAlCarrito = (irAlCheckout = false) => {
           <button
             onClick={() => agregarAlCarrito()}
             disabled={!available}
-            className={`flex min-h-12 w-full items-center justify-center gap-2 rounded-lg text-base font-semibold transition-[transform,box-shadow,opacity] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 ${
+            className={`flex min-h-12 w-full items-center justify-center gap-2 rounded-lg text-base font-semibold transition-[transform,box-shadow,opacity] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
               isAdded
                 ? "bg-foreground text-background"
-                : "bg-primary text-primary-foreground hover:opacity-90 hover:shadow-lg active:scale-[0.98] disabled:bg-none disabled:bg-muted disabled:text-muted-foreground disabled:opacity-60 disabled:shadow-none disabled:hover:opacity-60"
+                : "btn-brand disabled:bg-none disabled:bg-muted disabled:text-muted-foreground disabled:opacity-60 disabled:shadow-none disabled:hover:opacity-60"
             }`}
           >
             {isAdded ? (
@@ -211,7 +211,7 @@ const agregarAlCarrito = (irAlCheckout = false) => {
             href={whatsappHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-primary text-base font-semibold text-primary-foreground trasition-[transform,box-shadow,opacity] duration-200 hover:opacity-90 hover:shadow-lg active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2"
+            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-primary text-base font-semibold text-primary-foreground trasition-[transform,box-shadow,opacity] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2"
           >
             <FiMessageCircle className="h-4 w-4" aria-hidden="true" />
             Consultar por WhatsApp
@@ -221,7 +221,7 @@ const agregarAlCarrito = (irAlCheckout = false) => {
         {hasPrice && available && (
   <button
     onClick={() => agregarAlCarrito(true)}
-    className="flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-secondary text-base font-semibold text-white transition-opacity hover:opacity-90 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/60 focus-visible:ring-offset-2"
+    className="flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-secondary text-base font-semibold btn-brand transition-opacity hover:opacity-90 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/60 focus-visible:ring-offset-2"
   >
     <FiCreditCard className="h-4 w-4" aria-hidden="true" />
     Comprar ahora

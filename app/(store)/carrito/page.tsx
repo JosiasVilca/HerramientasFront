@@ -29,9 +29,9 @@ import {
   type CartItem,
 } from "@/lib/cart";
 
-const gradientBg = "bg-gradient-to-r from-purple-600 to-cyan-400";
+const gradientBg = "btn-accent";
 const gradientText =
-  "bg-gradient-to-r from-purple-400 to-cyan-300 bg-clip-text text-transparent";
+  "text-white";
 
 const pasos = ["Carrito", "Datos", "Confirmación"];
 
@@ -209,13 +209,13 @@ export default function CarritoPage() {
                     <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
                       <div className="min-w-0">
                         {item.especificacion && (
-                          <p className="text-xs font-extrabold uppercase tracking-wider text-purple-600">
+                          <p className="text-xs font-extrabold uppercase tracking-wider text-brand">
                             {item.especificacion}
                           </p>
                         )}
                         <Link
                           href={`/producto/${item.id}`}
-                          className="mt-1 block text-lg font-bold leading-snug text-[#0b1c30] transition-colors hover:text-purple-600"
+                          className="mt-1 block text-lg font-bold leading-snug text-foreground transition-colors hover:text-brand"
                         >
                           {item.nombre}
                         </Link>
@@ -237,7 +237,7 @@ export default function CarritoPage() {
                       <div className="inline-flex items-center rounded-lg border border-border bg-white">
                         <button
                           onClick={() => cambiarCantidad(item.id, -1)}
-                          className="flex h-10 w-10 items-center justify-center rounded-l-lg text-[#0b1c30] transition-colors hover:bg-purple-50 hover:text-purple-600"
+                          className="flex h-10 w-10 items-center justify-center rounded-l-lg text-foreground transition-colors hover:bg-accent hover:text-brand"
                           aria-label={`Quitar una unidad de ${item.nombre}`}
                         >
                           <FiMinus className="h-4 w-4" aria-hidden="true" />
@@ -247,7 +247,7 @@ export default function CarritoPage() {
                         </span>
                         <button
                           onClick={() => cambiarCantidad(item.id, 1)}
-                          className="flex h-10 w-10 items-center justify-center rounded-r-lg text-[#0b1c30] transition-colors hover:bg-purple-50 hover:text-purple-600"
+                          className="flex h-10 w-10 items-center justify-center rounded-r-lg text-foreground transition-colors hover:bg-accent hover:text-brand"
                           aria-label={`Agregar una unidad de ${item.nombre}`}
                         >
                           <FiPlus className="h-4 w-4" aria-hidden="true" />
@@ -303,7 +303,7 @@ export default function CarritoPage() {
                 href={whatsappHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-3 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg border border-white/25 bg-white/5 px-6 py-3 text-sm font-extrabold uppercase tracking-wider text-white transition-colors hover:border-cyan-300/60 hover:bg-white/10 hover:text-cyan-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1c30]"
+                className="mt-3 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg border border-white/25 bg-white/5 px-6 py-3 text-sm font-extrabold uppercase tracking-wider text-white transition-colors hover:border-white/60 hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1c30]"
               >
                 <FiMessageCircle className="h-5 w-5" aria-hidden="true" />
                 Confirmar por WhatsApp
@@ -312,21 +312,21 @@ export default function CarritoPage() {
               <ul className="mt-6 space-y-3 border-t border-white/15 pt-5 text-sm text-white/75">
                 <li className="flex items-start gap-3">
                   <FiShield
-                    className="mt-0.5 h-4 w-4 shrink-0 text-cyan-300"
+                    className="mt-0.5 h-4 w-4 shrink-0 text-white/80"
                     aria-hidden="true"
                   />
                   No se realiza ningún cobro en esta web.
                 </li>
                 <li className="flex items-start gap-3">
                   <FiTruck
-                    className="mt-0.5 h-4 w-4 shrink-0 text-cyan-300"
+                    className="mt-0.5 h-4 w-4 shrink-0 text-white/80"
                     aria-hidden="true"
                   />
                   Coordinamos stock y envío contigo.
                 </li>
                 <li className="flex items-start gap-3">
                   <FiCreditCard
-                    className="mt-0.5 h-4 w-4 shrink-0 text-cyan-300"
+                    className="mt-0.5 h-4 w-4 shrink-0 text-white/80"
                     aria-hidden="true"
                   />
                   La forma de pago se acuerda por WhatsApp.
@@ -336,7 +336,7 @@ export default function CarritoPage() {
               <div className="mt-6 flex items-center justify-between gap-4 border-t border-white/15 pt-5">
                 <Link
                   href="/productos"
-                  className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-300 underline decoration-cyan-300/30 underline-offset-4 transition-colors hover:decoration-cyan-300"
+                  className="inline-flex items-center gap-2 text-sm font-semibold text- underline decoration-white/30 underline-offset-4 transition-colors hover:decoration-white"
                 >
                   <FiArrowLeft className="h-4 w-4" aria-hidden="true" />
                   Seguir comprando
@@ -365,7 +365,7 @@ export default function CarritoPage() {
                 </div>
                 <Link
                   href="/productos"
-                  className="inline-flex min-h-11 items-center whitespace-nowrap text-sm font-extrabold uppercase tracking-wider text-purple-600 underline decoration-purple-600/30 underline-offset-4 transition-colors hover:decoration-purple-600"
+                  className="inline-flex min-h-11 items-center whitespace-nowrap text-sm font-extrabold uppercase tracking-wider text-brand underline decoration-primary/30 underline-offset-4 transition-colors hover:decoration-primary"
                 >
                   Ver todo el catálogo
                 </Link>
