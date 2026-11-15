@@ -310,3 +310,41 @@
 .admin-cyber table tbody tr:hover {
   background-color: rgba(34, 211, 238, 0.045);
 }
+/* Botones y acentos de la tienda: se cambian aquí y se aplican en todo el sitio */
+@utility btn-brand {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  transition: transform 200ms, box-shadow 200ms, opacity 200ms;
+
+  &:hover {
+    opacity: 0.9;
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.15);
+  }
+  &:active {
+    transform: scale(0.98);
+  }
+  &:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px var(--background),
+      0 0 0 4px color-mix(in srgb, var(--primary) 60%, transparent);
+  }
+}
+
+@utility btn-accent {
+  background-color: var(--secondary);
+  color: var(--secondary-foreground);
+  transition: transform 200ms, box-shadow 200ms, opacity 200ms;
+
+  &:hover {
+    opacity: 0.9;
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.15);
+  }
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+@utility text-brand {
+  color: var(--primary);
+}
