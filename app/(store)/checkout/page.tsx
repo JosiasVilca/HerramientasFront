@@ -16,10 +16,25 @@ import type {
 const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-const PAYMENT_OPTIONS: { value: PaymentMethod; label: string }[] = [
-  { value: "YAPE", label: "Yape / Plin" },
-  { value: "TRANSFERENCIA", label: "Transferencia bancaria" },
-  { value: "EFECTIVO", label: "Pago contra entrega" },
+const PAYMENT_OPTIONS: {
+  value: PaymentMethod;
+  label: string;
+  
+}[] = [
+  {
+    value: "YAPE",
+    label: "Yape / Plin",
+    
+  },
+  {
+    value: "TRANSFERENCIA",
+    label: "Transferencia bancaria",
+    
+  },
+  {
+    value: "EFECTIVO",
+    label: "Pago contra entrega",
+  },
 ];
 
 const PAYMENT_LABELS: Record<PaymentMethod, string> = {
@@ -255,8 +270,15 @@ export default function CheckoutPage() {
     );
   }
 
-   return (
+  return (
     <Shell>
+      <Link
+        href="/carrito"
+        className="mb-3 inline-flex min-h-10 items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+      >
+        <span aria-hidden="true">←</span>
+        Volver al carrito
+      </Link>
       <h1 className="text-2xl font-bold">Finalizar compra</h1>
 
       <form
@@ -316,23 +338,35 @@ export default function CheckoutPage() {
                 </span>
                 Método de pago
               </legend>
-              <div className="space-y-2">
-                {PAYMENT_OPTIONS.map((opt) => (
-                  <label
-                    key={opt.value}
-                    className="flex items-center gap-2 text-sm"
-                  >
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value={opt.value}
-                      checked={paymentMethod === opt.value}
-                      onChange={() => setPaymentMethod(opt.value)}
-                    />
-                    {opt.label}
-                  </label>
-                ))}
+                            <div className="grid gap-3 sm:grid-cols-3">
+                {PAYMENT_OPTIONS.map((opt) => {
+                  const selected = paymentMethod === opt.value;
+                  return (
+                    <label
+                      key={opt.value}
+                      className={`flex min-h-14 cursor-pointer items-center rounded-xl border px-4 py-3 text-sm transition-colors focus-within:ring-2 focus-within:ring-ring/40 ${
+                        selected
+                          ? "border-primary bg-primary/5"
+                          : "border-border hover:bg-muted"
+                      }`}
+                    >
+                      <span className="flex items-center gap-2 font-semibold">
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value={opt.value}
+                          checked={selected}
+                          onChange={() => setPaymentMethod(opt.value)}
+                          className="accent-primary"
+                        />
+                        {opt.label}
+                      </span>
+        
+                    </label>
+                  );
+                })}
               </div>
+
             </fieldset>
           </section>
         </div>
