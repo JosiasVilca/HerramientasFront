@@ -142,10 +142,10 @@ const handleAddToCart = () => {
         {product.price > 0 ? (
           <button
             onClick={handleAddToCart}
-            className={`mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg text-base font-semibold transition-[transform,box-shadow,opacity] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-600/60 focus-visible:ring-offset-2 ${
+            className={`mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg text-base font-semibold transition-[transform,box-shadow,opacity] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 ${
               isAdded
                 ? "bg-foreground text-background"
-                : "bg-gradient-to-r from-purple-600 to-cyan-400 text-white hover:opacity-90 hover:shadow-lg active:scale-[0.98]"
+                : "bg-primary text-primary-foreground hover:opacity-90 hover:shadow-lg active:scale-[0.98]"
             }`}
           >
             {isAdded ? (
