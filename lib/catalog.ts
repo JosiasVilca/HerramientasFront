@@ -4,8 +4,7 @@
 import type { Product } from "@/data/products";
 import type { ApiProduct } from "@/types/catalog";
 
-export const PLACEHOLDER_IMAGE =
-  "https://images.unsplash.com/photo-1527814050087-3793815479db?q=80&w=800&auto=format&fit=crop";
+export const PLACEHOLDER_IMAGE = "/producto-placeholder.svg";
 
 /**
  * Mapa nombre-de-categoría → slug del ecommerce.
@@ -51,11 +50,13 @@ export function apiProductToEcommerce(product: ApiProduct): Product {
   const image = product.imageUrl || PLACEHOLDER_IMAGE;
   const imageHover = product.imageHoverUrl || image;
   const description =
-    product.description || "Producto registrado desde el panel de administración de NEXORA.";
+    product.description ||
+    `${categoryName} original, con garantía oficial y despacho a todo el Perú.`;
 
   return {
     id: product.id,
     sku: product.sku,
+    slug: product.slug,
     name: product.name,
     description,
     longDescription: description,
@@ -77,4 +78,9 @@ export function apiProductToEcommerce(product: ApiProduct): Product {
     discount: 0,
     isNew: product.isNew ?? true,
   };
+}
+
+/** Conserva el ID interno y usa el slug para los enlaces públicos. */
+export function productPath(product: Pick<Product, "id" | "slug">): string {
+  return `/producto/${encodeURIComponent(product.slug || product.id)}`;
 }

@@ -2,161 +2,148 @@
 "use client";
 
 import { useState } from "react";
+import { FiCheck, FiMinus } from "react-icons/fi";
 import { Product } from "@/data/products";
 
 interface ProductTabsProps {
   product: Product;
 }
 
-export default function ProductTabs({ product }: ProductTabsProps) {
-  const [activeTab, setActiveTab] = useState<"descripcion" | "specs" | "garantia">(
-    "descripcion"
-  );
+type TabId = "descripcion" | "specs" | "garantia";
 
-  const tabs = [
+export default function ProductTabs({ product }: ProductTabsProps) {
+  const [activeTab, setActiveTab] = useState<TabId>("descripcion");
+
+  const tabs: { id: TabId; label: string }[] = [
     { id: "descripcion", label: "Descripción" },
-    { id: "specs", label: "Especificaciones Técnicas" },
+    { id: "specs", label: "Especificaciones" },
     { id: "garantia", label: "Garantía" },
-  ] as const;
+  ];
 
   return (
-    <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden mb-10">
-      {/* Tabs */}
-      <div className="flex border-b border-slate-200 overflow-x-auto scrollbar-hide">
+    <section>
+      <div
+        role="tablist"
+        aria-label="Información del producto"
+        className="inline-flex flex-wrap gap-1 rounded-lg bg-muted p-1"
+      >
         {tabs.map((tab) => (
           <button
             key={tab.id}
+            role="tab"
+            aria-selected={activeTab === tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`px-6 py-4 text-sm font-bold whitespace-nowrap transition-colors relative ${
+            className={`min-h-10 rounded-md px-4 text-base font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 ${
               activeTab === tab.id
-                ? "text-purple-600"
-                : "text-slate-500 hover:text-slate-700"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             {tab.label}
-            {activeTab === tab.id && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-600"></span>
-            )}
           </button>
         ))}
       </div>
 
-      {/* Contenido */}
-      <div className="p-6 sm:p-8">
+      <div className="mt-6 rounded-xl bg-card p-6 sm:p-8" role="tabpanel">
         {activeTab === "descripcion" && (
           <div>
-            <p className="text-sm text-slate-700 leading-relaxed mb-6">
+            <p className="max-w-3xl text-base leading-relaxed text-foreground/85">
               {product.longDescription}
             </p>
 
-            {/* Specs destacadas */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
-              {product.specs.slice(0, 3).map((spec, i) => (
-                <div
-                  key={i}
-                  className="bg-slate-50 border border-slate-200 rounded-xl p-4"
-                >
-                  <p className="text-[10px] font-bold text-purple-600 uppercase tracking-widest mb-1">
-                    {spec.label}
-                  </p>
-                  <p className="text-sm font-bold text-slate-900">
+            <dl className="mt-8 grid gap-6 sm:grid-cols-3">
+              {product.specs.slice(0, 3).map((spec) => (
+                <div key={spec.label}>
+                  <dt className="text-base text-muted-foreground">{spec.label}</dt>
+                  <dd className="mt-1 text-base font-medium text-foreground">
                     {spec.value}
-                  </p>
+                  </dd>
                 </div>
               ))}
-            </div>
-
-            <p className="text-sm text-slate-600 leading-relaxed">
-              Incluye todos los accesorios originales de fábrica: cable USB-C
-              trenzado, manual de usuario, y empaque oficial. Compatible con
-              todos los sistemas operativos principales (Windows, macOS, Linux).
-            </p>
+            </dl>
           </div>
         )}
 
         {activeTab === "specs" && (
           <div>
-            <h3 className="text-lg font-bold text-slate-900 mb-4">
-              Especificaciones Técnicas
-            </h3>
-            <div className="divide-y divide-slate-100">
-              {product.specs.map((spec, i) => (
-                <div key={i} className="grid grid-cols-2 py-3 gap-4">
-                  <span className="text-sm font-semibold text-slate-600">
+            <h2 className="text-2xl font-semibold tracking-tight text-foreground">
+              Especificaciones
+            </h2>
+            <dl className="mt-6 max-w-2xl space-y-4">
+              {product.specs.map((spec) => (
+                <div
+                  key={spec.label}
+                  className="grid gap-1 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] sm:gap-6"
+                >
+                  <dt className="text-base text-muted-foreground">
                     {spec.label}
-                  </span>
-                  <span className="text-sm text-slate-900">
+                  </dt>
+                  <dd className="text-base font-medium text-foreground">
                     {spec.value}
-                  </span>
+                  </dd>
                 </div>
               ))}
-              <div className="grid grid-cols-2 py-3 gap-4">
-                <span className="text-sm font-semibold text-slate-600">
-                  Marca
-                </span>
-                <span className="text-sm text-slate-900 uppercase">
-                  {product.brand}
-                </span>
-              </div>
-              <div className="grid grid-cols-2 py-3 gap-4">
-                <span className="text-sm font-semibold text-slate-600">
-                  SKU
-                </span>
-                <span className="text-sm text-slate-900">{product.sku}</span>
-              </div>
-            </div>
+            </dl>
           </div>
         )}
 
         {activeTab === "garantia" && (
-          <div>
-            <h3 className="text-lg font-bold text-slate-900 mb-4">
-              Garantía y Devoluciones
-            </h3>
-            <p className="text-sm text-slate-700 leading-relaxed mb-4">
-              Este producto cuenta con una garantía oficial de{" "}
-              <strong>{product.warranty}</strong> directamente con el
-              fabricante. La garantía cubre defectos de fabricación y
+          <div className="max-w-3xl">
+            <h2 className="text-2xl font-semibold tracking-tight text-foreground">
+              Garantía y devoluciones
+            </h2>
+            <p className="mt-3 text-base leading-relaxed text-foreground/85">
+              Este producto cuenta con garantía oficial de {product.warranty}{" "}
+              directamente con el fabricante. Cubre defectos de fabricación y
               funcionamiento bajo uso normal.
             </p>
-            <h4 className="text-sm font-bold text-slate-900 mb-2">
-              ¿Qué cubre la garantía?
-            </h4>
-            <ul className="space-y-2 mb-4">
-              <li className="flex items-start gap-2 text-sm text-slate-600">
-                <span className="w-1.5 h-1.5 rounded-full bg-purple-600 mt-2 shrink-0"></span>
-                Defectos de fabricación.
-              </li>
-              <li className="flex items-start gap-2 text-sm text-slate-600">
-                <span className="w-1.5 h-1.5 rounded-full bg-purple-600 mt-2 shrink-0"></span>
-                Fallas eléctricas o electrónicas.
-              </li>
-              <li className="flex items-start gap-2 text-sm text-slate-600">
-                <span className="w-1.5 h-1.5 rounded-full bg-purple-600 mt-2 shrink-0"></span>
-                Reemplazo inmediato en caso de falla dentro de los primeros 30
-                días.
-              </li>
+
+            <h3 className="mt-6 text-base font-semibold text-foreground">
+              Qué cubre
+            </h3>
+            <ul className="mt-2 space-y-2">
+              {[
+                "Defectos de fabricación.",
+                "Fallas eléctricas o electrónicas.",
+                "Reemplazo dentro de los primeros 30 días.",
+              ].map((item) => (
+                <li
+                  key={item}
+                  className="flex items-start gap-2 text-base text-foreground/80"
+                >
+                  <FiCheck
+                    className="mt-1 h-4 w-4 shrink-0 text-emerald-600"
+                    aria-hidden="true"
+                  />
+                  {item}
+                </li>
+              ))}
             </ul>
-            <h4 className="text-sm font-bold text-slate-900 mb-2">
-              ¿Qué NO cubre la garantía?
-            </h4>
-            <ul className="space-y-2">
-              <li className="flex items-start gap-2 text-sm text-slate-600">
-                <span className="w-1.5 h-1.5 rounded-full bg-red-400 mt-2 shrink-0"></span>
-                Daños por mal uso o accidentes.
-              </li>
-              <li className="flex items-start gap-2 text-sm text-slate-600">
-                <span className="w-1.5 h-1.5 rounded-full bg-red-400 mt-2 shrink-0"></span>
-                Modificaciones no autorizadas.
-              </li>
-              <li className="flex items-start gap-2 text-sm text-slate-600">
-                <span className="w-1.5 h-1.5 rounded-full bg-red-400 mt-2 shrink-0"></span>
-                Desgaste normal por uso.
-              </li>
+
+            <h3 className="mt-6 text-base font-semibold text-foreground">
+              Qué no cubre
+            </h3>
+            <ul className="mt-2 space-y-2">
+              {[
+                "Daños por mal uso o accidentes.",
+                "Modificaciones no autorizadas.",
+                "Desgaste normal por uso.",
+              ].map((item) => (
+                <li
+                  key={item}
+                  className="flex items-start gap-2 text-base text-foreground/80"
+                >
+                  <FiMinus
+                    className="mt-1 h-4 w-4 shrink-0 text-muted-foreground"
+                    aria-hidden="true"
+                  />
+                  {item}
+                </li>
+              ))}
             </ul>
           </div>
         )}
       </div>
-    </div>
+    </section>
   );
 }

@@ -1,50 +1,40 @@
 // components/store/FilterSidebar.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { FiFilter, FiChevronDown, FiChevronUp } from "react-icons/fi";
+import { FiChevronDown, FiChevronUp, FiFilter } from "react-icons/fi";
 
-const categorias = [
-  { id: "mouse", label: "Mouse Gamer", count: 3 },
-  { id: "teclados", label: "Teclados Mecánicos", count: 4 },
-  { id: "audifonos", label: "Audífonos", count: 3 },
-  { id: "monitores", label: "Monitores", count: 1 },
-  { id: "microfonos", label: "Micrófonos", count: 1 },
-  { id: "perifericos", label: "Mousepads", count: 2 },
-  { id: "accesorios", label: "Accesorios", count: 2 },
-];
+export type CategoryOption = {
+  id: string;
+  label: string;
+  count: number;
+};
 
-const marcas = [
-  { id: "logitech", label: "Logitech G", count: 4 },
-  { id: "razer", label: "Razer", count: 4 },
-  { id: "steelseries", label: "SteelSeries", count: 2 },
-  { id: "hyperx", label: "HyperX", count: 2 },
-  { id: "corsair", label: "Corsair", count: 2 },
-  { id: "asus-rog", label: "ASUS ROG", count: 2 },
-];
+type FilterSidebarProps = {
+  categories: CategoryOption[];
+};
 
-export default function FilterSidebar() {
+export default function FilterSidebar({ categories }: FilterSidebarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const [openSections, setOpenSections] = useState({
     categorias: true,
-    marcas: true,
     precio: true,
   });
 
-  // Leer estado desde la URL
   const categoriaActiva = searchParams.get("categoria") || "";
-  const marcaActiva = searchParams.get("marca") || "";
   const minPrecio = Number(searchParams.get("min") || 0);
   const maxPrecio = Number(searchParams.get("max") || 5000);
+  // La instancia se remonta con `key` cuando cambian los parámetros de precio,
+  // así el formulario refleja la URL sin sincronizaciones dentro de un efecto.
   const [priceRange, setPriceRange] = useState({ min: minPrecio, max: maxPrecio });
+
   const toggleSection = (key: keyof typeof openSections) => {
     setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  // Actualizar la URL con un parámetro nuevo
   const updateParam = (key: string, value: string | null) => {
     const params = new URLSearchParams(searchParams.toString());
     if (value) {
@@ -56,25 +46,15 @@ export default function FilterSidebar() {
   };
 
   const toggleCategory = (id: string) => {
-    if (categoriaActiva === id) {
-      updateParam("categoria", null);
-    } else {
-      updateParam("categoria", id);
-    }
-  };
-
-  const toggleBrand = (id: string) => {
-    if (marcaActiva === id) {
-      updateParam("marca", null);
-    } else {
-      updateParam("marca", id);
-    }
+    updateParam("categoria", categoriaActiva === id ? null : id);
   };
 
   const applyPriceRange = () => {
     const params = new URLSearchParams(searchParams.toString());
-    params.set("min", String(priceRange.min));
-    params.set("max", String(priceRange.max));
+    const min = Math.max(0, Math.min(priceRange.min, priceRange.max));
+    const max = Math.max(priceRange.max, min);
+    params.set("min", String(min));
+    params.set("max", String(max));
     router.push(`/productos?${params.toString()}`, { scroll: false });
   };
 
@@ -83,92 +63,51 @@ export default function FilterSidebar() {
   };
 
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl p-5 sticky top-32">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4 pb-4 border-b border-slate-100">
-        <div className="flex items-center gap-2">
-          <FiFilter className="w-4 h-4 text-purple-600" />
-          <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
-            Filtros
-          </h2>
-        </div>
+    <div className="rounded-xl bg-card p-5 lg:sticky lg:top-8">
+      <div className="mb-5 flex items-center justify-between gap-3">
+        <h2 className="flex items-center gap-2 text-base font-semibold text-foreground">
+          <FiFilter className="h-4 w-4 text-primary" aria-hidden="true" />
+          Filtros
+        </h2>
         <button
           onClick={resetFilters}
-          className="text-xs text-purple-600 font-medium hover:underline"
+          className="text-sm font-medium text-primary underline decoration-primary/30 underline-offset-4 transition-colors hover:decoration-primary"
         >
-          Resetear
+          Limpiar
         </button>
       </div>
 
-      {/* Categorías */}
-      <div className="mb-5">
+      <div>
         <button
           onClick={() => toggleSection("categorias")}
-          className="w-full flex items-center justify-between mb-3"
+          className="flex w-full items-center justify-between py-1 text-left"
+          aria-expanded={openSections.categorias}
         >
-          <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-            Categorías
-          </span>
+          <span className="text-base font-semibold text-foreground">Categoría</span>
           {openSections.categorias ? (
-            <FiChevronUp className="w-4 h-4 text-slate-400" />
+            <FiChevronUp className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
           ) : (
-            <FiChevronDown className="w-4 h-4 text-slate-400" />
+            <FiChevronDown className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
           )}
         </button>
 
         {openSections.categorias && (
-          <ul className="space-y-2">
-            {categorias.map((cat) => (
+          <ul className="mt-2 space-y-0.5">
+            {categories.map((cat) => (
               <li key={cat.id}>
-                <label className="flex items-center gap-2.5 cursor-pointer group">
+                <label className="flex min-h-9 cursor-pointer items-center gap-3">
                   <input
                     type="checkbox"
                     checked={categoriaActiva === cat.id}
                     onChange={() => toggleCategory(cat.id)}
-                    className="w-4 h-4 accent-purple-600 cursor-pointer"
+                    className="h-4 w-4 shrink-0 cursor-pointer accent-primary"
                   />
-                  <span className="text-sm text-slate-600 group-hover:text-purple-600 transition-colors flex-1">
+                  <span className="flex-1 text-base text-foreground/85">
                     {cat.label}
                   </span>
-                  <span className="text-xs text-slate-400">({cat.count})</span>
-                </label>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      {/* Marcas */}
-      <div className="mb-5 pt-5 border-t border-slate-100">
-        <button
-          onClick={() => toggleSection("marcas")}
-          className="w-full flex items-center justify-between mb-3"
-        >
-          <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-            Marcas
-          </span>
-          {openSections.marcas ? (
-            <FiChevronUp className="w-4 h-4 text-slate-400" />
-          ) : (
-            <FiChevronDown className="w-4 h-4 text-slate-400" />
-          )}
-        </button>
-
-        {openSections.marcas && (
-          <ul className="space-y-2">
-            {marcas.map((marca) => (
-              <li key={marca.id}>
-                <label className="flex items-center gap-2.5 cursor-pointer group">
-                  <input
-                    type="checkbox"
-                    checked={marcaActiva === marca.id}
-                    onChange={() => toggleBrand(marca.id)}
-                    className="w-4 h-4 accent-purple-600 cursor-pointer"
-                  />
-                  <span className="text-sm text-slate-600 group-hover:text-purple-600 transition-colors flex-1">
-                    {marca.label}
+                  <span className="text-sm text-muted-foreground tabular-nums">
+                    {cat.count}
                   </span>
-                  <span className="text-xs text-slate-400">({marca.count})</span>
                 </label>
               </li>
             ))}
@@ -176,42 +115,51 @@ export default function FilterSidebar() {
         )}
       </div>
 
-      {/* Precio */}
-      <div className="pt-5 border-t border-slate-100">
+      <div className="mt-6">
         <button
           onClick={() => toggleSection("precio")}
-          className="w-full flex items-center justify-between mb-4"
+          className="flex w-full items-center justify-between py-1 text-left"
+          aria-expanded={openSections.precio}
         >
-          <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-            Rango de Precio
-          </span>
+          <span className="text-base font-semibold text-foreground">Precio</span>
           {openSections.precio ? (
-            <FiChevronUp className="w-4 h-4 text-slate-400" />
+            <FiChevronUp className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
           ) : (
-            <FiChevronDown className="w-4 h-4 text-slate-400" />
+            <FiChevronDown className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
           )}
         </button>
 
         {openSections.precio && (
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <div className="flex-1 bg-slate-100 rounded-lg px-3 py-2">
-                <p className="text-[10px] text-slate-400 uppercase font-semibold">
-                  Mín
-                </p>
-                <p className="text-xs font-bold text-slate-900">
-                  S/ {priceRange.min}
-                </p>
-              </div>
-              <span className="text-slate-400">—</span>
-              <div className="flex-1 bg-slate-100 rounded-lg px-3 py-2">
-                <p className="text-[10px] text-slate-400 uppercase font-semibold">
-                  Máx
-                </p>
-                <p className="text-xs font-bold text-slate-900">
-                  S/ {priceRange.max}
-                </p>
-              </div>
+          <div className="mt-3">
+            <div className="grid grid-cols-2 gap-3">
+              <label className="text-sm text-muted-foreground">
+                Mínimo
+                <input
+                  type="number"
+                  min={0}
+                  max={5000}
+                  step={50}
+                  value={priceRange.min}
+                  onChange={(e) =>
+                    setPriceRange({ ...priceRange, min: Number(e.target.value) })
+                  }
+                  className="mt-1 h-10 w-full rounded-lg bg-muted px-3 text-base text-foreground focus:outline-none focus:ring-2 focus:ring-ring/40"
+                />
+              </label>
+              <label className="text-sm text-muted-foreground">
+                Máximo
+                <input
+                  type="number"
+                  min={0}
+                  max={5000}
+                  step={50}
+                  value={priceRange.max}
+                  onChange={(e) =>
+                    setPriceRange({ ...priceRange, max: Number(e.target.value) })
+                  }
+                  className="mt-1 h-10 w-full rounded-lg bg-muted px-3 text-base text-foreground focus:outline-none focus:ring-2 focus:ring-ring/40"
+                />
+              </label>
             </div>
 
             <input
@@ -223,16 +171,16 @@ export default function FilterSidebar() {
               onChange={(e) =>
                 setPriceRange({ ...priceRange, max: Number(e.target.value) })
               }
-              className="w-full accent-purple-600"
+              aria-label="Precio máximo"
+              className="mt-4 w-full accent-primary"
             />
           </div>
         )}
       </div>
 
-      {/* Botón Aplicar */}
       <button
         onClick={applyPriceRange}
-        className="w-full mt-5 py-2.5 bg-slate-900 text-white text-xs font-bold rounded-lg hover:bg-purple-600 transition-colors uppercase tracking-wider"
+        className="mt-6 min-h-11 w-full rounded-lg bg-primary text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
       >
         Aplicar filtros
       </button>

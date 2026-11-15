@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-label="Producto sin imagen">
+  <rect width="400" height="400" fill="#f1f4fa"/>
+  <g fill="none" stroke="#9aa6bd" stroke-width="6" stroke-linejoin="round">
+    <path d="M112 152l88-46 88 46v96l-88 46-88-46z"/>
+    <path d="M112 152l88 46 88-46"/>
+    <path d="M200 198v96"/>
+  </g>
+  <text x="200" y="330" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="15" fill="#6b7690">Imagen en preparación</text>
+</svg>

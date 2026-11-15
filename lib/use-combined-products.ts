@@ -38,7 +38,10 @@ export function useCombinedProducts() {
   }, []);
 
   // Primero los productos reales de la API, luego los de demostración.
-  const allProducts = [...apiProducts, ...newArrivals, ...moreProducts];
+  const allProducts =
+    apiProducts.length > 0
+      ? apiProducts
+      : [...newArrivals, ...moreProducts];
 
   return {
     allProducts,

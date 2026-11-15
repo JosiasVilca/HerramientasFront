@@ -8,6 +8,12 @@ const nextConfig: NextConfig = {
     "localhost",
     "127.0.0.1",
   ],
+  async redirects() {
+    return [
+      // La página antigua de perfil se consolidó en /perfil.
+      { source: "/profile", destination: "/perfil", permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -7,15 +7,12 @@ import {
   LayoutDashboard,
   Package,
   Layers3,
-  Search,
   LogOut,
-  User,
   ChevronDown,
   Bell,
   Menu,
   X,
   Store,
-  MapPin,
   Zap,
 } from "lucide-react";
 import {
@@ -41,7 +38,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: "Inventario & Dashboard", href: "/admin/inventory", icon: LayoutDashboard, adminOnly: true },
     { name: "Gestión de Paquetes", href: "/packages", icon: Package, adminOnly: false },
     { name: "Categorías y Catálogos", href: "/admin/categories", icon: Layers3, adminOnly: true },
-    { name: "Seguimiento Envíos", href: "/tracking-list", icon: MapPin, adminOnly: false },
     { name: "Tienda NEXORA", href: "/productos", icon: Store, adminOnly: false },
   ];
 

@@ -1,51 +1,48 @@
 // components/store/RelatedProducts.tsx
+"use client";
+
 import Link from "next/link";
 import ProductCard from "./ProductCard";
-import { newArrivals, moreProducts, Product } from "@/data/products";
+import Reveal from "@/components/ui/reveal";
+import { useCombinedProducts } from "@/lib/use-combined-products";
+import { Product } from "@/data/products";
 
 interface RelatedProductsProps {
   product: Product;
 }
 
 export default function RelatedProducts({ product }: RelatedProductsProps) {
-  const allProducts = [...newArrivals, ...moreProducts];
+  const { allProducts, isLoaded } = useCombinedProducts();
 
-  // Filtrar productos de la misma categoría (excluyendo el actual)
-  const related = allProducts
-    .filter((p) => p.category === product.category && p.id !== product.id)
-    .slice(0, 4);
+  const sameCategory = allProducts.filter(
+    (item) => item.category === product.category && item.id !== product.id,
+  );
+  const otherProducts = allProducts.filter(
+    (item) => item.category !== product.category && item.id !== product.id,
+  );
+  const related = [...sameCategory, ...otherProducts].slice(0, 4);
 
-  // Si no hay suficientes de la misma categoría, rellenar con otros
-  const fallback = allProducts
-    .filter((p) => p.id !== product.id && !related.includes(p))
-    .slice(0, 4 - related.length);
-
-  const finalRelated = [...related, ...fallback].slice(0, 4);
-
-  if (finalRelated.length === 0) return null;
+  if (!isLoaded || related.length === 0) return null;
 
   return (
-    <section className="w-full">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-        <div>
-          <span className="text-xs font-bold text-purple-600 tracking-widest uppercase mb-2 block">
-            Completa tu battle station
-          </span>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Recomendados con el {product.name}
-          </h2>
-        </div>
+    <section className="mt-16 lg:mt-20">
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <h2 className="text-3xl font-bold tracking-[-0.02em] text-foreground sm:text-4xl">
+          Completa tu setup
+        </h2>
         <Link
           href="/productos"
-          className="text-sm font-semibold text-purple-600 hover:text-purple-700 whitespace-nowrap"
+          className="inline-flex min-h-11 items-center whitespace-nowrap text-base font-semibold text-primary underline decoration-primary/30 underline-offset-4 transition-colors hover:decoration-primary"
         >
-          Ver todo el catálogo →
+          Ver todo el catálogo
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-        {finalRelated.map((p) => (
-          <ProductCard key={p.id} product={p} />
+      <div className="grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-4">
+        {related.map((item, index) => (
+          <Reveal key={item.id} delay={(index % 4) * 70}>
+            <ProductCard product={item} />
+          </Reveal>
         ))}
       </div>
     </section>
