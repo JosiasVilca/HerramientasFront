@@ -56,6 +56,7 @@ export function apiProductToEcommerce(product: ApiProduct): Product {
   return {
     id: product.id,
     sku: product.sku,
+    slug: product.slug,
     name: product.name,
     description,
     longDescription: description,
@@ -77,4 +78,9 @@ export function apiProductToEcommerce(product: ApiProduct): Product {
     discount: 0,
     isNew: product.isNew ?? true,
   };
+}
+
+/** Conserva el ID interno y usa el slug para los enlaces públicos. */
+export function productPath(product: Pick<Product, "id" | "slug">): string {
+  return `/producto/${encodeURIComponent(product.slug || product.id)}`;
 }

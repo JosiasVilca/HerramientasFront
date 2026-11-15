@@ -2,7 +2,7 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
-import { notFound } from "next/navigation";
+import { notFound, useRouter } from "next/navigation";
 import Link from "next/link";
 import ProductGallery from "@/components/store/ProductGallery";
 import ProductInfo from "@/components/store/ProductInfo";
@@ -21,6 +21,11 @@ interface PageProps {
 
 export default function ProductoPage({ params }: PageProps) {
   const { id } = use(params);
+  return <ProductoDetail key={id} id={id} />;
+}
+
+function ProductoDetail({ id }: { id: string }) {
+  const router = useRouter();
 
   const isBaseProduct = baseProducts.some((p) => p.id === id);
 
@@ -30,15 +35,22 @@ export default function ProductoPage({ params }: PageProps) {
   const [isLoading, setIsLoading] = useState(() => !isBaseProduct);
   const [missing, setMissing] = useState(false);
 
-  // Los productos creados desde el panel admin viven en PostgreSQL (id UUID).
+  // Acepta slugs y conserva los enlaces antiguos por UUID.
   useEffect(() => {
     if (isBaseProduct) return;
 
     let cancelled = false;
-    productService
-      .get(id)
+    const request = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+      ? productService.get(id)
+      : productService.getBySlug(id);
+    request
       .then((apiProduct) => {
-        if (!cancelled) setProduct(apiProductToEcommerce(apiProduct));
+        if (!cancelled) {
+          setProduct(apiProductToEcommerce(apiProduct));
+          if (apiProduct.slug && apiProduct.slug !== id) {
+            router.replace(`/producto/${encodeURIComponent(apiProduct.slug)}`);
+          }
+        }
       })
       .catch(() => {
         if (!cancelled) setMissing(true);
@@ -50,7 +62,7 @@ export default function ProductoPage({ params }: PageProps) {
     return () => {
       cancelled = true;
     };
-  }, [id, isBaseProduct]);
+  }, [id, isBaseProduct, router]);
 
   if (isLoading) {
     return (

@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { productPath } from "@/lib/catalog";
 import { FiHeart, FiShoppingCart, FiCheck, FiArrowRight } from "react-icons/fi";
 import { Product } from "@/data/products";
 import { addToCart } from "@/lib/cart";
@@ -60,6 +61,7 @@ const handleAddToCart = () => {
     addToCart({
       id: product.id,
       nombre: product.name,
+      slug: product.slug,
       especificacion: product.sku,
       precio: product.price,
       imagen: product.image,
@@ -76,7 +78,7 @@ const handleAddToCart = () => {
     <article className="group flex flex-col">
       <div className="relative aspect-square overflow-hidden rounded-xl bg-[#f1f4fa]">
         <Link
-          href={`/producto/${product.id}`}
+          href={productPath(product)}
           className="absolute inset-0 z-10"
           aria-label={`Ver ${product.name}`}
         >
@@ -116,7 +118,7 @@ const handleAddToCart = () => {
       <div className="flex flex-1 flex-col pt-4">
         <p className="text-sm font-medium text-muted-foreground">{product.sku}</p>
 
-        <Link href={`/producto/${product.id}`} className="mt-1">
+        <Link href={productPath(product)} className="mt-1">
           <h3 className="line-clamp-2 min-h-[48px] text-base font-semibold leading-snug text-foreground transition-colors group-hover:text-primary">
             {product.name}
           </h3>
@@ -162,7 +164,7 @@ const handleAddToCart = () => {
           </button>
         ) : (
           <Link
-            href={`/producto/${product.id}`}
+            href={productPath(product)}
             className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-muted text-base font-semibold text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
           >
             Ver detalle

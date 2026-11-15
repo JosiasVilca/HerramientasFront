@@ -3,6 +3,7 @@
 
 import { useSyncExternalStore } from "react";
 import Link from "next/link";
+import { productPath } from "@/lib/catalog";
 import { useRouter } from "next/navigation";
 
 import {
@@ -195,7 +196,7 @@ export default function CarritoPage() {
                   style={{ animationDelay: `${120 + index * 70}ms` }}
                 >
                   <Link
-                    href={`/producto/${item.id}`}
+                    href={productPath(allProducts.find((p) => p.id === item.id) ?? item)}
                     className="block h-28 w-28 shrink-0 overflow-hidden rounded-xl bg-muted sm:h-32 sm:w-32"
                     aria-label={`Ver ${item.nombre}`}
                   >
@@ -215,7 +216,7 @@ export default function CarritoPage() {
                           </p>
                         )}
                         <Link
-                          href={`/producto/${item.id}`}
+                          href={productPath(allProducts.find((p) => p.id === item.id) ?? item)}
                           className="mt-1 block text-lg font-bold leading-snug text-foreground transition-colors hover:text-brand"
                         >
                           {item.nombre}
