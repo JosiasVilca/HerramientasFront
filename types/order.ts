@@ -1,4 +1,4 @@
-// Contrato de POST /api/orders. `customer` (datos de entrega) pendiente de que el backend lo guarde.
+// Contrato de POST /api/orders. Incluye los datos de entrega (customer).
 // El cliente NO envía precios ni totales: los calcula el servidor.
 
 
@@ -41,6 +41,7 @@ export interface OrderResponse {
   createdAt: string;
   items: OrderLine[];
   total: number;
+  customer?: OrderCustomer | null;
 }
 
 // Formato de error del GlobalExceptionHandler del backend.
