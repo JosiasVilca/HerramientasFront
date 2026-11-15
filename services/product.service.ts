@@ -33,6 +33,10 @@ export const productService = {
     return await fetchFromAPI<ApiProduct>(`/api/products/${id}`, { method: "GET" });
   },
 
+  getBySlug: async (slug: string): Promise<ApiProduct> => {
+    return await fetchFromAPI<ApiProduct>(`/api/products/slug/${encodeURIComponent(slug)}`, { method: "GET" });
+  },
+
   create: async (input: ProductInput): Promise<ApiProduct> => {
     return await fetchFromAPI<ApiProduct>("/api/products", {
       method: "POST",

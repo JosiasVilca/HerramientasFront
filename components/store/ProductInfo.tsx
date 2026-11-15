@@ -44,6 +44,7 @@ const agregarAlCarrito = (irAlCheckout = false) => {
       {
         id: product.id,
         nombre: product.name,
+        slug: product.slug,
         especificacion: product.sku,
         precio: product.price,
         imagen: product.image,
