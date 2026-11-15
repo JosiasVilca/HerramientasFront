@@ -22,6 +22,20 @@ const PAYMENT_OPTIONS: { value: PaymentMethod; label: string }[] = [
   { value: "EFECTIVO", label: "Pago contra entrega" },
 ];
 
+const PAYMENT_LABELS: Record<PaymentMethod, string> = {
+  YAPE: "Yape / Plin",
+  TRANSFERENCIA: "Transferencia bancaria",
+  EFECTIVO: "Pago contra entrega",
+};
+
+const NEXT_STEP: Record<PaymentMethod, string> = {
+  YAPE: "Realiza el pago por Yape / Plin y envíanos la captura para confirmar tu pedido.",
+  TRANSFERENCIA:
+    "Realiza la transferencia bancaria y envíanos el comprobante para confirmar tu pedido.",
+  EFECTIVO:
+    "Pagarás al recibir tu pedido. Te contactaremos para coordinar la entrega.",
+};
+
 interface FormState {
   fullName: string;
   email: string;
@@ -53,7 +67,7 @@ const primaryLinkClass =
 const formatPrice = (value: number) => `S/ ${value.toFixed(2)}`;
 
 function Shell({ children }: { children: ReactNode }) {
-  return <main className="mx-auto max-w-3xl px-4 py-10">{children}</main>;
+  return <main className="mx-auto w-full max-w-6xl px-4 py-10">{children}</main>;
 }
 
 export default function CheckoutPage() {
@@ -136,6 +150,31 @@ export default function CheckoutPage() {
       setSubmitting(false);
     }
   };
+  const renderField = (name: keyof FormState) => {
+    const f = TEXT_FIELDS.find((x) => x.name === name);
+    if (!f) return null;
+    return (
+      <div key={f.name}>
+        <label htmlFor={f.name} className="mb-1 block text-sm font-medium">
+          {f.label} <span className="text-destructive">*</span>
+        </label>
+        <input
+          id={f.name}
+          name={f.name}
+          type={f.type ?? "text"}
+          autoComplete={f.autoComplete}
+          required
+          value={values[f.name]}
+          onChange={(e) => setField(f.name, e.target.value)}
+          aria-invalid={fieldErrors[f.name] ? true : undefined}
+          className={inputClass}
+        />
+        {fieldErrors[f.name] && (
+          <p className="mt-1 text-sm text-destructive">{fieldErrors[f.name]}</p>
+        )}
+      </div>
+    );
+  };
 
   if (loading || !user) {
     return (
@@ -145,22 +184,65 @@ export default function CheckoutPage() {
     );
   }
 
-  if (order) {
+   if (order) {
+    const method = order.paymentMethod as PaymentMethod;
     return (
       <Shell>
-        <h1 className="text-2xl font-bold">¡Pedido creado!</h1>
-        <p className="mt-2 text-muted-foreground">
-          Tu número de pedido es <strong>{order.orderNumber}</strong>.
-        </p>
-        <p className="mt-1 text-lg font-semibold">
-          Total: {formatPrice(order.total)}
-        </p>
-        <Link href="/productos" className={primaryLinkClass}>
-          Seguir comprando
-        </Link>
+        <div className="mx-auto max-w-lg rounded-2xl border border-border bg-background p-8 text-center shadow-sm">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-3xl text-green-600">
+            ✓
+          </div>
+          <h1 className="mt-4 text-2xl font-bold">¡Pedido creado!</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Gracias por tu compra. Guarda tu número de pedido.
+          </p>
+
+          <p className="mt-6 rounded-lg bg-muted px-4 py-3 text-xl font-bold tracking-wide">
+            {order.orderNumber}
+          </p>
+
+          <dl className="mt-6 space-y-2 text-left text-sm">
+            <div className="flex justify-between">
+              <dt className="text-muted-foreground">Método de pago</dt>
+              <dd className="font-medium">
+                {PAYMENT_LABELS[method] ?? order.paymentMethod}
+              </dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-muted-foreground">Estado del pago</dt>
+              <dd className="font-medium">Pendiente</dd>
+            </div>
+            <div className="flex justify-between border-t border-border pt-2 text-base">
+              <dt className="font-semibold">Total</dt>
+              <dd className="font-bold">{formatPrice(order.total)}</dd>
+            </div>
+          </dl>
+
+          {NEXT_STEP[method] && (
+            <p className="mt-6 rounded-lg border border-border p-3 text-left text-sm">
+              <strong>Siguiente paso:</strong> {NEXT_STEP[method]}
+            </p>
+          )}
+
+          <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
+            <Link
+              href="/productos"
+              className="inline-flex min-h-11 items-center justify-center rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+            >
+              Seguir comprando
+            </Link>
+            <Link
+              href="/"
+              className="inline-flex min-h-11 items-center justify-center rounded-lg border border-border px-5 text-sm font-semibold transition-colors hover:bg-muted"
+            >
+              Ir al inicio
+            </Link>
+          </div>
+        </div>
       </Shell>
     );
   }
+
 
   if (items.length === 0) {
     return (
@@ -173,70 +255,92 @@ export default function CheckoutPage() {
     );
   }
 
-  return (
+   return (
     <Shell>
       <h1 className="text-2xl font-bold">Finalizar compra</h1>
 
-      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-        {TEXT_FIELDS.map((f) => (
-          <div key={f.name}>
-            <label htmlFor={f.name} className="mb-1 block text-sm font-medium">
-              {f.label}
-            </label>
-            <input
-              id={f.name}
-              name={f.name}
-              type={f.type ?? "text"}
-              autoComplete={f.autoComplete}
-              required
-              value={values[f.name]}
-              onChange={(e) => setField(f.name, e.target.value)}
-              aria-invalid={fieldErrors[f.name] ? true : undefined}
-              className={inputClass}
-            />
-            {fieldErrors[f.name] && (
-              <p className="mt-1 text-sm text-destructive">
-                {fieldErrors[f.name]}
-              </p>
-            )}
-          </div>
-        ))}
+      <form
+        onSubmit={handleSubmit}
+        className="mt-6 grid gap-8 lg:grid-cols-[1fr_380px] lg:items-start"
+      >
+        {/* Columna izquierda: datos */}
+        <div className="space-y-8">
+          <section>
+            <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-sm text-primary-foreground">
+                1
+              </span>
+              Datos de contacto
+            </h2>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {renderField("fullName")}
+              {renderField("email")}
+              {renderField("phone")}
+            </div>
+          </section>
 
-        <div>
-          <label htmlFor="notes" className="mb-1 block text-sm font-medium">
-            Notas (opcional)
-          </label>
-          <textarea
-            id="notes"
-            name="notes"
-            rows={3}
-            value={values.notes}
-            onChange={(e) => setField("notes", e.target.value)}
-            className={`${inputClass} py-2`}
-          />
+          <section>
+            <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-sm text-primary-foreground">
+                2
+              </span>
+              Dirección de entrega
+            </h2>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {renderField("address")}
+              {renderField("city")}
+              <div className="sm:col-span-2">
+                <label
+                  htmlFor="notes"
+                  className="mb-1 block text-sm font-medium"
+                >
+                  Notas (opcional)
+                </label>
+                <textarea
+                  id="notes"
+                  name="notes"
+                  rows={3}
+                  value={values.notes}
+                  onChange={(e) => setField("notes", e.target.value)}
+                  className={`${inputClass} py-2`}
+                />
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <fieldset>
+              <legend className="mb-4 flex items-center gap-2 text-lg font-semibold">
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-sm text-primary-foreground">
+                  3
+                </span>
+                Método de pago
+              </legend>
+              <div className="space-y-2">
+                {PAYMENT_OPTIONS.map((opt) => (
+                  <label
+                    key={opt.value}
+                    className="flex items-center gap-2 text-sm"
+                  >
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value={opt.value}
+                      checked={paymentMethod === opt.value}
+                      onChange={() => setPaymentMethod(opt.value)}
+                    />
+                    {opt.label}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          </section>
         </div>
 
-        <fieldset>
-          <legend className="mb-2 text-sm font-medium">Método de pago</legend>
-          <div className="space-y-2">
-            {PAYMENT_OPTIONS.map((opt) => (
-              <label key={opt.value} className="flex items-center gap-2 text-sm">
-                <input
-                  type="radio"
-                  name="paymentMethod"
-                  value={opt.value}
-                  checked={paymentMethod === opt.value}
-                  onChange={() => setPaymentMethod(opt.value)}
-                />
-                {opt.label}
-              </label>
-            ))}
-          </div>
-        </fieldset>
-
-        <div className="rounded-lg border border-border p-4">
-          <h2 className="text-sm font-semibold">Resumen</h2>
-          <ul className="mt-2 space-y-1 text-sm">
+        {/* Columna derecha: resumen fijo */}
+        <aside className="rounded-xl border border-border bg-muted/40 p-5 lg:sticky lg:top-24">
+          <h2 className="text-base font-semibold">Resumen del pedido</h2>
+          <ul className="mt-3 space-y-2 text-sm">
             {items.map((i) => (
               <li key={i.id} className="flex justify-between gap-4">
                 <span>
@@ -246,29 +350,30 @@ export default function CheckoutPage() {
               </li>
             ))}
           </ul>
-          <p className="mt-3 flex justify-between font-semibold">
+          <p className="mt-4 flex justify-between border-t border-border pt-4 text-base font-semibold">
             <span>Total estimado</span>
             <span>{formatPrice(total)}</span>
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
             El total final lo confirma el servidor.
           </p>
-        </div>
 
-        {error && (
-          <p role="alert" className="text-sm text-destructive">
-            {error}
-          </p>
-        )}
+          {error && (
+            <p role="alert" className="mt-4 text-sm text-destructive">
+              {error}
+            </p>
+          )}
 
-        <button
-          type="submit"
-          disabled={submitting}
-          className="min-h-12 w-full rounded-lg bg-primary text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
-        >
-          {submitting ? "Enviando..." : "Confirmar pedido"}
-        </button>
+          <button
+            type="submit"
+            disabled={submitting}
+            className="btn-brand mt-5 min-h-12 w-full rounded-lg text-base font-semibold disabled:opacity-60"
+          >
+            {submitting ? "Enviando..." : "Confirmar pedido"}
+          </button>
+        </aside>
       </form>
     </Shell>
   );
 }
+
