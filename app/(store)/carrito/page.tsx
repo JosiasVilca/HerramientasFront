@@ -88,16 +88,17 @@ export default function CarritoPage() {
     0,
   );
 
-  const mensajeWhatsApp = [
-    "Hola NEXORA, quiero coordinar este pedido:",
-    "",
-    ...carrito.map(
-      (item) =>
-        `• ${item.nombre}${item.especificacion ? ` (${item.especificacion})` : ""} x${item.cantidad} — S/ ${(item.precio * item.cantidad).toFixed(2)}`,
-    ),
-    "",
-    `Total: S/ ${subtotal.toFixed(2)}`,
-  ].join("\n");
+  const mensajeWhatsApp =
+    carrito.length > 0
+      ? [
+          "Hola NEXORA, tengo una consulta sobre mi carrito:",
+          "",
+          ...carrito.map(
+            (item) =>
+              `- ${item.nombre}${item.especificacion ? ` (${item.especificacion})` : ""} x${item.cantidad}`,
+          ),
+        ].join("\n")
+      : "Hola NEXORA, tengo una consulta.";
 
   const whatsappHref = `https://wa.me/51987654321?text=${encodeURIComponent(
     mensajeWhatsApp,
@@ -118,8 +119,8 @@ export default function CarritoPage() {
 
       <div className="mt-5 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h1 className="hero-rise text-4xl font-extrabold tracking-[-0.03em] text-[#0b1c30] sm:text-5xl [animation-delay:60ms]">
-            Tu carrito
+          <h1 className="hero-rise text-3xl font-bold tracking-tight text-[#0b1c30] sm:text-4xl [animation-delay:60ms]">
+            Carrito de compras
           </h1>
           <p className="hero-rise mt-3 max-w-xl text-lg leading-relaxed text-muted-foreground [animation-delay:120ms]">
             Revisa tus productos, ajusta las cantidades y continúa con tu compra.
@@ -195,7 +196,7 @@ export default function CarritoPage() {
                 >
                   <Link
                     href={`/producto/${item.id}`}
-                    className="block h-28 w-28 shrink-0 overflow-hidden rounded-xl bg-[#f1f4fa] sm:h-32 sm:w-32"
+                    className="block h-28 w-28 shrink-0 overflow-hidden rounded-xl bg-muted sm:h-32 sm:w-32"
                     aria-label={`Ver ${item.nombre}`}
                   >
                     <img
@@ -226,23 +227,23 @@ export default function CarritoPage() {
                         </p>
                       </div>
 
-                      <p className="text-xl font-extrabold text-[#0b1c30] tabular-nums">
+                      <p className="whitespace-nowrap text-xl font-extrabold text-foreground tabular-nums sm:text-2xl">
                         {item.precio > 0
                           ? `S/ ${(item.precio * item.cantidad).toFixed(2)}`
                           : "Por confirmar"}
                       </p>
                     </div>
 
-                    <div className="mt-5 flex flex-wrap items-center justify-between gap-4">
-                      <div className="inline-flex items-center rounded-lg border border-border bg-white">
+                    <div className="mt-5 flex flex-wrap items-center justify-between gap-4 border-t border-border pt-4">
+                      <div className="inline-flex items-center rounded-lg border border-border bg-background">
                         <button
                           onClick={() => cambiarCantidad(item.id, -1)}
-                          className="flex h-10 w-10 items-center justify-center rounded-l-lg text-foreground transition-colors hover:bg-accent hover:text-brand"
+                          className="flex h-11 w-11 items-center justify-center rounded-l-lg text-foreground transition-colors hover:bg-accent hover:text-brand"
                           aria-label={`Quitar una unidad de ${item.nombre}`}
                         >
                           <FiMinus className="h-4 w-4" aria-hidden="true" />
                         </button>
-                        <span className="w-10 text-center text-base font-bold text-[#0b1c30] tabular-nums">
+                        <span className="w-10 text-center text-base font-bold text-foreground tabular-nums">
                           {item.cantidad}
                         </span>
                         <button
@@ -256,7 +257,7 @@ export default function CarritoPage() {
 
                       <button
                         onClick={() => eliminarProducto(item.id)}
-                        className="inline-flex min-h-10 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-muted-foreground transition-colors hover:bg-red-50 hover:text-destructive"
+                        className="inline-flex min-h-10 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
                       >
                         <FiTrash2 className="h-4 w-4" aria-hidden="true" />
                         Eliminar
@@ -279,7 +280,7 @@ export default function CarritoPage() {
                 </div>
                 <div className="flex items-baseline justify-between gap-4">
                   <dt className="text-white/70">Envío</dt>
-                  <dd className="font-semibold">A coordinar</dd>
+                  <dd className="font-semibold">Se calcula al pagar</dd>
                 </div>
                 <div className="flex items-baseline justify-between gap-4 border-t border-white/15 pt-4">
                   <dt className="text-lg font-bold">Total</dt>
@@ -299,15 +300,19 @@ export default function CarritoPage() {
                 Finalizar compra
               </button>
 
-              <a
-                href={whatsappHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-3 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg border border-white/25 bg-white/5 px-6 py-3 text-sm font-extrabold uppercase tracking-wider text-white transition-colors hover:border-white/60 hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1c30]"
-              >
-                <FiMessageCircle className="h-5 w-5" aria-hidden="true" />
-                Confirmar por WhatsApp
-              </a>
+                           <p className="mt-4 text-center text-xs text-white/70">
+                ¿Dudas?{" "}
+                <a
+                  href={whatsappHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 font-semibold text-white underline underline-offset-4 transition-colors hover:text-white/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1c30]"
+                >
+                  <FiMessageCircle className="h-4 w-4" aria-hidden="true" />
+                  Escríbenos por WhatsApp
+                </a>
+              </p>
+
 
               <ul className="mt-6 space-y-3 border-t border-white/15 pt-5 text-sm text-white/75">
                 <li className="flex items-start gap-3">
@@ -315,21 +320,21 @@ export default function CarritoPage() {
                     className="mt-0.5 h-4 w-4 shrink-0 text-white/80"
                     aria-hidden="true"
                   />
-                  No se realiza ningún cobro en esta web.
+                  Elegirás tu método de pago en el siguiente paso.
                 </li>
                 <li className="flex items-start gap-3">
                   <FiTruck
                     className="mt-0.5 h-4 w-4 shrink-0 text-white/80"
                     aria-hidden="true"
                   />
-                  Coordinamos stock y envío contigo.
+                  El costo de envío depende de la distancia.
                 </li>
                 <li className="flex items-start gap-3">
                   <FiCreditCard
                     className="mt-0.5 h-4 w-4 shrink-0 text-white/80"
                     aria-hidden="true"
                   />
-                  La forma de pago se acuerda por WhatsApp.
+                  Verás la confirmación de tu pedido al finalizar.
                 </li>
               </ul>
 
