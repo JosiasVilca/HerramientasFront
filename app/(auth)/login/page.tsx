@@ -4,14 +4,15 @@
 import { useState, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FcGoogle } from "react-icons/fc";
-import { FaFacebookF, FaInstagram } from "react-icons/fa";
-import { FiEye, FiEyeOff, FiMail, FiLock } from "react-icons/fi"; // Iconos añadidos
+import { FaInstagram } from "react-icons/fa";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 import { useAuth } from "@/context/auth-context";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
+import { FacebookSignInButton } from "@/components/auth/FacebookSignInButton";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, loginWithGoogle, loginWithFacebook } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
@@ -73,6 +74,46 @@ export default function LoginPage() {
     }
   };
 
+  const handleGoogleCredential = async (credential: string) => {
+    setErrorMsg(null);
+    setSuccessMsg(null);
+    setIsSubmitting(true);
+    try {
+      const loggedUser = await loginWithGoogle(credential);
+      setSuccessMsg("¡Sesión iniciada con Google!");
+      setTimeout(
+        () => router.push(loggedUser.role === "ADMIN" ? "/admin/inventory" : "/"),
+        800
+      );
+    } catch (err) {
+      setErrorMsg(
+        err instanceof Error ? err.message : "No se pudo iniciar sesión con Google."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleFacebookAccessToken = async (accessToken: string) => {
+    setErrorMsg(null);
+    setSuccessMsg(null);
+    setIsSubmitting(true);
+    try {
+      const loggedUser = await loginWithFacebook(accessToken);
+      setSuccessMsg("¡Sesión iniciada con Facebook!");
+      setTimeout(
+        () => router.push(loggedUser.role === "ADMIN" ? "/admin/inventory" : "/"),
+        800
+      );
+    } catch (err) {
+      setErrorMsg(
+        err instanceof Error ? err.message : "No se pudo iniciar sesión con Facebook."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div
       ref={containerRef}
@@ -89,11 +130,10 @@ export default function LoginPage() {
           alt="NEXORA STORE"
           className="w-40 sm:w-52 h-auto object-contain mb-4"
         />
-        {/* TÍTULO CON DEGRADADO Y MAYÚSCULAS */}
-        <h1 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-purple-600 to-cyan-500 bg-clip-text text-transparent tracking-tight text-center mb-2 uppercase">
-          Bienvenido de nuevo
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-wide text-center">
+          INICIAR SESIÓN
         </h1>
-        <p className="text-sm text-slate-500 mt-1 text-center font-normal">
+        <p className="text-sm text-slate-500 mt-1.5 text-center font-normal">
           Accede a tu cuenta y continúa logrando
         </p>
       </div>
@@ -110,27 +150,20 @@ export default function LoginPage() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        
-        {/* Input Correo CON ICONO Y LIMPIO */}
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1.5">
+          <label className="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">
             Correo Electrónico
           </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-              <FiMail className="w-5 h-5" />
-            </div>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={isSubmitting}
-              placeholder="" // Vacío como pediste
-              className={`w-full pl-11 pr-4 py-3 bg-slate-50 border rounded-xl text-sm font-normal transition outline-none focus:bg-white focus:ring-2 focus:ring-purple-500 ${
-                errors.email ? "border-red-500" : "border-slate-200 focus:border-transparent"
-              }`}
-            />
-          </div>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={isSubmitting}
+            placeholder="ejemplo@ejemplo.com"
+            className={`w-full px-4 py-2.5 rounded-lg border text-sm font-normal transition outline-none focus:ring-2 focus:ring-purple-500 ${
+              errors.email ? "border-red-500" : "border-slate-200"
+            }`}
+          />
           {errors.email && (
             <p className="text-red-500 text-xs font-medium mt-1">
               {errors.email}
@@ -138,23 +171,19 @@ export default function LoginPage() {
           )}
         </div>
 
-        {/* Input Contraseña CON ICONO Y LIMPIO */}
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1.5">
+          <label className="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">
             Contraseña
           </label>
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-              <FiLock className="w-5 h-5" />
-            </div>
             <input
               type={showPassword ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={isSubmitting}
-              placeholder="" // Vacío como pediste
-              className={`w-full pl-11 pr-11 py-3 bg-slate-50 border rounded-xl text-sm font-normal transition outline-none focus:bg-white focus:ring-2 focus:ring-purple-500 ${
-                errors.password ? "border-red-500" : "border-slate-200 focus:border-transparent"
+              placeholder="••••••••"
+              className={`w-full px-4 py-2.5 pr-11 rounded-lg border text-sm font-normal transition outline-none focus:ring-2 focus:ring-purple-500 ${
+                errors.password ? "border-red-500" : "border-slate-200"
               }`}
             />
             <button
@@ -162,9 +191,15 @@ export default function LoginPage() {
               tabIndex={-1}
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
-              aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+              aria-label={
+                showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+              }
             >
-              {showPassword ? <FiEyeOff className="w-5 h-5" /> : <FiEye className="w-5 h-5" />}
+              {showPassword ? (
+                <FiEyeOff className="w-5 h-5" />
+              ) : (
+                <FiEye className="w-5 h-5" />
+              )}
             </button>
           </div>
           {errors.password && (
@@ -174,14 +209,14 @@ export default function LoginPage() {
           )}
         </div>
 
-        <div className="flex items-center justify-between text-sm pt-1">
-          <label className="flex items-center gap-2 cursor-pointer text-slate-600 font-normal hover:text-slate-900 transition-colors">
+        <div className="flex items-center justify-between text-sm">
+          <label className="flex items-center gap-2 cursor-pointer text-slate-600 font-normal">
             <input
               type="checkbox"
               checked={rememberMe}
               onChange={(e) => setRememberMe(e.target.checked)}
               disabled={isSubmitting}
-              className="w-4 h-4 accent-purple-600 rounded cursor-pointer"
+              className="w-4 h-4 accent-purple-600 cursor-pointer"
             />
             Recordarme
           </label>
@@ -193,11 +228,10 @@ export default function LoginPage() {
           </Link>
         </div>
 
-        {/* Botón Principal */}
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-cyan-400 text-white font-bold text-sm tracking-wide rounded-xl shadow-lg hover:shadow-xl hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-60 uppercase mt-2"
+          className="w-full py-3 bg-gradient-to-r from-purple-600 to-cyan-400 text-white font-extrabold text-sm tracking-wider rounded-lg shadow-lg hover:shadow-xl hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-60 uppercase"
         >
           {isSubmitting ? "INICIANDO..." : "INICIAR SESIÓN →"}
         </button>
@@ -205,36 +239,34 @@ export default function LoginPage() {
 
       <div className="flex items-center my-6">
         <div className="flex-1 h-px bg-slate-200"></div>
-        <span className="px-3 text-[11px] text-slate-400 font-semibold uppercase tracking-widest">
+        <span className="px-3 text-xs text-slate-400 font-bold uppercase tracking-widest">
           O continúa con
         </span>
         <div className="flex-1 h-px bg-slate-200"></div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 mb-3">
-        <button
-          type="button"
-          className="flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-all"
-        >
-          <FcGoogle className="w-4 h-4" />
-          Google
-        </button>
-        <button
-          type="button"
-          className="flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-all"
-        >
-          <FaFacebookF className="w-4 h-4 text-blue-600" />
-          Facebook
-        </button>
+      <div className="flex flex-col items-center gap-3">
+        <GoogleSignInButton
+          width={300}
+          onCredential={handleGoogleCredential}
+          onError={setErrorMsg}
+        />
+        <div className="flex justify-center gap-2 sm:gap-3">
+          <FacebookSignInButton
+            onAccessToken={handleFacebookAccessToken}
+            onError={setErrorMsg}
+            disabled={isSubmitting}
+            className="flex items-center gap-2 px-3 sm:px-4 py-2 border border-slate-200 rounded-lg text-xs sm:text-sm text-slate-600 font-medium hover:bg-slate-50 transition disabled:opacity-60 disabled:cursor-not-allowed"
+          />
+          <button
+            type="button"
+            className="flex items-center gap-2 px-3 sm:px-4 py-2 border border-slate-200 rounded-lg text-xs sm:text-sm text-slate-600 font-medium hover:bg-slate-50 transition"
+          >
+            <FaInstagram className="w-4 h-4 text-pink-500" />
+            Instagram
+          </button>
+        </div>
       </div>
-      
-      <button
-        type="button"
-        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-all"
-      >
-        <FaInstagram className="w-4 h-4 text-pink-500" />
-        Instagram
-      </button>
 
       <p className="text-center text-sm text-slate-500 mt-8 font-normal">
         ¿No tienes una cuenta?{" "}

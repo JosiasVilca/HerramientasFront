@@ -2,8 +2,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-
 import {
   FiCheck,
   FiShoppingCart,
@@ -16,7 +14,6 @@ import {
   FiMessageCircle,
 } from "react-icons/fi";
 import { Product } from "@/data/products";
-import { addToCart } from "@/lib/cart";
 
 interface ProductInfoProps {
   product: Product;
@@ -25,8 +22,6 @@ interface ProductInfoProps {
 export default function ProductInfo({ product }: ProductInfoProps) {
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
-  const router = useRouter();
-
 
   const hasPrice = product.price > 0;
   const available = product.stock > 0;
@@ -36,34 +31,39 @@ export default function ProductInfo({ product }: ProductInfoProps) {
     `Hola, quiero consultar por ${product.name} (SKU ${product.sku}).`,
   )}`;
 
-const agregarAlCarrito = (irAlCheckout = false) => {
-  if (!hasPrice || !available) return;
+  const agregarAlCarrito = () => {
+    if (!hasPrice || !available) return;
 
-  try {
-    addToCart(
-      {
-        id: product.id,
-        nombre: product.name,
-        slug: product.slug,
-        especificacion: product.sku,
-        precio: product.price,
-        imagen: product.image,
-      },
-      quantity,
-    );
+    try {
+      const carritoActual = JSON.parse(
+        localStorage.getItem("carrito_compras") || "[]",
+      );
+      const indexExistente = carritoActual.findIndex(
+        (item: { id: string }) => item.id === product.id,
+      );
 
-    if (irAlCheckout) {
-      router.push("/checkout");
-      return;
+      if (indexExistente >= 0) {
+        carritoActual[indexExistente].cantidad += quantity;
+      } else {
+        carritoActual.push({
+          id: product.id,
+          nombre: product.name,
+          slug: product.slug,
+          especificacion: product.sku,
+          precio: product.price,
+          cantidad: quantity,
+          imagen: product.image,
+        });
+      }
+
+      localStorage.setItem("carrito_compras", JSON.stringify(carritoActual));
+      window.dispatchEvent(new Event("cartUpdated"));
+      setIsAdded(true);
+      setTimeout(() => setIsAdded(false), 1600);
+    } catch (error) {
+      console.error("Error al agregar al carrito:", error);
     }
-
-    setIsAdded(true);
-    setTimeout(() => setIsAdded(false), 1600);
-  } catch (error) {
-    console.error("Error al agregar al carrito:", error);
-  }
-};
-
+  };
 
   const categoryLabel = product.category
     .replace(/-/g, " ")
@@ -187,12 +187,12 @@ const agregarAlCarrito = (irAlCheckout = false) => {
       <div className="mt-6 space-y-3">
         {hasPrice ? (
           <button
-            onClick={() => agregarAlCarrito()}
+            onClick={agregarAlCarrito}
             disabled={!available}
-            className={`flex min-h-12 w-full items-center justify-center gap-2 rounded-lg text-base font-semibold transition-[transform,box-shadow,opacity] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
+            className={`flex min-h-12 w-full items-center justify-center gap-2 rounded-lg text-base font-semibold transition-[transform,box-shadow,opacity] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-600/60 focus-visible:ring-offset-2 ${
               isAdded
                 ? "bg-foreground text-background"
-                : "btn-brand disabled:bg-none disabled:bg-muted disabled:text-muted-foreground disabled:opacity-60 disabled:shadow-none disabled:hover:opacity-60"
+                : "bg-gradient-to-r from-purple-600 to-cyan-400 text-white hover:opacity-90 hover:shadow-lg active:scale-[0.98] disabled:bg-none disabled:bg-muted disabled:text-muted-foreground disabled:opacity-60 disabled:shadow-none disabled:hover:opacity-60"
             }`}
           >
             {isAdded ? (
@@ -212,23 +212,12 @@ const agregarAlCarrito = (irAlCheckout = false) => {
             href={whatsappHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-primary text-base font-semibold text-primary-foreground trasition-[transform,box-shadow,opacity] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2"
+            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-cyan-400 text-base font-semibold text-white transition-[transform,box-shadow,opacity] duration-200 hover:opacity-90 hover:shadow-lg active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-600/60 focus-visible:ring-offset-2"
           >
             <FiMessageCircle className="h-4 w-4" aria-hidden="true" />
             Consultar por WhatsApp
           </a>
         )}
-
-        {hasPrice && available && (
-  <button
-    onClick={() => agregarAlCarrito(true)}
-    className="flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-secondary text-base font-semibold btn-brand transition-opacity hover:opacity-90 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/60 focus-visible:ring-offset-2"
-  >
-    <FiCreditCard className="h-4 w-4" aria-hidden="true" />
-    Comprar ahora
-  </button>
-)}
-
 
         {hasPrice && (
           <a

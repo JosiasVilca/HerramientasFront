@@ -4,37 +4,66 @@
 import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import { productPath } from "@/lib/catalog";
-import { useRouter } from "next/navigation";
-
 import {
   FiArrowLeft,
-  FiCreditCard,
   FiMessageCircle,
   FiMinus,
   FiPlus,
-  FiShield,
-  FiShoppingBag,
   FiTrash2,
-  FiTruck,
 } from "react-icons/fi";
 import ProductCard from "@/components/store/ProductCard";
 import Reveal from "@/components/ui/reveal";
 import { useCombinedProducts } from "@/lib/use-combined-products";
-import { useAuth } from "@/context/auth-context";
 
-import {
-  EMPTY_CART,
-  readCart,
-  subscribeToCart,
-  writeCart,
-  type CartItem,
-} from "@/lib/cart";
+interface CartItem {
+  id: string;
+  nombre: string;
+  slug?: string;
+  especificacion?: string;
+  precio: number;
+  cantidad: number;
+  imagen: string;
+}
 
-const gradientBg = "btn-accent";
-const gradientText =
-  "text-white";
+const CART_KEY = "carrito_compras";
+const EMPTY_CART: CartItem[] = [];
 
-const pasos = ["Carrito", "Datos", "Confirmación"];
+// Snapshot cacheado: useSyncExternalStore exige devolver la misma referencia
+// mientras el contenido de localStorage no cambie.
+let cartCache: { raw: string | null; items: CartItem[] } = {
+  raw: null,
+  items: EMPTY_CART,
+};
+
+function readCart(): CartItem[] {
+  const raw = window.localStorage.getItem(CART_KEY);
+  if (raw !== cartCache.raw) {
+    try {
+      const parsed = JSON.parse(raw ?? "[]");
+      cartCache = {
+        raw,
+        items: Array.isArray(parsed) ? (parsed as CartItem[]) : EMPTY_CART,
+      };
+    } catch {
+      cartCache = { raw, items: EMPTY_CART };
+    }
+  }
+  return cartCache.items;
+}
+
+function subscribeToCart(callback: () => void) {
+  window.addEventListener("storage", callback);
+  window.addEventListener("cartUpdated", callback);
+  return () => {
+    window.removeEventListener("storage", callback);
+    window.removeEventListener("cartUpdated", callback);
+  };
+}
+
+function writeCart(items: CartItem[]) {
+  window.localStorage.setItem(CART_KEY, JSON.stringify(items));
+  window.dispatchEvent(new Event("cartUpdated"));
+}
 
 export default function CarritoPage() {
   const carrito = useSyncExternalStore(
@@ -43,16 +72,6 @@ export default function CarritoPage() {
     () => EMPTY_CART,
   );
   const { allProducts, isLoaded } = useCombinedProducts();
-  const router = useRouter();
-  const { user } = useAuth();
-
-  const finalizarCompra = () => {
-    if (!user) {
-      router.push("/login");
-      return;
-    }
-    router.push("/checkout");
-  };
 
   const idsEnCarrito = new Set(carrito.map((item) => item.id));
   const recomendados = isLoaded
@@ -89,17 +108,16 @@ export default function CarritoPage() {
     0,
   );
 
-  const mensajeWhatsApp =
-    carrito.length > 0
-      ? [
-          "Hola NEXORA, tengo una consulta sobre mi carrito:",
-          "",
-          ...carrito.map(
-            (item) =>
-              `- ${item.nombre}${item.especificacion ? ` (${item.especificacion})` : ""} x${item.cantidad}`,
-          ),
-        ].join("\n")
-      : "Hola NEXORA, tengo una consulta.";
+  const mensajeWhatsApp = [
+    "Hola NEXORA, quiero coordinar este pedido:",
+    "",
+    ...carrito.map(
+      (item) =>
+        `• ${item.nombre}${item.especificacion ? ` (${item.especificacion})` : ""} x${item.cantidad} — S/ ${(item.precio * item.cantidad).toFixed(2)}`,
+    ),
+    "",
+    `Total: S/ ${subtotal.toFixed(2)}`,
+  ].join("\n");
 
   const whatsappHref = `https://wa.me/51987654321?text=${encodeURIComponent(
     mensajeWhatsApp,
@@ -109,64 +127,26 @@ export default function CarritoPage() {
     <div className="mx-auto w-full max-w-[1400px] px-5 pb-20 pt-8 sm:px-6 lg:px-8 lg:pt-10">
       <nav
         aria-label="Migas de pan"
-        className="hero-rise flex items-center gap-2 text-sm text-muted-foreground"
+        className="hero-rise flex items-center gap-2 text-base text-muted-foreground"
       >
         <Link href="/" className="transition-colors hover:text-foreground">
           Inicio
         </Link>
         <span aria-hidden="true">/</span>
-        <span className="font-medium text-foreground">Carrito</span>
+        <span className="text-foreground">Carrito</span>
       </nav>
 
-      <div className="mt-5 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <h1 className="hero-rise text-3xl font-bold tracking-tight text-[#0b1c30] sm:text-4xl [animation-delay:60ms]">
-            Carrito de compras
-          </h1>
-          <p className="hero-rise mt-3 max-w-xl text-lg leading-relaxed text-muted-foreground [animation-delay:120ms]">
-            Revisa tus productos, ajusta las cantidades y continúa con tu compra.
-          </p>
-        </div>
-
-        <ol
-          aria-label="Pasos de compra"
-          className="hero-rise flex items-center gap-3 text-xs font-extrabold uppercase tracking-wider [animation-delay:160ms]"
-        >
-          {pasos.map((paso, i) => (
-            <li key={paso} className="flex items-center gap-3">
-              <span
-                className={`flex h-7 w-7 items-center justify-center rounded-full text-xs ${
-                  i === 0
-                    ? `${gradientBg} text-white`
-                    : "border border-border bg-card text-muted-foreground"
-                }`}
-              >
-                {i + 1}
-              </span>
-              <span
-                className={i === 0 ? "text-[#0b1c30]" : "text-muted-foreground"}
-              >
-                {paso}
-              </span>
-              {i < pasos.length - 1 && (
-                <span
-                  aria-hidden="true"
-                  className="hidden h-px w-8 bg-border sm:block"
-                />
-              )}
-            </li>
-          ))}
-        </ol>
-      </div>
+      <h1 className="hero-rise mt-5 text-[clamp(2.75rem,6vw,4.75rem)] font-extrabold leading-[0.95] tracking-[-0.04em] text-foreground [animation-delay:60ms]">
+        Carrito
+      </h1>
+      <p className="hero-rise mt-4 max-w-xl text-lg leading-relaxed text-muted-foreground [animation-delay:120ms]">
+        Revisa lo que llevas y confirma disponibilidad, envío y forma de pago
+        con nuestro equipo por WhatsApp.
+      </p>
 
       {carrito.length === 0 ? (
-        <div className="hero-rise mt-10 flex flex-col items-center rounded-2xl border border-border bg-card p-10 text-center sm:p-16 [animation-delay:180ms]">
-          <span
-            className={`flex h-16 w-16 items-center justify-center rounded-full ${gradientBg} text-white`}
-          >
-            <FiShoppingBag className="h-7 w-7" aria-hidden="true" />
-          </span>
-          <h2 className="mt-6 text-2xl font-extrabold text-[#0b1c30]">
+        <div className="hero-rise mt-8 rounded-xl bg-card p-10 sm:p-14 [animation-delay:180ms]">
+          <h2 className="text-2xl font-semibold text-foreground">
             Tu carrito está vacío
           </h2>
           <p className="mt-2 max-w-md text-base text-muted-foreground">
@@ -175,29 +155,29 @@ export default function CarritoPage() {
           </p>
           <Link
             href="/productos"
-            className={`mt-8 inline-flex min-h-12 items-center justify-center rounded-lg ${gradientBg} px-6 py-3 text-sm font-extrabold uppercase tracking-wider text-white transition-[transform,box-shadow,opacity] duration-200 hover:opacity-90 hover:shadow-xl active:scale-[0.98]`}
+            className="mt-6 inline-flex min-h-12 items-center justify-center rounded-lg bg-primary px-6 text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Explorar catálogo
+            Ver catálogo
           </Link>
         </div>
       ) : (
         <>
-          <p className="mt-8 text-base font-medium text-muted-foreground">
+          <p className="mt-3 text-lg text-muted-foreground">
             {totalItems} {totalItems === 1 ? "unidad" : "unidades"} en{" "}
-            {carrito.length} {carrito.length === 1 ? "producto" : "productos"}
+            {carrito.length} {carrito.length === 1 ? "producto" : "productos"}.
           </p>
 
-          <div className="mt-4 grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start lg:gap-12">
-            <ul className="space-y-4">
+          <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-14">
+            <ul className="space-y-6">
               {carrito.map((item, index) => (
                 <li
                   key={item.id}
-                  className="hero-rise flex flex-wrap items-start gap-4 rounded-2xl border border-border bg-card p-4 transition-shadow duration-200 hover:shadow-lg sm:flex-nowrap sm:gap-6 sm:p-5"
+                  className="hero-rise flex flex-wrap items-start gap-4 sm:flex-nowrap sm:gap-6"
                   style={{ animationDelay: `${120 + index * 70}ms` }}
                 >
                   <Link
                     href={productPath(allProducts.find((p) => p.id === item.id) ?? item)}
-                    className="block h-28 w-28 shrink-0 overflow-hidden rounded-xl bg-muted sm:h-32 sm:w-32"
+                    className="block h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-[#f1f4fa] sm:h-28 sm:w-28"
                     aria-label={`Ver ${item.nombre}`}
                   >
                     <img
@@ -210,46 +190,46 @@ export default function CarritoPage() {
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
                       <div className="min-w-0">
-                        {item.especificacion && (
-                          <p className="text-xs font-extrabold uppercase tracking-wider text-brand">
-                            {item.especificacion}
-                          </p>
-                        )}
                         <Link
                           href={productPath(allProducts.find((p) => p.id === item.id) ?? item)}
-                          className="mt-1 block text-lg font-bold leading-snug text-foreground transition-colors hover:text-brand"
+                          className="text-lg font-semibold text-foreground transition-colors hover:text-primary"
                         >
                           {item.nombre}
                         </Link>
-                        <p className="mt-1 text-sm text-muted-foreground">
+                        {item.especificacion && (
+                          <p className="mt-0.5 text-base text-muted-foreground">
+                            {item.especificacion}
+                          </p>
+                        )}
+                        <p className="mt-1 text-base text-muted-foreground">
                           {item.precio > 0
                             ? `S/ ${item.precio.toFixed(2)} por unidad`
                             : "Precio por confirmar"}
                         </p>
                       </div>
 
-                      <p className="whitespace-nowrap text-xl font-extrabold text-foreground tabular-nums sm:text-2xl">
+                      <p className="text-lg font-semibold text-secondary tabular-nums">
                         {item.precio > 0
                           ? `S/ ${(item.precio * item.cantidad).toFixed(2)}`
                           : "Por confirmar"}
                       </p>
                     </div>
 
-                    <div className="mt-5 flex flex-wrap items-center justify-between gap-4 border-t border-border pt-4">
-                      <div className="inline-flex items-center rounded-lg border border-border bg-background">
+                    <div className="mt-4 flex flex-wrap items-center gap-4">
+                      <div className="inline-flex items-center rounded-lg bg-muted">
                         <button
                           onClick={() => cambiarCantidad(item.id, -1)}
-                          className="flex h-11 w-11 items-center justify-center rounded-l-lg text-foreground transition-colors hover:bg-accent hover:text-brand"
+                          className="flex h-10 w-10 items-center justify-center rounded-l-lg text-foreground transition-colors hover:bg-accent"
                           aria-label={`Quitar una unidad de ${item.nombre}`}
                         >
                           <FiMinus className="h-4 w-4" aria-hidden="true" />
                         </button>
-                        <span className="w-10 text-center text-base font-bold text-foreground tabular-nums">
+                        <span className="w-9 text-center text-base font-semibold text-foreground tabular-nums">
                           {item.cantidad}
                         </span>
                         <button
                           onClick={() => cambiarCantidad(item.id, 1)}
-                          className="flex h-10 w-10 items-center justify-center rounded-r-lg text-foreground transition-colors hover:bg-accent hover:text-brand"
+                          className="flex h-10 w-10 items-center justify-center rounded-r-lg text-foreground transition-colors hover:bg-accent"
                           aria-label={`Agregar una unidad de ${item.nombre}`}
                         >
                           <FiPlus className="h-4 w-4" aria-hidden="true" />
@@ -258,7 +238,7 @@ export default function CarritoPage() {
 
                       <button
                         onClick={() => eliminarProducto(item.id)}
-                        className="inline-flex min-h-10 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                        className="inline-flex min-h-10 items-center gap-2 text-base font-medium text-muted-foreground underline decoration-border underline-offset-4 transition-colors hover:text-destructive"
                       >
                         <FiTrash2 className="h-4 w-4" aria-hidden="true" />
                         Eliminar
@@ -269,109 +249,75 @@ export default function CarritoPage() {
               ))}
             </ul>
 
-            <aside className="hero-rise rounded-2xl bg-[#0b1c30] p-6 text-white shadow-xl [animation-delay:260ms] sm:p-7 lg:sticky lg:top-8">
-              <h2 className="text-xl font-extrabold">Resumen del pedido</h2>
+            <aside className="hero-rise rounded-xl bg-card p-6 [animation-delay:260ms] lg:sticky lg:top-8">
+              <h2 className="text-xl font-semibold text-foreground">
+                Resumen del pedido
+              </h2>
 
-              <dl className="mt-6 space-y-3 text-base">
+              <dl className="mt-5 space-y-3 text-base">
                 <div className="flex items-baseline justify-between gap-4">
-                  <dt className="text-white/70">Artículos ({totalItems})</dt>
-                  <dd className="font-semibold tabular-nums">
+                  <dt className="text-muted-foreground">
+                    Artículos ({totalItems})
+                  </dt>
+                  <dd className="font-medium text-foreground tabular-nums">
                     S/ {subtotal.toFixed(2)}
                   </dd>
                 </div>
                 <div className="flex items-baseline justify-between gap-4">
-                  <dt className="text-white/70">Envío</dt>
-                  <dd className="font-semibold">Se calcula al pagar</dd>
+                  <dt className="text-muted-foreground">Envío</dt>
+                  <dd className="font-medium text-foreground">
+                    A coordinar
+                  </dd>
                 </div>
-                <div className="flex items-baseline justify-between gap-4 border-t border-white/15 pt-4">
-                  <dt className="text-lg font-bold">Total</dt>
-                  <dd
-                    className={`text-3xl font-extrabold tabular-nums ${gradientText}`}
-                  >
+                <div className="flex items-baseline justify-between gap-4 pt-3 text-lg font-semibold">
+                  <dt className="text-foreground">Total</dt>
+                  <dd className="text-secondary tabular-nums">
                     S/ {subtotal.toFixed(2)}
                   </dd>
                 </div>
               </dl>
 
-              <button
-                onClick={finalizarCompra}
-                disabled={carrito.length === 0}
-                className={`mt-6 inline-flex min-h-12 w-full items-center justify-center rounded-lg ${gradientBg} px-6 py-3 text-sm font-extrabold uppercase tracking-wider text-white transition-[transform,box-shadow,opacity] duration-200 hover:opacity-90 hover:shadow-xl active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1c30] disabled:cursor-not-allowed disabled:opacity-50`}
+              <a
+                href={whatsappHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-6 flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-primary text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
               >
-                Finalizar compra
+                <FiMessageCircle className="h-5 w-5" aria-hidden="true" />
+                Confirmar por WhatsApp
+              </a>
+
+              <button
+                onClick={vaciarCarrito}
+                className="mt-3 flex min-h-11 w-full items-center justify-center rounded-lg bg-muted text-base font-medium text-foreground transition-colors hover:bg-accent"
+              >
+                Vaciar carrito
               </button>
 
-                           <p className="mt-4 text-center text-xs text-white/70">
-                ¿Dudas?{" "}
-                <a
-                  href={whatsappHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 font-semibold text-white underline underline-offset-4 transition-colors hover:text-white/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1c30]"
-                >
-                  <FiMessageCircle className="h-4 w-4" aria-hidden="true" />
-                  Escríbenos por WhatsApp
-                </a>
+              <p className="mt-4 max-w-[60ch] text-base leading-relaxed text-muted-foreground">
+                No se realiza ningún cobro en esta web. Coordinamos stock,
+                envío y forma de pago por WhatsApp.
               </p>
 
-
-              <ul className="mt-6 space-y-3 border-t border-white/15 pt-5 text-sm text-white/75">
-                <li className="flex items-start gap-3">
-                  <FiShield
-                    className="mt-0.5 h-4 w-4 shrink-0 text-white/80"
-                    aria-hidden="true"
-                  />
-                  Elegirás tu método de pago en el siguiente paso.
-                </li>
-                <li className="flex items-start gap-3">
-                  <FiTruck
-                    className="mt-0.5 h-4 w-4 shrink-0 text-white/80"
-                    aria-hidden="true"
-                  />
-                  El costo de envío depende de la distancia.
-                </li>
-                <li className="flex items-start gap-3">
-                  <FiCreditCard
-                    className="mt-0.5 h-4 w-4 shrink-0 text-white/80"
-                    aria-hidden="true"
-                  />
-                  Verás la confirmación de tu pedido al finalizar.
-                </li>
-              </ul>
-
-              <div className="mt-6 flex items-center justify-between gap-4 border-t border-white/15 pt-5">
-                <Link
-                  href="/productos"
-                  className="inline-flex items-center gap-2 text-sm font-semibold text- underline decoration-white/30 underline-offset-4 transition-colors hover:decoration-white"
-                >
-                  <FiArrowLeft className="h-4 w-4" aria-hidden="true" />
-                  Seguir comprando
-                </Link>
-                <button
-                  onClick={vaciarCarrito}
-                  className="text-sm font-medium text-white/60 underline decoration-white/20 underline-offset-4 transition-colors hover:text-red-300 hover:decoration-red-300"
-                >
-                  Vaciar carrito
-                </button>
-              </div>
+              <Link
+                href="/productos"
+                className="mt-4 inline-flex items-center gap-2 text-base font-medium text-primary underline decoration-primary/30 underline-offset-4 transition-colors hover:decoration-primary"
+              >
+                <FiArrowLeft className="h-4 w-4" aria-hidden="true" />
+                Seguir comprando
+              </Link>
             </aside>
           </div>
 
           {recomendados.length > 0 && (
             <section className="mt-20">
               <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <span
-                    aria-hidden="true"
-                    className={`block h-1 w-12 rounded-full ${gradientBg}`}
-                  />
-                  <h2 className="mt-4 text-3xl font-extrabold tracking-[-0.02em] text-[#0b1c30] sm:text-4xl">
-                    Suma algo más a tu setup
-                  </h2>
-                </div>
+                <h2 className="text-3xl font-bold tracking-[-0.02em] text-foreground sm:text-4xl">
+                  Suma algo más a tu setup
+                </h2>
                 <Link
                   href="/productos"
-                  className="inline-flex min-h-11 items-center whitespace-nowrap text-sm font-extrabold uppercase tracking-wider text-brand underline decoration-primary/30 underline-offset-4 transition-colors hover:decoration-primary"
+                  className="inline-flex min-h-11 items-center whitespace-nowrap text-base font-semibold text-primary underline decoration-primary/30 underline-offset-4 transition-colors hover:decoration-primary"
                 >
                   Ver todo el catálogo
                 </Link>
