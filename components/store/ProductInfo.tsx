@@ -158,9 +158,6 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                 <FiPlus className="h-4 w-4" aria-hidden="true" />
               </button>
             </div>
-            <span className="text-base text-muted-foreground">
-              Máximo {maxQuantity} por compra
-            </span>
           </div>
         </div>
       )}

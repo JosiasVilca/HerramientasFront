@@ -105,7 +105,7 @@ export default function CarritoPage() {
 
       {error && <p role="alert" className="mt-4 text-destructive">{error}</p>}
       {carrito.length > 0 && <div className="mt-5 space-y-2">
-        <p role="status" className="text-sm text-muted-foreground">{checking ? "Consultando stock..." : stockError || "Stock consultado. Las cantidades se ajustan a la disponibilidad actual; agregar al carrito no reserva unidades."}</p>
+        {(checking || stockError) && <p role="status" className="text-sm text-muted-foreground">{checking ? "Consultando stock..." : stockError}</p>}
       </div>}
       {carrito.length === 0 ? (
         <div className="hero-rise mt-8 rounded-xl bg-card p-10 sm:p-14 [animation-delay:180ms]">

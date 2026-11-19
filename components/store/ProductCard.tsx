@@ -30,6 +30,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const [adding, setAdding] = useState(false);
   const [cartError, setCartError] = useState("");
   const [heartAnimated, setHeartAnimated] = useState(false);
+  const [loadedHoverImage, setLoadedHoverImage] = useState<string | null>(null);
 
   const toggleFavorite = () => {
     setHeartAnimated(true);
@@ -68,6 +69,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   };
 
   const hasDiscount = product.oldPrice > product.price;
+  const canShowHoverImage = Boolean(product.imageHover && product.imageHover !== product.image && loadedHoverImage === product.imageHover);
 
   return (
     <article className="group flex flex-col">
@@ -80,15 +82,17 @@ export default function ProductCard({ product }: ProductCardProps) {
           <img
             src={product.image}
             alt={product.name}
-            className="absolute inset-0 h-full w-full object-contain p-6 mix-blend-multiply transition-opacity duration-300 group-hover:opacity-0"
+            className={`absolute inset-0 h-full w-full object-contain p-6 mix-blend-multiply transition-opacity duration-300 ${canShowHoverImage ? "group-hover:opacity-0" : ""}`}
             loading="lazy"
           />
           {product.imageHover && product.imageHover !== product.image && (
             <img
               src={product.imageHover}
+              onLoad={() => setLoadedHoverImage(product.imageHover ?? null)}
+              onError={() => setLoadedHoverImage(null)}
               alt=""
               aria-hidden="true"
-              className="absolute inset-0 h-full w-full object-contain p-6 opacity-0 mix-blend-multiply transition-opacity duration-300 group-hover:opacity-100"
+              className={`absolute inset-0 h-full w-full object-contain p-6 opacity-0 mix-blend-multiply transition-opacity duration-300 ${canShowHoverImage ? "group-hover:opacity-100" : ""}`}
               loading="lazy"
             />
           )}
