@@ -33,21 +33,20 @@ export default function CarritoPage() {
   const [error, setError] = useState("");
   const [stockError, setStockError] = useState("");
   const [checking, setChecking] = useState(true);
-  const [refresh, setRefresh] = useState(0);
   const ids = carrito.map((item) => item.id).sort().join(",");
   useEffect(() => {
     let cancelled = false;
     const check = async () => {
       setChecking(true); setStockError("");
       try { await refreshCartStock(); }
-      catch { if (!cancelled) setStockError("No se pudo consultar el stock. Inténtalo de nuevo antes de continuar."); }
+      catch { if (!cancelled) setStockError("No se pudo consultar el stock. Recarga la página para volver a intentarlo."); }
       finally { if (!cancelled) setChecking(false); }
     };
     void check();
     const onFocus = () => { void check(); };
     window.addEventListener("focus", onFocus);
     return () => { cancelled = true; window.removeEventListener("focus", onFocus); };
-  }, [ids, refresh]);
+  }, [ids]);
 
   const actualizar = (operation: () => void) => {
     setError("");
@@ -79,7 +78,7 @@ export default function CarritoPage() {
     `Total: S/ ${subtotal.toFixed(2)}`,
   ].join("\n");
 
-  const whatsappHref = `https://wa.me/51987654321?text=${encodeURIComponent(
+  const whatsappHref = `https://wa.me/51969088192?text=${encodeURIComponent(
     mensajeWhatsApp,
   )}`;
 
@@ -107,7 +106,6 @@ export default function CarritoPage() {
       {error && <p role="alert" className="mt-4 text-destructive">{error}</p>}
       {carrito.length > 0 && <div className="mt-5 space-y-2">
         <p role="status" className="text-sm text-muted-foreground">{checking ? "Consultando stock..." : stockError || "Stock consultado. Las cantidades se ajustan a la disponibilidad actual; agregar al carrito no reserva unidades."}</p>
-        <button type="button" disabled={checking} onClick={() => setRefresh((value) => value + 1)} className="text-primary underline disabled:opacity-50">Actualizar stock y precios</button>
       </div>}
       {carrito.length === 0 ? (
         <div className="hero-rise mt-8 rounded-xl bg-card p-10 sm:p-14 [animation-delay:180ms]">

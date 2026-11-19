@@ -30,7 +30,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
   const available = product.stock > 0;
   const maxQuantity = Math.max(1, Math.min(product.stock, 10));
 
-  const whatsappHref = `https://wa.me/51987654321?text=${encodeURIComponent(
+  const whatsappHref = `https://wa.me/51969088192?text=${encodeURIComponent(
     `Hola, quiero consultar por ${product.name} (SKU ${product.sku}).`,
   )}`;
 
