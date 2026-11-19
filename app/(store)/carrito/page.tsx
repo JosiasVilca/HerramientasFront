@@ -1,8 +1,10 @@
 // app/(store)/carrito/page.tsx
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useSyncExternalStore, useEffect, useState } from "react";
 import Link from "next/link";
+import { EMPTY_CART, readCart, subscribeToCart, writeCart, changeQuantity, removeFromCart, MAX_CART_QUANTITY } from "@/lib/cart";
+import { refreshCartStock } from "@/lib/cart-catalog";
 import { productPath } from "@/lib/catalog";
 import {
   FiArrowLeft,
@@ -14,56 +16,6 @@ import {
 import ProductCard from "@/components/store/ProductCard";
 import Reveal from "@/components/ui/reveal";
 import { useCombinedProducts } from "@/lib/use-combined-products";
-
-interface CartItem {
-  id: string;
-  nombre: string;
-  slug?: string;
-  especificacion?: string;
-  precio: number;
-  cantidad: number;
-  imagen: string;
-}
-
-const CART_KEY = "carrito_compras";
-const EMPTY_CART: CartItem[] = [];
-
-// Snapshot cacheado: useSyncExternalStore exige devolver la misma referencia
-// mientras el contenido de localStorage no cambie.
-let cartCache: { raw: string | null; items: CartItem[] } = {
-  raw: null,
-  items: EMPTY_CART,
-};
-
-function readCart(): CartItem[] {
-  const raw = window.localStorage.getItem(CART_KEY);
-  if (raw !== cartCache.raw) {
-    try {
-      const parsed = JSON.parse(raw ?? "[]");
-      cartCache = {
-        raw,
-        items: Array.isArray(parsed) ? (parsed as CartItem[]) : EMPTY_CART,
-      };
-    } catch {
-      cartCache = { raw, items: EMPTY_CART };
-    }
-  }
-  return cartCache.items;
-}
-
-function subscribeToCart(callback: () => void) {
-  window.addEventListener("storage", callback);
-  window.addEventListener("cartUpdated", callback);
-  return () => {
-    window.removeEventListener("storage", callback);
-    window.removeEventListener("cartUpdated", callback);
-  };
-}
-
-function writeCart(items: CartItem[]) {
-  window.localStorage.setItem(CART_KEY, JSON.stringify(items));
-  window.dispatchEvent(new Event("cartUpdated"));
-}
 
 export default function CarritoPage() {
   const carrito = useSyncExternalStore(
@@ -78,29 +30,37 @@ export default function CarritoPage() {
     ? allProducts.filter((product) => !idsEnCarrito.has(product.id)).slice(0, 4)
     : [];
 
-  const guardarCarrito = (items: CartItem[]) => {
-    writeCart(items);
-  };
+  const [error, setError] = useState("");
+  const [stockError, setStockError] = useState("");
+  const [checking, setChecking] = useState(true);
+  const [refresh, setRefresh] = useState(0);
+  const ids = carrito.map((item) => item.id).sort().join(",");
+  useEffect(() => {
+    let cancelled = false;
+    const check = async () => {
+      setChecking(true); setStockError("");
+      try { await refreshCartStock(); }
+      catch { if (!cancelled) setStockError("No se pudo consultar el stock. Inténtalo de nuevo antes de continuar."); }
+      finally { if (!cancelled) setChecking(false); }
+    };
+    void check();
+    const onFocus = () => { void check(); };
+    window.addEventListener("focus", onFocus);
+    return () => { cancelled = true; window.removeEventListener("focus", onFocus); };
+  }, [ids, refresh]);
 
-  const cambiarCantidad = (id: string, delta: number) => {
-    const actualizado = carrito
-      .map((item) =>
-        item.id === id ? { ...item, cantidad: item.cantidad + delta } : item,
-      )
-      .filter((item) => item.cantidad > 0);
-    guardarCarrito(actualizado);
+  const actualizar = (operation: () => void) => {
+    setError("");
+    try { operation(); }
+    catch (err) { setError(err instanceof Error ? err.message : "No se pudo actualizar el carrito."); }
   };
-
-  const eliminarProducto = (id: string) => {
-    guardarCarrito(carrito.filter((item) => item.id !== id));
-  };
-
+  const cambiarCantidad = (id: string, delta: number) => actualizar(() => changeQuantity(id, delta));
+  const eliminarProducto = (id: string) => actualizar(() => removeFromCart(id));
   const vaciarCarrito = () => {
-    if (!window.confirm("¿Vaciar el carrito? Esta acción no se puede deshacer.")) {
-      return;
-    }
-    guardarCarrito([]);
+    if (window.confirm("¿Vaciar el carrito?")) actualizar(() => writeCart([]));
   };
+  const unavailable = carrito.some((item) => item.stock === undefined || item.stock < item.cantidad || item.precio <= 0);
+  const canContinue = !checking && !stockError && !unavailable;
 
   const totalItems = carrito.reduce((acc, item) => acc + item.cantidad, 0);
   const subtotal = carrito.reduce(
@@ -144,6 +104,11 @@ export default function CarritoPage() {
         con nuestro equipo por WhatsApp.
       </p>
 
+      {error && <p role="alert" className="mt-4 text-destructive">{error}</p>}
+      {carrito.length > 0 && <div className="mt-5 space-y-2">
+        <p role="status" className="text-sm text-muted-foreground">{checking ? "Consultando stock..." : stockError || "Stock consultado. Las cantidades se ajustan a la disponibilidad actual; agregar al carrito no reserva unidades."}</p>
+        <button type="button" disabled={checking} onClick={() => setRefresh((value) => value + 1)} className="text-primary underline disabled:opacity-50">Actualizar stock y precios</button>
+      </div>}
       {carrito.length === 0 ? (
         <div className="hero-rise mt-8 rounded-xl bg-card p-10 sm:p-14 [animation-delay:180ms]">
           <h2 className="text-2xl font-semibold text-foreground">
@@ -215,10 +180,14 @@ export default function CarritoPage() {
                       </p>
                     </div>
 
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      {item.stock === undefined ? "Stock pendiente de consulta" : item.stock === 0 ? "Producto no disponible. Elimínalo para continuar." : `Stock consultado: ${item.stock} unidades`}
+                    </p>
                     <div className="mt-4 flex flex-wrap items-center gap-4">
                       <div className="inline-flex items-center rounded-lg bg-muted">
                         <button
                           onClick={() => cambiarCantidad(item.id, -1)}
+                          disabled={item.cantidad <= 1}
                           className="flex h-10 w-10 items-center justify-center rounded-l-lg text-foreground transition-colors hover:bg-accent"
                           aria-label={`Quitar una unidad de ${item.nombre}`}
                         >
@@ -229,6 +198,7 @@ export default function CarritoPage() {
                         </span>
                         <button
                           onClick={() => cambiarCantidad(item.id, 1)}
+                          disabled={checking || !!stockError || item.stock === undefined || item.cantidad >= Math.min(item.stock, MAX_CART_QUANTITY)}
                           className="flex h-10 w-10 items-center justify-center rounded-r-lg text-foreground transition-colors hover:bg-accent"
                           aria-label={`Agregar una unidad de ${item.nombre}`}
                         >
@@ -278,13 +248,15 @@ export default function CarritoPage() {
               </dl>
 
               <a
-                href={whatsappHref}
+                href={canContinue ? whatsappHref : undefined}
+                aria-disabled={!canContinue}
+                tabIndex={canContinue ? 0 : -1}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-6 flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-primary text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
               >
                 <FiMessageCircle className="h-5 w-5" aria-hidden="true" />
-                Confirmar por WhatsApp
+                {canContinue ? "Confirmar por WhatsApp" : "Revisa el stock para continuar"}
               </a>
 
               <button

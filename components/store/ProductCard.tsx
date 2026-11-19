@@ -1,6 +1,7 @@
 // components/store/ProductCard.tsx
 "use client";
 
+import { addCatalogProduct } from "@/lib/cart-catalog";
 import { useState } from "react";
 import Link from "next/link";
 import { productPath } from "@/lib/catalog";
@@ -26,6 +27,8 @@ const getInitialFavorite = (productId: string): boolean => {
 export default function ProductCard({ product }: ProductCardProps) {
   const [isFavorite, setIsFavorite] = useState(() => getInitialFavorite(product.id));
   const [isAdded, setIsAdded] = useState(false);
+  const [adding, setAdding] = useState(false);
+  const [cartError, setCartError] = useState("");
   const [heartAnimated, setHeartAnimated] = useState(false);
 
   const toggleFavorite = () => {
@@ -52,42 +55,16 @@ export default function ProductCard({ product }: ProductCardProps) {
     }
   };
 
-  const handleAddToCart = () => {
-    setIsAdded(true);
-    setTimeout(() => setIsAdded(false), 1600);
-
+  const handleAddToCart = async () => {
+    if (adding) return;
+    setAdding(true); setCartError("");
     try {
-      const stored = localStorage.getItem("carrito_compras");
-      const carrito: {
-        id: string;
-        nombre: string;
-        slug?: string;
-        especificacion: string;
-        precio: number;
-        cantidad: number;
-        imagen: string;
-      }[] = stored ? JSON.parse(stored) : [];
-
-      const index = carrito.findIndex((item) => item.id === product.id);
-      if (index > -1) {
-        carrito[index].cantidad += 1;
-      } else {
-        carrito.push({
-          id: product.id,
-          nombre: product.name,
-          slug: product.slug,
-          especificacion: product.sku,
-          precio: product.price,
-          cantidad: 1,
-          imagen: product.image,
-        });
-      }
-
-      localStorage.setItem("carrito_compras", JSON.stringify(carrito));
-      window.dispatchEvent(new Event("cartUpdated"));
-    } catch (e) {
-      console.error("Error al agregar al carrito:", e);
-    }
+      await addCatalogProduct(product);
+      setIsAdded(true);
+      setTimeout(() => setIsAdded(false), 1600);
+    } catch (error) {
+      setCartError(error instanceof Error ? error.message : "No se pudo agregar el producto.");
+    } finally { setAdding(false); }
   };
 
   const hasDiscount = product.oldPrice > product.price;
@@ -162,6 +139,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         {product.price > 0 ? (
           <button
             onClick={handleAddToCart}
+            disabled={adding || product.stock <= 0}
             className={`mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg text-base font-semibold transition-[transform,box-shadow,opacity] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-600/60 focus-visible:ring-offset-2 ${
               isAdded
                 ? "bg-foreground text-background"
@@ -176,7 +154,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             ) : (
               <>
                 <FiShoppingCart className="h-4 w-4" aria-hidden="true" />
-                Agregar
+                {adding ? "Consultando..." : product.stock <= 0 ? "Sin stock" : "Agregar"}
               </>
             )}
           </button>
@@ -189,6 +167,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             <FiArrowRight className="h-4 w-4" aria-hidden="true" />
           </Link>
         )}
+        {cartError && <p role="alert" className="mt-2 text-sm text-destructive">{cartError}</p>}
       </div>
     </article>
   );

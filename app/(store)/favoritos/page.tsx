@@ -1,9 +1,10 @@
 // app/(store)/favoritos/page.tsx
 "use client";
 
+import { addCatalogProduct } from "@/lib/cart-catalog";
 import { useSyncExternalStore, useState } from "react";
 import Link from "next/link";
-import { FiCheck, FiHeart, FiShoppingCart, FiTrash2 } from "react-icons/fi";
+import { FiHeart, FiShoppingCart, FiTrash2 } from "react-icons/fi";
 import ProductCard from "@/components/store/ProductCard";
 import Reveal from "@/components/ui/reveal";
 import { useCombinedProducts } from "@/lib/use-combined-products";
@@ -14,15 +15,6 @@ import {
   writeFavorites,
 } from "@/lib/favorites";
 
-interface CartItem {
-  id: string;
-  nombre: string;
-  especificacion: string;
-  precio: number;
-  cantidad: number;
-  imagen: string;
-}
-
 export default function FavoritosPage() {
   const favoriteIds = useSyncExternalStore(
     subscribeToFavorites,
@@ -31,6 +23,7 @@ export default function FavoritosPage() {
   );
   const { allProducts, isLoaded } = useCombinedProducts();
   const [feedback, setFeedback] = useState("");
+  const [moving, setMoving] = useState(false);
 
   const favoriteProducts = allProducts.filter((product) =>
     favoriteIds.includes(product.id),
@@ -39,41 +32,17 @@ export default function FavoritosPage() {
     (product) => product.price > 0,
   );
 
-  const moverTodoAlCarrito = () => {
-    if (pricedFavorites.length === 0) return;
-
-    try {
-      const carrito: CartItem[] = JSON.parse(
-        localStorage.getItem("carrito_compras") || "[]",
-      );
-
-      for (const product of pricedFavorites) {
-        const index = carrito.findIndex((item) => item.id === product.id);
-        if (index >= 0) {
-          carrito[index].cantidad += 1;
-        } else {
-          carrito.push({
-            id: product.id,
-            nombre: product.name,
-            especificacion: product.sku,
-            precio: product.price,
-            cantidad: 1,
-            imagen: product.image,
-          });
-        }
-      }
-
-      localStorage.setItem("carrito_compras", JSON.stringify(carrito));
-      window.dispatchEvent(new Event("cartUpdated"));
-      setFeedback(
-        `${pricedFavorites.length} ${
-          pricedFavorites.length === 1 ? "producto" : "productos"
-        } en el carrito`,
-      );
-      setTimeout(() => setFeedback(""), 2400);
-    } catch (error) {
-      console.error("Error al mover favoritos al carrito:", error);
+  const moverTodoAlCarrito = async () => {
+    if (moving || !pricedFavorites.length) return;
+    setMoving(true);
+    let added = 0;
+    const errors: string[] = [];
+    for (const product of pricedFavorites) {
+      try { await addCatalogProduct(product); added++; }
+      catch (error) { errors.push(error instanceof Error ? error.message : "No se pudo agregar el producto."); }
     }
+    setFeedback(`${added} productos agregados al carrito.${errors.length ? ` ${errors.length} no se pudieron agregar. ${errors[0]}` : ""}`);
+    setMoving(false);
   };
 
   const vaciarFavoritos = () => {
@@ -108,20 +77,11 @@ export default function FavoritosPage() {
           <div className="hero-rise flex flex-wrap items-center gap-3 [animation-delay:180ms]">
             <button
               onClick={moverTodoAlCarrito}
-              disabled={pricedFavorites.length === 0}
+              disabled={moving || pricedFavorites.length === 0}
               className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-primary px-5 text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground"
             >
-              {feedback ? (
-                <>
-                  <FiCheck className="h-4 w-4" aria-hidden="true" />
-                  {feedback}
-                </>
-              ) : (
-                <>
-                  <FiShoppingCart className="h-4 w-4" aria-hidden="true" />
-                  Mover todo al carrito
-                </>
-              )}
+              <FiShoppingCart className="h-4 w-4" aria-hidden="true" />
+              {moving ? "Consultando stock..." : "Mover todo al carrito"}
             </button>
             <button
               onClick={vaciarFavoritos}
@@ -132,6 +92,7 @@ export default function FavoritosPage() {
             </button>
           </div>
         )}
+        {feedback && <p role="status" className="mt-3 text-sm text-muted-foreground">{feedback}</p>}
       </div>
 
       {!isLoaded ? (

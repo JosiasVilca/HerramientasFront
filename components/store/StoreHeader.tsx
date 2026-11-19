@@ -1,7 +1,7 @@
 // components/store/StoreHeader.tsx
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -13,6 +13,7 @@ import {
   FiChevronDown,
 } from "react-icons/fi";
 
+import { EMPTY_CART, readCart, subscribeToCart } from "@/lib/cart";
 import { useAuth } from "@/context/auth-context";
 
 const categorias = [
@@ -32,28 +33,8 @@ export default function StoreHeader() {
   const [searchTerm, setSearchTerm] = useState("");
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const [cartCount, setCartCount] = useState<number>(0);
-
-  // Sincroniza el contador del carrito con el localStorage y con el evento que
-  // disparan las tarjetas de producto al agregar o quitar unidades.
-  useEffect(() => {
-    const updateCartCount = () => {
-      try {
-        const items = JSON.parse(localStorage.getItem("carrito_compras") || "[]");
-        const total = items.reduce(
-          (acc: number, item: { cantidad?: number }) => acc + (item.cantidad || 1),
-          0,
-        );
-        setCartCount(total);
-      } catch {
-        setCartCount(0);
-      }
-    };
-
-    updateCartCount();
-    window.addEventListener("cartUpdated", updateCartCount);
-    return () => window.removeEventListener("cartUpdated", updateCartCount);
-  }, []);
+  const cart = useSyncExternalStore(subscribeToCart, readCart, () => EMPTY_CART);
+  const cartCount = cart.reduce((sum, item) => sum + item.cantidad, 0);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

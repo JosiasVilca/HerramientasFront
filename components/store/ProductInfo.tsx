@@ -1,6 +1,7 @@
 // components/store/ProductInfo.tsx
 "use client";
 
+import { addCatalogProduct } from "@/lib/cart-catalog";
 import { useState } from "react";
 import {
   FiCheck,
@@ -22,6 +23,8 @@ interface ProductInfoProps {
 export default function ProductInfo({ product }: ProductInfoProps) {
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
+  const [adding, setAdding] = useState(false);
+  const [cartError, setCartError] = useState("");
 
   const hasPrice = product.price > 0;
   const available = product.stock > 0;
@@ -31,38 +34,16 @@ export default function ProductInfo({ product }: ProductInfoProps) {
     `Hola, quiero consultar por ${product.name} (SKU ${product.sku}).`,
   )}`;
 
-  const agregarAlCarrito = () => {
-    if (!hasPrice || !available) return;
-
+  const agregarAlCarrito = async () => {
+    if (!hasPrice || !available || adding) return;
+    setAdding(true); setCartError("");
     try {
-      const carritoActual = JSON.parse(
-        localStorage.getItem("carrito_compras") || "[]",
-      );
-      const indexExistente = carritoActual.findIndex(
-        (item: { id: string }) => item.id === product.id,
-      );
-
-      if (indexExistente >= 0) {
-        carritoActual[indexExistente].cantidad += quantity;
-      } else {
-        carritoActual.push({
-          id: product.id,
-          nombre: product.name,
-          slug: product.slug,
-          especificacion: product.sku,
-          precio: product.price,
-          cantidad: quantity,
-          imagen: product.image,
-        });
-      }
-
-      localStorage.setItem("carrito_compras", JSON.stringify(carritoActual));
-      window.dispatchEvent(new Event("cartUpdated"));
+      await addCatalogProduct(product, quantity);
       setIsAdded(true);
       setTimeout(() => setIsAdded(false), 1600);
     } catch (error) {
-      console.error("Error al agregar al carrito:", error);
-    }
+      setCartError(error instanceof Error ? error.message : "No se pudo agregar el producto.");
+    } finally { setAdding(false); }
   };
 
   const categoryLabel = product.category
@@ -188,7 +169,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
         {hasPrice ? (
           <button
             onClick={agregarAlCarrito}
-            disabled={!available}
+            disabled={!available || adding}
             className={`flex min-h-12 w-full items-center justify-center gap-2 rounded-lg text-base font-semibold transition-[transform,box-shadow,opacity] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-600/60 focus-visible:ring-offset-2 ${
               isAdded
                 ? "bg-foreground text-background"
@@ -203,7 +184,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
             ) : (
               <>
                 <FiShoppingCart className="h-4 w-4" aria-hidden="true" />
-                {available ? "Añadir al carrito" : "Sin stock"}
+                {adding ? "Consultando stock..." : available ? "Añadir al carrito" : "Sin stock"}
               </>
             )}
           </button>
@@ -231,6 +212,8 @@ export default function ProductInfo({ product }: ProductInfoProps) {
           </a>
         )}
       </div>
+
+      {cartError && <p role="alert" className="mt-3 text-sm text-destructive">{cartError}</p>}
 
       <ul className="mt-8 space-y-3 text-base text-foreground/80">
         <li className="flex items-start gap-3">
