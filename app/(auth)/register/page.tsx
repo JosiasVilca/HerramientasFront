@@ -4,16 +4,14 @@
 import { useState, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FaInstagram } from "react-icons/fa";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 
 import { useAuth } from "@/context/auth-context";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
-import { FacebookSignInButton } from "@/components/auth/FacebookSignInButton";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { register, loginWithGoogle, loginWithFacebook } = useAuth();
+  const { register, loginWithGoogle } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -101,26 +99,6 @@ export default function RegisterPage() {
     } catch (err) {
       setErrorMsg(
         err instanceof Error ? err.message : "No se pudo continuar con Google."
-      );
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleFacebookAccessToken = async (accessToken: string) => {
-    setErrorMsg(null);
-    setSuccessMsg(null);
-    setIsSubmitting(true);
-    try {
-      const loggedUser = await loginWithFacebook(accessToken);
-      setSuccessMsg("¡Cuenta vinculada con Facebook! Redirigiendo...");
-      setTimeout(
-        () => router.push(loggedUser.role === "ADMIN" ? "/admin/inventory" : "/"),
-        1200
-      );
-    } catch (err) {
-      setErrorMsg(
-        err instanceof Error ? err.message : "No se pudo continuar con Facebook."
       );
     } finally {
       setIsSubmitting(false);
@@ -313,21 +291,6 @@ export default function RegisterPage() {
           onCredential={handleGoogleCredential}
           onError={setErrorMsg}
         />
-        <div className="flex justify-center gap-2 sm:gap-3">
-          <FacebookSignInButton
-            onAccessToken={handleFacebookAccessToken}
-            onError={setErrorMsg}
-            disabled={isSubmitting}
-            className="flex items-center gap-2 px-3 sm:px-4 py-2 border border-slate-200 rounded-lg text-xs sm:text-sm text-slate-600 font-medium hover:bg-slate-50 transition disabled:opacity-60 disabled:cursor-not-allowed"
-          />
-          <button
-            type="button"
-            className="flex items-center gap-2 px-3 sm:px-4 py-2 border border-slate-200 rounded-lg text-xs sm:text-sm text-slate-600 font-medium hover:bg-slate-50 transition"
-          >
-            <FaInstagram className="w-4 h-4 text-pink-500" />
-            Instagram
-          </button>
-        </div>
       </div>
 
       {/* Login link */}

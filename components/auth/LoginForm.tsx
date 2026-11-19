@@ -4,7 +4,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { FcGoogle } from "react-icons/fc"; // Google a color
-import { FaFacebookF, FaInstagram } from "react-icons/fa"; // Facebook e Instagram
 
 export const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -110,20 +109,6 @@ export const LoginForm = () => {
         >
           <FcGoogle className="w-4 h-4" />
           Google
-        </button>
-        <button
-          type="button"
-          className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 hover:bg-slate-50 transition"
-        >
-          <FaFacebookF className="w-4 h-4 text-blue-600" />
-          Facebook
-        </button>
-        <button
-          type="button"
-          className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 hover:bg-slate-50 transition"
-        >
-          <FaInstagram className="w-4 h-4 text-pink-500" />
-          Instagram
         </button>
       </div>
 
