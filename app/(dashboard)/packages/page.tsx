@@ -49,7 +49,6 @@ import {
 import { packageService } from "@/services/package.service";
 import { PackageItem, PackageStatus } from "@/types/package";
 import CreatePackageDialog from "@/components/packages/create-package-dialog";
-import ScannerModal from "@/components/packages/scanner-modal";
 
 export default function PackagesPage() {
   const [packages, setPackages] = useState<PackageItem[]>([]);
@@ -65,6 +64,7 @@ export default function PackagesPage() {
   const [updateLocation, setUpdateLocation] = useState("");
   const [updateNotes, setUpdateNotes] = useState("");
   const [updating, setUpdating] = useState(false);
+  const [updateError, setUpdateError] = useState<string | null>(null);
 
   // Fetch Packages Callback
   const loadPackages = useCallback(async () => {
@@ -119,6 +119,7 @@ export default function PackagesPage() {
     setNewStatus(pkg.status);
     setUpdateLocation("Hub Central " + pkg.originCity);
     setUpdateNotes("Actualizado desde control de panel de operador");
+    setUpdateError(null);
     setIsUpdateDialogOpen(true);
   };
 
@@ -135,9 +136,10 @@ export default function PackagesPage() {
         notes: updateNotes,
       });
       setIsUpdateDialogOpen(false);
-      loadPackages();
+      await loadPackages();
     } catch (err) {
       console.error("Failed to update status:", err);
+      setUpdateError(err instanceof Error ? err.message : "No se pudo actualizar el estado del envío.");
     } finally {
       setUpdating(false);
     }
@@ -178,7 +180,6 @@ export default function PackagesPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <ScannerModal onStatusUpdated={loadPackages} />
           <CreatePackageDialog onSuccess={handlePackageCreated} />
         </div>
       </div>
@@ -422,6 +423,12 @@ export default function PackagesPage() {
                   className="text-xs"
                 />
               </div>
+
+              {updateError && (
+                <p role="alert" className="text-xs text-destructive">
+                  {updateError}
+                </p>
+              )}
 
               <DialogFooter className="pt-4 border-t border-border/80 gap-2">
                 <Button 

@@ -124,7 +124,7 @@ export const packageService = {
       
       const pkgIdx = MOCK_PACKAGES.findIndex((p) => p.id === dto.packageId);
       if (pkgIdx === -1) {
-        throw new Error(`Package with ID ${dto.packageId} not found.`);
+        throw error;
       }
       
       const now = new Date().toISOString().replace("T", " ").substring(0, 16);
