@@ -117,11 +117,7 @@ export const packageService = {
     try {
       return await fetchFromAPI<PackageItem>(`/api/v1/packages/${dto.packageId}/status`, {
         method: "PATCH",
-        body: JSON.stringify({
-          newStatus: dto.newStatus,
-          location: dto.location,
-          notes: dto.notes,
-        }),
+        body: JSON.stringify(dto),
       });
     } catch (error) {
       console.warn(`Backend REST API offline. Mocking status update for package ${dto.packageId}.`, error);

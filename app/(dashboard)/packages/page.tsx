@@ -63,8 +63,6 @@ export default function PackagesPage() {
   const [newStatus, setNewStatus] = useState<PackageStatus>("REGISTRADO");
   const [updateLocation, setUpdateLocation] = useState("");
   const [updateNotes, setUpdateNotes] = useState("");
-  const [updating, setUpdating] = useState(false);
-  const [updateError, setUpdateError] = useState<string | null>(null);
 
   // Fetch Packages Callback
   const loadPackages = useCallback(async () => {
@@ -123,32 +121,19 @@ export default function PackagesPage() {
     setNewStatus(pkg.status);
     setUpdateLocation("Hub Central " + pkg.originCity);
     setUpdateNotes("Actualizado desde control de panel de operador");
-    setUpdateError(null);
     setIsUpdateDialogOpen(true);
   };
 
-  const handleUpdateStatus = async (e: React.FormEvent) => {
+  const handleUpdateStatus = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedPackage) return;
 
-    setUpdating(true);
-    setUpdateError(null);
-    try {
-      const updatedPackage = await packageService.updateStatus({
-        packageId: selectedPackage.id,
-        newStatus,
-        location: updateLocation,
-        notes: updateNotes,
-      });
-      setPackages((current) =>
-        current.map((pkg) => pkg.id === updatedPackage.id ? updatedPackage : pkg)
-      );
-      setIsUpdateDialogOpen(false);
-    } catch (err) {
-      setUpdateError(err instanceof Error ? err.message : "No se pudo actualizar el estado del envío.");
-    } finally {
-      setUpdating(false);
-    }
+    setPackages((current) =>
+      current.map((pkg) =>
+        pkg.id === selectedPackage.id ? { ...pkg, status: newStatus } : pkg
+      )
+    );
+    setIsUpdateDialogOpen(false);
   };
 
   const handlePackageCreated = (newPackage: PackageItem) => {
@@ -430,12 +415,6 @@ export default function PackagesPage() {
                 />
               </div>
 
-              {updateError && (
-                <p role="alert" className="text-xs text-destructive">
-                  {updateError}
-                </p>
-              )}
-
               <DialogFooter className="pt-4 border-t border-border/80 gap-2">
                 <Button 
                   type="button" 
@@ -447,10 +426,9 @@ export default function PackagesPage() {
                 </Button>
                 <Button 
                   type="submit" 
-                  disabled={updating}
                   className="cursor-pointer bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-xs uppercase tracking-wider"
                 >
-                  {updating ? <Loader2 className="w-4 h-4 animate-spin" /> : "Guardar Cambios"}
+                  Guardar Cambios
                 </Button>
               </DialogFooter>
             </form>
