@@ -13,19 +13,9 @@ import {
   FiChevronDown,
 } from "react-icons/fi";
 
+import CategoryNav from "./CategoryNav";
 import { EMPTY_CART, readCart, subscribeToCart } from "@/lib/cart";
 import { useAuth } from "@/context/auth-context";
-
-const categorias = [
-  { label: "Periféricos", value: "periféricos" },
-  { label: "Notebooks", value: "notebooks" },
-  { label: "Mouse", value: "mouse" },
-  { label: "Audífonos", value: "audífonos" },
-  { label: "Monitores", value: "monitores" },
-  { label: "Micrófonos", value: "micrófonos" },
-  { label: "Sillas Gamer", value: "sillas-gamer" },
-  { label: "Accesorios", value: "accesorios" },
-];
 
 export default function StoreHeader() {
   const router = useRouter();
@@ -218,36 +208,7 @@ export default function StoreHeader() {
         </div>
       </div>
 
-      {/* Menú de categorías */}
-      <nav aria-label="Categorías" className="bg-muted/60">
-        <div className="mx-auto max-w-[1400px] px-5 lg:px-8">
-          <ul className="flex flex-wrap items-center justify-center gap-1 py-1.5">
-            {categorias.map((cat) => {
-              const soloEscritorio = ["Notebooks", "Monitores", "Micrófonos", "Sillas Gamer", "Accesorios"].includes(
-                cat.label,
-              );
-              return (
-                <li key={cat.value} className={soloEscritorio ? "hidden md:block" : ""}>
-                  <Link
-                    href={`/productos?categoria=${encodeURIComponent(cat.value)}`}
-                    className="block whitespace-nowrap rounded-md px-3 py-2 text-base font-medium text-foreground/80 transition-colors hover:bg-card hover:text-primary"
-                  >
-                    {cat.label}
-                  </Link>
-                </li>
-              );
-            })}
-            <li>
-              <Link
-                href="/productos?categoria=ofertas"
-                className="ml-1 block whitespace-nowrap rounded-md bg-secondary px-4 py-2 text-base font-semibold text-secondary-foreground transition-colors hover:bg-secondary/90"
-              >
-                Ofertas
-              </Link>
-            </li>
-          </ul>
-        </div>
-      </nav>
+      <CategoryNav />
     </header>
   );
 }

@@ -24,6 +24,10 @@ const CATEGORY_SLUG_MAP: Record<string, string> = {
   perifericos: "perifericos",
   accesorios: "accesorios",
   notebooks: "notebooks",
+  notebook: "notebooks",
+  laptops: "notebooks",
+  laptop: "notebooks",
+  mouses: "mouse",
   "sillas-gamer": "sillas-gamer",
 };
 

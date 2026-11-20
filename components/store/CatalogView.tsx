@@ -16,7 +16,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   microfonos: "Micrófonos",
   perifericos: "Mousepads",
   accesorios: "Accesorios",
-  notebooks: "Notebooks",
+  notebooks: "Laptops",
   "sillas-gamer": "Sillas gamer",
   volantes: "Volantes",
   "camaras-web": "Cámaras web",
