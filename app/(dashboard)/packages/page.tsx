@@ -54,6 +54,7 @@ import ScannerModal from "@/components/packages/scanner-modal";
 export default function PackagesPage() {
   const [packages, setPackages] = useState<PackageItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
 
@@ -68,11 +69,13 @@ export default function PackagesPage() {
   // Fetch Packages Callback
   const loadPackages = useCallback(async () => {
     setLoading(true);
+    setLoadError(false);
     try {
       const data = await packageService.getAll(searchQuery, statusFilter);
       setPackages(data);
-    } catch (err) {
-      console.error("Failed to load packages:", err);
+    } catch {
+      setPackages([]);
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -141,13 +144,14 @@ export default function PackagesPage() {
   };
 
   const handlePackageCreated = (newPackage: PackageItem) => {
+    setLoadError(false);
     const query = searchQuery.trim().toLowerCase();
     const matchesStatus = statusFilter === "ALL" || newPackage.status === statusFilter;
     const matchesSearch = !query || [
       newPackage.trackingCode,
       newPackage.senderName,
       newPackage.receiverName,
-    ].some((value) => value.toLowerCase().includes(query));
+    ].some((value) => value?.toLowerCase().includes(query));
 
     if (matchesStatus && matchesSearch) {
       setPackages((current) => [newPackage, ...current.filter((item) => item.id !== newPackage.id)]);
@@ -305,6 +309,12 @@ export default function PackagesPage() {
                     </div>
                   </TableCell>
                 </TableRow>
+              ) : loadError ? (
+                <TableRow className="border-slate-800 hover:bg-transparent">
+                  <TableCell colSpan={8} className="h-32 text-center text-red-400 font-medium text-xs">
+                    No se pudo cargar la lista de envíos. Intenta de nuevo.
+                  </TableCell>
+                </TableRow>
               ) : packages.length === 0 ? (
                 <TableRow className="border-slate-800 hover:bg-transparent">
                   <TableCell colSpan={8} className="h-32 text-center text-slate-400 font-medium text-xs">
@@ -315,7 +325,7 @@ export default function PackagesPage() {
                 packages.map((pkg) => (
                   <TableRow key={pkg.id} className="border-slate-800/60 hover:bg-slate-800/40 transition-colors">
                     <TableCell className="font-mono font-bold text-xs text-purple-400">{pkg.trackingCode}</TableCell>
-                    <TableCell className="font-semibold text-xs text-slate-200">{pkg.senderName}</TableCell>
+                    <TableCell className="font-semibold text-xs text-slate-200">{pkg.senderName ?? "Remitente sin perfil"}</TableCell>
                     <TableCell className="font-semibold text-xs text-slate-200">{pkg.receiverName}</TableCell>
                     <TableCell className="text-xs text-slate-400">
                       <div className="flex items-center gap-1">

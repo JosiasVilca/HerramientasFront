@@ -15,7 +15,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Plus, Loader2, Save } from "lucide-react";
 import { createPackageSchema, CreatePackageInput } from "@/lib/validations/package";
 import { packageService } from "@/services/package.service";
@@ -37,14 +36,11 @@ export default function CreatePackageDialog({ onSuccess }: CreatePackageDialogPr
   } = useForm<CreatePackageInput>({
     resolver: zodResolver(createPackageSchema),
     defaultValues: {
-      senderName: "",
-      senderPhone: "",
       receiverName: "",
       receiverPhone: "",
       destinationAddress: "",
       destinationCity: "",
       weightKg: "",
-      description: "",
     },
   });
 
@@ -52,14 +48,11 @@ export default function CreatePackageDialog({ onSuccess }: CreatePackageDialogPr
     setErrorMsg(null);
     try {
       const newPkg = await packageService.create({
-        senderName: data.senderName,
-        senderPhone: data.senderPhone,
         receiverName: data.receiverName,
         receiverPhone: data.receiverPhone,
         destinationAddress: data.destinationAddress,
         destinationCity: data.destinationCity,
         weightKg: Number(data.weightKg),
-        description: data.description,
       });
       onSuccess(newPkg);
       reset();
@@ -88,7 +81,7 @@ export default function CreatePackageDialog({ onSuccess }: CreatePackageDialogPr
             Registrar Nuevo Envío
           </DialogTitle>
           <DialogDescription className="text-zinc-500 dark:text-zinc-400 text-xs">
-            Ingresa los detalles del remitente y destinatario para generar la guía de envío de NEXORA Store & Logistics.
+            Los datos del remitente se obtienen de tu cuenta. Ingresa el destinatario y los detalles del envío.
           </DialogDescription>
         </DialogHeader>
 
@@ -100,41 +93,6 @@ export default function CreatePackageDialog({ onSuccess }: CreatePackageDialogPr
         )}
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-2">
-          
-          {/* Remitente Section */}
-          <div className="space-y-3">
-            <h4 className="text-xs font-bold text-primary uppercase tracking-wider">Detalles del Remitente</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="senderName" className="text-xs text-zinc-700 dark:text-zinc-300 font-semibold">
-                  Nombre Completo
-                </Label>
-                <Input
-                  id="senderName"
-                  placeholder="Ej: Distribuidora Andina"
-                  className={errors.senderName ? "border-red-500" : ""}
-                  {...register("senderName")}
-                />
-                {errors.senderName && (
-                  <p className="text-red-500 text-[10px] font-semibold">{errors.senderName.message}</p>
-                )}
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="senderPhone" className="text-xs text-zinc-700 dark:text-zinc-300 font-semibold">
-                  Teléfono
-                </Label>
-                <Input
-                  id="senderPhone"
-                  placeholder="Ej: +51987654321"
-                  className={errors.senderPhone ? "border-red-500" : ""}
-                  {...register("senderPhone")}
-                />
-                {errors.senderPhone && (
-                  <p className="text-red-500 text-[10px] font-semibold">{errors.senderPhone.message}</p>
-                )}
-              </div>
-            </div>
-          </div>
 
           {/* Destinatario Section */}
           <div className="space-y-3 pt-1">
@@ -204,8 +162,8 @@ export default function CreatePackageDialog({ onSuccess }: CreatePackageDialogPr
           {/* Características Section */}
           <div className="space-y-3 pt-1">
             <h4 className="text-xs font-bold text-primary uppercase tracking-wider">Características del Envío</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="flex flex-col gap-1.5 sm:col-span-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="flex flex-col gap-1.5">
                 <Label htmlFor="weightKg" className="text-xs text-zinc-700 dark:text-zinc-300 font-semibold">
                   Peso (Kg)
                 </Label>
@@ -220,16 +178,6 @@ export default function CreatePackageDialog({ onSuccess }: CreatePackageDialogPr
                 {errors.weightKg && (
                   <p className="text-red-500 text-[10px] font-semibold">{errors.weightKg.message}</p>
                 )}
-              </div>
-              <div className="flex flex-col gap-1.5 sm:col-span-2">
-                <Label htmlFor="description" className="text-xs text-zinc-700 dark:text-zinc-300 font-semibold">
-                  Descripción del Contenido
-                </Label>
-                <Input
-                  id="description"
-                  placeholder="Ej: Ropa, repuestos, etc."
-                  {...register("description")}
-                />
               </div>
             </div>
           </div>

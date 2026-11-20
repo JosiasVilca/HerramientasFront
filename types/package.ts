@@ -10,29 +10,25 @@ export interface PackageItem {
   // The backend persists package IDs as UUIDs.
   id: string;
   trackingCode: string;
-  senderName: string;
-  senderPhone?: string;
+  senderName: string | null;
+  senderPhone: string | null;
   receiverName: string;
-  receiverPhone?: string;
+  receiverPhone: string;
   originCity: string;
   destinationCity: string;
-  destinationAddress?: string;
+  destinationAddress: string;
   weightKg: number;
   status: PackageStatus;
-  description?: string;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CreatePackageDTO {
-  senderName: string;
-  senderPhone: string;
   receiverName: string;
   receiverPhone: string;
   destinationAddress: string;
   destinationCity: string;
   weightKg: number;
-  description?: string;
 }
 
 export interface UpdatePackageStatusDTO {

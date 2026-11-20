@@ -1,7 +1,7 @@
 import { fetchFromAPI } from "@/lib/api-client";
-import { PackageItem, CreatePackageDTO, UpdatePackageStatusDTO, PackageStatus } from "@/types/package";
+import { PackageItem, CreatePackageDTO, UpdatePackageStatusDTO } from "@/types/package";
 
-let MOCK_PACKAGES: PackageItem[] = [
+const MOCK_PACKAGES: PackageItem[] = [
   {
     id: "mock-1",
     trackingCode: "SW-9843-XY",
@@ -14,7 +14,6 @@ let MOCK_PACKAGES: PackageItem[] = [
     destinationAddress: "Av. Ejercito 450, Yanahuara",
     weightKg: 4.5,
     status: "EN_TRANSITO",
-    description: "Componentes electrónicos frágiles",
     createdAt: "2026-08-27 08:30",
     updatedAt: "2026-08-28 10:15",
   },
@@ -30,7 +29,6 @@ let MOCK_PACKAGES: PackageItem[] = [
     destinationAddress: "Calle Las Flores 123, San Isidro",
     weightKg: 1.2,
     status: "ENTREGADO",
-    description: "Zapatos de cuero marrón",
     createdAt: "2026-08-25 09:00",
     updatedAt: "2026-08-26 14:20",
   },
@@ -46,7 +44,6 @@ let MOCK_PACKAGES: PackageItem[] = [
     destinationAddress: "Av. Argentina 1400, Callao",
     weightKg: 12.0,
     status: "EN_ALMACEN",
-    description: "Retorno de repuestos defectuosos",
     createdAt: "2026-08-28 07:15",
     updatedAt: "2026-08-28 07:15",
   },
@@ -62,7 +59,6 @@ let MOCK_PACKAGES: PackageItem[] = [
     destinationAddress: "Plaza de Armas 12, Cusco",
     weightKg: 2.8,
     status: "REGISTRADO",
-    description: "Libros y material educativo",
     createdAt: "2026-08-28 11:30",
     updatedAt: "2026-08-28 11:30",
   },
@@ -78,7 +74,6 @@ let MOCK_PACKAGES: PackageItem[] = [
     destinationAddress: "Av. Grau 820, Piura",
     weightKg: 0.5,
     status: "INCIDENCIA",
-    description: "Auriculares inalámbricos",
     createdAt: "2026-08-26 10:00",
     updatedAt: "2026-08-27 09:10",
   },
@@ -86,36 +81,16 @@ let MOCK_PACKAGES: PackageItem[] = [
 
 export const packageService = {
   getAll: async (search = "", statusFilter = ""): Promise<PackageItem[]> => {
-    try {
-      let queryParams = "";
-      if (search || statusFilter) {
-        const params = new URLSearchParams();
-        if (search) params.append("search", search);
-        if (statusFilter) params.append("status", statusFilter);
-        queryParams = `?${params.toString()}`;
-      }
-      return await fetchFromAPI<PackageItem[]>(`/api/v1/packages${queryParams}`, {
-        method: "GET",
-      });
-    } catch (error) {
-      console.warn("Backend REST API offline. Using local packages database.", error);
-      
-      let filtered = [...MOCK_PACKAGES];
-      if (search) {
-        const searchLower = search.toLowerCase();
-        filtered = filtered.filter(
-          (p) =>
-            p.trackingCode.toLowerCase().includes(searchLower) ||
-            p.senderName.toLowerCase().includes(searchLower) ||
-            p.receiverName.toLowerCase().includes(searchLower)
-        );
-      }
-      if (statusFilter && statusFilter !== "ALL") {
-        filtered = filtered.filter((p) => p.status === statusFilter);
-      }
-      
-      return filtered;
+    let queryParams = "";
+    if (search || statusFilter) {
+      const params = new URLSearchParams();
+      if (search) params.append("search", search);
+      if (statusFilter) params.append("status", statusFilter);
+      queryParams = `?${params.toString()}`;
     }
+    return fetchFromAPI<PackageItem[]>(`/api/v1/packages${queryParams}`, {
+      method: "GET",
+    });
   },
 
   create: async (dto: CreatePackageDTO): Promise<PackageItem> => {
@@ -165,14 +140,8 @@ export const packageService = {
   },
 
   getByTrackingCode: async (code: string): Promise<PackageItem> => {
-    try {
-      return await fetchFromAPI<PackageItem>(`/api/v1/packages/track/${code}`, {
-        method: "GET",
-      });
-    } catch (error) {
-      const pkg = MOCK_PACKAGES.find((p) => p.trackingCode.toUpperCase() === code.toUpperCase());
-      if (pkg) return pkg;
-      throw new Error(`Guía ${code} no encontrada.`);
-    }
+    return fetchFromAPI<PackageItem>(`/api/v1/packages/track/${encodeURIComponent(code)}`, {
+      method: "GET",
+    });
   },
 };
