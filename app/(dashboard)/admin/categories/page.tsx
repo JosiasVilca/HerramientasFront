@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { CheckCircle2, Edit3, Layers3, Plus, Trash2, X } from "lucide-react";
 import { catalogService } from "@/services/catalog.service";
 import { Category, CategoryRequest } from "@/types/catalog";
@@ -16,6 +16,8 @@ export default function CategoriesPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [nameError, setNameError] = useState<string | null>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
 
   const loadCategories = async () => {
     setLoading(true);
@@ -36,7 +38,12 @@ export default function CategoriesPage() {
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!form.name?.trim()) return setError("El nombre de la categoría es obligatorio.");
+    if (!form.name?.trim()) {
+      setNameError("El nombre de la categoría es obligatorio.");
+      nameInputRef.current?.focus();
+      return;
+    }
+    setNameError(null);
     setSaving(true);
     try {
       const payload = { ...form, name: form.name.trim(), slug: form.slug?.trim() || undefined, description: form.description?.trim() || undefined };
@@ -56,7 +63,7 @@ export default function CategoriesPage() {
   const edit = (category: Category) => {
     setEditingId(category.id);
     setForm({ name: category.name, slug: category.slug, description: category.description ?? "", parentId: category.parentId ?? null, active: category.active });
-    setNotice(null); setError(null);
+    setNotice(null); setError(null); setNameError(null);
   };
 
   const remove = async (category: Category) => {
@@ -82,12 +89,21 @@ export default function CategoriesPage() {
         <button onClick={() => { setNotice(null); setError(null); }} aria-label="Cerrar"><X size={16} /></button>
       </div>}
       <section className="rounded-xl border border-border/80 bg-card p-6 shadow-xs">
-        <div className="mb-5 flex items-center gap-3"><Layers3 className="text-purple-600" size={20} /><div><h2 className="font-bold">{editingId === null ? "Nueva categoría" : "Editar categoría"}</h2><p className="text-xs text-muted-foreground">El slug se genera automáticamente si lo dejas vacío.</p></div></div>
-        <form onSubmit={submit} className="grid gap-4 sm:grid-cols-2">
-          <label className="text-xs font-bold uppercase text-muted-foreground">Nombre<input className="mt-2 w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm font-normal text-foreground" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} maxLength={100} required /></label>
-          <label className="text-xs font-bold uppercase text-muted-foreground">Slug<input className="mt-2 w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm font-normal text-foreground" value={form.slug} onChange={e => setForm({ ...form, slug: e.target.value })} maxLength={120} /></label>
+        <div className="mb-5 flex items-center gap-3"><Layers3 className="text-purple-600" size={20} /><div><h2 className="font-bold">{editingId === null ? "Nueva categoría" : "Editar categoría"}</h2><p className="text-xs text-muted-foreground">El slug se genera automáticamente al crear la categoría.</p></div></div>
+        <form onSubmit={submit} noValidate className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor="category-name" className="text-xs font-bold uppercase text-muted-foreground">Nombre</label>
+            <input id="category-name" ref={nameInputRef}
+              className={`mt-2 w-full rounded-lg border bg-transparent px-3 py-2 text-sm font-normal text-foreground ${nameError ? "border-red-500" : "border-input"}`}
+              value={form.name} onChange={e => {
+                setForm({ ...form, name: e.target.value });
+                if (e.target.value.trim()) setNameError(null);
+              }} maxLength={100} required aria-invalid={!!nameError}
+              aria-describedby={nameError ? "category-name-error" : undefined} />
+            {nameError && <p id="category-name-error" role="alert" className="mt-1 text-sm text-red-600">{nameError}</p>}
+          </div>
           <label className="text-xs font-bold uppercase text-muted-foreground sm:col-span-2">Descripción<textarea className="mt-2 min-h-20 w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm font-normal text-foreground" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} /></label>
-          <div className="flex items-end gap-2"><button disabled={saving} className="inline-flex h-10 items-center gap-2 rounded-lg bg-purple-600 px-5 text-xs font-bold uppercase text-white disabled:opacity-50">{editingId === null ? <Plus size={16} /> : <Edit3 size={16} />}{saving ? "Guardando..." : editingId === null ? "Crear" : "Guardar"}</button>{editingId !== null && <button type="button" onClick={() => { setEditingId(null); setForm(emptyForm); }} className="h-10 rounded-lg border px-4 text-xs font-bold">Cancelar</button>}</div>
+          <div className="flex items-end gap-2"><button disabled={saving} className="inline-flex h-10 items-center gap-2 rounded-lg bg-purple-600 px-5 text-xs font-bold uppercase text-white disabled:opacity-50">{editingId === null ? <Plus size={16} /> : <Edit3 size={16} />}{saving ? "Guardando..." : editingId === null ? "Crear" : "Guardar"}</button>{editingId !== null && <button type="button" onClick={() => { setEditingId(null); setForm(emptyForm); setNameError(null); }} className="h-10 rounded-lg border px-4 text-xs font-bold">Cancelar</button>}</div>
         </form>
       </section>
       <section className="rounded-xl border border-border/80 bg-card p-6 shadow-xs">
