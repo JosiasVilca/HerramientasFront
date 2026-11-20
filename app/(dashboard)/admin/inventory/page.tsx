@@ -72,6 +72,7 @@ export default function InventoryPage() {
     else if (form.name.trim().length > 200) errors.name = "El nombre no puede superar 200 caracteres.";
     if (!form.sku.trim()) errors.sku = "El SKU es obligatorio.";
     else if (form.sku.trim().length > 50) errors.sku = "El SKU no puede superar 50 caracteres.";
+    if (form.categoryId == null) errors.category = "Selecciona una categoría para el producto.";
     if (!priceInput.trim()) errors.price = "El precio es obligatorio.";
     else if (!Number.isFinite(Number(priceInput)) || Number(priceInput) < 0) errors.price = "Ingresa un precio igual o mayor que cero.";
     else if (!/^\d+(?:\.\d{1,2})?$/.test(priceInput)) errors.price = "El precio debe tener como máximo dos decimales.";
@@ -130,8 +131,8 @@ export default function InventoryPage() {
             <Field label="SKU" field="sku" error={fieldErrors.sku}>
               <input {...inputProps("sku")} required maxLength={50} value={form.sku} onChange={e => { setForm({ ...form, sku: e.target.value }); clearFieldError("sku"); }} />
             </Field>
-            <Field label="Categoría" field="category">
-              <select id="inventory-category" value={form.categoryId ?? ""} onChange={e => setForm({ ...form, categoryId: e.target.value ? Number(e.target.value) : null })}><option value="">Sin categoría</option>{categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select>
+            <Field label="Categoría" field="category" error={fieldErrors.category}>
+              <select {...inputProps("category")} required value={form.categoryId ?? ""} onChange={e => { setForm({ ...form, categoryId: e.target.value ? Number(e.target.value) : null }); clearFieldError("category"); }}><option value="">Selecciona una categoría</option>{categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select>
             </Field>
             <Field label="Precio" field="price" error={fieldErrors.price}>
               <input {...inputProps("price")} required min="0" step="0.01" type="number" value={priceInput} onChange={e => { setPriceInput(e.target.value); clearFieldError("price"); }} />
@@ -165,5 +166,5 @@ function Kpi({ icon, label, value }: { icon: ReactNode; label: string; value: nu
 }
 
 function Field({ label, field, error, children }: { label: string; field: string; error?: string; children: ReactNode }) {
-  return <div><label htmlFor={`inventory-${field}`} className="text-xs font-bold uppercase text-muted-foreground">{label}</label><div className="mt-2 [&_input]:w-full [&_input]:rounded-lg [&_input]:border [&_input]:border-input [&_input[aria-invalid=true]]:border-red-500 [&_input]:bg-transparent [&_input]:px-3 [&_input]:py-2 [&_input]:text-sm [&_input]:font-normal [&_input]:text-foreground [&_select]:w-full [&_select]:rounded-lg [&_select]:border [&_select]:border-input [&_select]:bg-card [&_select]:px-3 [&_select]:py-2 [&_select]:text-sm [&_textarea]:w-full [&_textarea]:rounded-lg [&_textarea]:border [&_textarea]:border-input [&_textarea]:bg-transparent [&_textarea]:px-3 [&_textarea]:py-2 [&_textarea]:text-sm [&_textarea]:font-normal">{children}</div>{error && <p id={`inventory-${field}-error`} role="alert" className="mt-1 text-sm text-red-600">{error}</p>}</div>;
+  return <div><label htmlFor={`inventory-${field}`} className="text-xs font-bold uppercase text-muted-foreground">{label}</label><div className="mt-2 [&_input]:w-full [&_input]:rounded-lg [&_input]:border [&_input]:border-input [&_input[aria-invalid=true]]:border-red-500 [&_input]:bg-transparent [&_input]:px-3 [&_input]:py-2 [&_input]:text-sm [&_input]:font-normal [&_input]:text-foreground [&_select]:w-full [&_select]:rounded-lg [&_select]:border [&_select]:border-input [&_select[aria-invalid=true]]:border-red-500 [&_select]:bg-card [&_select]:px-3 [&_select]:py-2 [&_select]:text-sm [&_textarea]:w-full [&_textarea]:rounded-lg [&_textarea]:border [&_textarea]:border-input [&_textarea]:bg-transparent [&_textarea]:px-3 [&_textarea]:py-2 [&_textarea]:text-sm [&_textarea]:font-normal">{children}</div>{error && <p id={`inventory-${field}-error`} role="alert" className="mt-1 text-sm text-red-600">{error}</p>}</div>;
 }
