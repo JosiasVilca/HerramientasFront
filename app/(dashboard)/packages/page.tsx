@@ -69,7 +69,7 @@ export default function PackagesPage() {
     setLoading(true);
     setLoadError(false);
     try {
-      const data = await packageService.getAll(searchQuery, statusFilter);
+      const data = await packageService.getAll(searchQuery);
       setPackages(data);
     } catch {
       setPackages([]);
@@ -77,7 +77,7 @@ export default function PackagesPage() {
     } finally {
       setLoading(false);
     }
-  }, [searchQuery, statusFilter]);
+  }, [searchQuery]);
 
   useEffect(() => {
     // Diferido con microtask: evita el setState síncrono dentro del efecto
@@ -87,11 +87,15 @@ export default function PackagesPage() {
     });
   }, [loadPackages]);
 
+  const visiblePackages = statusFilter === "ALL"
+    ? packages
+    : packages.filter((pkg) => pkg.status === statusFilter);
+
   // Calculate KPIs
-  const totalCount = packages.length;
-  const transitCount = packages.filter((p) => p.status === "EN_TRANSITO" || p.status === "EN_RUTA").length;
-  const deliveredCount = packages.filter((p) => p.status === "ENTREGADO").length;
-  const incidenceCount = packages.filter((p) => p.status === "INCIDENCIA").length;
+  const totalCount = visiblePackages.length;
+  const transitCount = visiblePackages.filter((p) => p.status === "EN_TRANSITO" || p.status === "EN_RUTA").length;
+  const deliveredCount = visiblePackages.filter((p) => p.status === "ENTREGADO").length;
+  const incidenceCount = visiblePackages.filter((p) => p.status === "INCIDENCIA").length;
 
   const getStatusBadge = (status: PackageStatus) => {
     switch (status) {
@@ -303,14 +307,14 @@ export default function PackagesPage() {
                     No se pudo cargar la lista de envíos. Intenta de nuevo.
                   </TableCell>
                 </TableRow>
-              ) : packages.length === 0 ? (
+              ) : visiblePackages.length === 0 ? (
                 <TableRow className="border-slate-800 hover:bg-transparent">
                   <TableCell colSpan={8} className="h-32 text-center text-slate-400 font-medium text-xs">
                     Ningún paquete coincide con la búsqueda o filtros.
                   </TableCell>
                 </TableRow>
               ) : (
-                packages.map((pkg) => (
+                visiblePackages.map((pkg) => (
                   <TableRow key={pkg.id} className="border-slate-800/60 hover:bg-slate-800/40 transition-colors">
                     <TableCell className="font-mono font-bold text-xs text-purple-400">{pkg.trackingCode}</TableCell>
                     <TableCell className="font-semibold text-xs text-slate-200">{pkg.senderName ?? "Remitente sin perfil"}</TableCell>
