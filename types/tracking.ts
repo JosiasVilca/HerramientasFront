@@ -7,7 +7,7 @@ export type TrackingStatus =
   | "INCIDENCIA";
 
 export interface TrackingEventDTO {
-  id: number;
+  id: string;
   status: TrackingStatus;
   location: string;
   description: string;
