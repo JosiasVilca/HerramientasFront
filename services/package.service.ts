@@ -1,7 +1,7 @@
 import { fetchFromAPI } from "@/lib/api-client";
 import { PackageItem, CreatePackageDTO, UpdatePackageStatusDTO, PackageStatus } from "@/types/package";
 
-let MOCK_PACKAGES: PackageItem[] = [
+const MOCK_PACKAGES: PackageItem[] = [
   {
     id: "mock-1",
     trackingCode: "SW-9843-XY",
