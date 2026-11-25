@@ -1,3 +1,4 @@
+import { ApiTrackingDetail, toTrackingSummary } from "@/lib/tracking";
 import { TrackingSummaryDTO } from "@/types/tracking";
 
 export function getApiUrl(endpoint: string): string {
@@ -36,6 +37,9 @@ export async function fetchFromAPI<T>(endpoint: string, options: RequestInit = {
   return response.json() as Promise<T>;
 }
 
-export function trackPackage(trackingCode: string): Promise<TrackingSummaryDTO> {
-  return fetchFromAPI<TrackingSummaryDTO>(`/api/v1/packages/track/${encodeURIComponent(trackingCode.trim())}`);
+export async function trackPackage(trackingCode: string): Promise<TrackingSummaryDTO> {
+  const detail = await fetchFromAPI<ApiTrackingDetail>(
+    `/api/v1/tracking/${encodeURIComponent(trackingCode.trim())}`,
+  );
+  return toTrackingSummary(detail);
 }

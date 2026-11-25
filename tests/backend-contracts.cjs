@@ -18,6 +18,7 @@ function load(file) {
     module, exports: module.exports,
     require: name => {
       if (name === '@/lib/api-client') return load('lib/api-client.ts');
+      if (name === '@/lib/tracking') return load('lib/tracking.ts');
       throw new Error(`Unexpected runtime import: ${name}`);
     },
     process: { env: taskEnv }, Headers, FormData, Blob, URLSearchParams,
@@ -65,6 +66,41 @@ async function main() {
   assert.deepEqual(JSON.parse(calls.at(-1).options.body), { credential: 'google-credential' });
   await api.fetchFromAPI('/v1/auth/me', { headers: { Authorization: 'Bearer explicit-token' } });
   assert.equal(calls.at(-1).options.headers.get('Authorization'), 'Bearer explicit-token');
-  console.log('Contratos verificados: URLs, JWT, JSON, multipart, inventario, exportación y Google.');
+  const tracking = load('lib/tracking.ts');
+  const apiTracking = {
+    trackingCode: 'NX-ABC', currentStatus: 'EN_TRANSITO', originCity: 'Lima',
+    destinationCity: 'Arequipa', senderName: null, senderPhone: null,
+    receiverName: 'Destinatario', receiverPhone: null,
+    destinationAddress: 'Av. Central 123', estimatedDeliveryDate: '2026-11-25',
+    courierName: null, courierPhone: null, courierAvatar: null, weightKg: 1.5,
+    lastUpdate: '2026-11-21T15:30:00Z',
+    history: [{ id: 'evt-1', status: 'REGISTRADO', location: 'Lima',
+      description: null, timestamp: '2026-11-20T10:00:00Z' }],
+  };
+  const trackingDetail = tracking.toTrackingDetail(apiTracking);
+  assert.equal(trackingDetail.senderName, 'Remitente no disponible');
+  assert.equal(trackingDetail.history[0].id, 'evt-1');
+  assert.equal(trackingDetail.history[0].description, '');
+  assert.notEqual(trackingDetail.lastUpdate, apiTracking.lastUpdate);
+  const trackingSummary = tracking.toTrackingSummary(apiTracking);
+  assert.equal(trackingSummary.currentStatus, 'EN_TRANSITO');
+  assert.equal(trackingSummary.weight, 1.5);
+  const { packageService } = load('services/package.service.ts');
+  await packageService.getAll('NX-1', 'EN_TRANSITO');
+  assert.equal(calls.at(-1).url, 'https://backend.example/api/v1/packages?search=NX-1&status=EN_TRANSITO');
+  await packageService.getAll('', 'ALL');
+  assert.equal(calls.at(-1).url, 'https://backend.example/api/v1/packages');
+  await packageService.getById('88ad7dc5-8313-4324-a54c-09ae2db0f4a8');
+  assert.equal(calls.at(-1).url, 'https://backend.example/api/v1/packages/88ad7dc5-8313-4324-a54c-09ae2db0f4a8');
+  await packageService.updateStatus({ packageId: 'pkg-1', newStatus: 'EN_RUTA', location: 'Lima', notes: 'Salida' });
+  let packageCall = calls.at(-1);
+  assert.equal(packageCall.url, 'https://backend.example/api/v1/packages/pkg-1/status');
+  assert.equal(packageCall.options.method, 'PATCH');
+  assert.deepEqual(JSON.parse(packageCall.options.body), { newStatus: 'EN_RUTA', location: 'Lima', notes: 'Salida' });
+  await packageService.create({ receiverName: 'María', receiverPhone: '+51912345678', destinationAddress: 'Av. 1', destinationCity: 'Arequipa', weightKg: 1.5 });
+  assert.deepEqual(JSON.parse(calls.at(-1).options.body), { receiverName: 'María', receiverPhone: '+51912345678', destinationAddress: 'Av. 1', destinationCity: 'Arequipa', weightKg: 1.5 });
+  await packageService.getByTrackingCode(' nx-abc ');
+  assert.equal(calls.at(-1).url, 'https://backend.example/api/v1/packages/track/nx-abc');
+  console.log('Contratos verificados: URLs, JWT, JSON, multipart, inventario, exportación, Google, tracking y paquetes.');
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });

@@ -76,9 +76,9 @@ export default function ProductUpload() {
       setPrice("");
       setFile(null);
       setPreview(null);
-    } catch (err: any) {
+    } catch (err) {
       console.error("Upload error:", err);
-      setError(err.message || "Error de red al conectar con el servidor Spring Boot.");
+      setError(err instanceof Error ? err.message : "Error de red al conectar con el servidor Spring Boot.");
     } finally {
       setLoading(false);
     }
