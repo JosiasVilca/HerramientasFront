@@ -65,6 +65,22 @@ async function main() {
   assert.deepEqual(JSON.parse(calls.at(-1).options.body), { credential: 'google-credential' });
   await api.fetchFromAPI('/v1/auth/me', { headers: { Authorization: 'Bearer explicit-token' } });
   assert.equal(calls.at(-1).options.headers.get('Authorization'), 'Bearer explicit-token');
-  console.log('Contratos verificados: URLs, JWT, JSON, multipart, inventario, exportación y Google.');
+  const { packageService } = load('services/package.service.ts');
+  await packageService.getAll('NX-1', 'EN_TRANSITO');
+  assert.equal(calls.at(-1).url, 'https://backend.example/api/v1/packages?search=NX-1&status=EN_TRANSITO');
+  await packageService.getAll('', 'ALL');
+  assert.equal(calls.at(-1).url, 'https://backend.example/api/v1/packages');
+  await packageService.getById('88ad7dc5-8313-4324-a54c-09ae2db0f4a8');
+  assert.equal(calls.at(-1).url, 'https://backend.example/api/v1/packages/88ad7dc5-8313-4324-a54c-09ae2db0f4a8');
+  await packageService.updateStatus({ packageId: 'pkg-1', newStatus: 'EN_RUTA', location: 'Lima', notes: 'Salida' });
+  let packageCall = calls.at(-1);
+  assert.equal(packageCall.url, 'https://backend.example/api/v1/packages/pkg-1/status');
+  assert.equal(packageCall.options.method, 'PATCH');
+  assert.deepEqual(JSON.parse(packageCall.options.body), { newStatus: 'EN_RUTA', location: 'Lima', notes: 'Salida' });
+  await packageService.create({ receiverName: 'María', receiverPhone: '+51912345678', destinationAddress: 'Av. 1', destinationCity: 'Arequipa', weightKg: 1.5 });
+  assert.deepEqual(JSON.parse(calls.at(-1).options.body), { receiverName: 'María', receiverPhone: '+51912345678', destinationAddress: 'Av. 1', destinationCity: 'Arequipa', weightKg: 1.5 });
+  await packageService.getByTrackingCode(' nx-abc ');
+  assert.equal(calls.at(-1).url, 'https://backend.example/api/v1/packages/track/nx-abc');
+  console.log('Contratos verificados: URLs, JWT, JSON, multipart, inventario, exportación, Google y paquetes.');
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });

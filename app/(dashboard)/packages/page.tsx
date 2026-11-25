@@ -147,7 +147,7 @@ export default function PackagesPage() {
       newPackage.trackingCode,
       newPackage.senderName,
       newPackage.receiverName,
-    ].some((value) => value.toLowerCase().includes(query));
+    ].some((value) => (value ?? "").toLowerCase().includes(query));
 
     if (matchesStatus && matchesSearch) {
       setPackages((current) => [newPackage, ...current.filter((item) => item.id !== newPackage.id)]);
@@ -315,7 +315,7 @@ export default function PackagesPage() {
                 packages.map((pkg) => (
                   <TableRow key={pkg.id} className="border-slate-800/60 hover:bg-slate-800/40 transition-colors">
                     <TableCell className="font-mono font-bold text-xs text-purple-400">{pkg.trackingCode}</TableCell>
-                    <TableCell className="font-semibold text-xs text-slate-200">{pkg.senderName}</TableCell>
+                    <TableCell className="font-semibold text-xs text-slate-200">{pkg.senderName ?? "—"}</TableCell>
                     <TableCell className="font-semibold text-xs text-slate-200">{pkg.receiverName}</TableCell>
                     <TableCell className="text-xs text-slate-400">
                       <div className="flex items-center gap-1">
