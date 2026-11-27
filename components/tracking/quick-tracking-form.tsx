@@ -79,7 +79,7 @@ export default function QuickTrackingForm() {
         <div className="relative flex-grow">
           <Input
             type="text"
-            placeholder="Introduce código de guía (Ej: SW-9843-XY, TRK-1111-AA)"
+            placeholder="Introduce código de guía (Ej: NX-3F2A9C7D4E5B6A8C9D0E1F2A3B4)"
             value={code}
             onChange={(e) => setCode(e.target.value)}
             disabled={loading}

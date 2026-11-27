@@ -49,11 +49,11 @@ import {
 import { packageService } from "@/services/package.service";
 import { PackageItem, PackageStatus } from "@/types/package";
 import CreatePackageDialog from "@/components/packages/create-package-dialog";
+import ScannerModal from "@/components/packages/scanner-modal";
 
 export default function PackagesPage() {
   const [packages, setPackages] = useState<PackageItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
 
@@ -63,21 +63,20 @@ export default function PackagesPage() {
   const [newStatus, setNewStatus] = useState<PackageStatus>("REGISTRADO");
   const [updateLocation, setUpdateLocation] = useState("");
   const [updateNotes, setUpdateNotes] = useState("");
+  const [updating, setUpdating] = useState(false);
 
   // Fetch Packages Callback
   const loadPackages = useCallback(async () => {
     setLoading(true);
-    setLoadError(false);
     try {
-      const data = await packageService.getAll(searchQuery);
+      const data = await packageService.getAll(searchQuery, statusFilter);
       setPackages(data);
-    } catch {
-      setPackages([]);
-      setLoadError(true);
+    } catch (err) {
+      console.error("Failed to load packages:", err);
     } finally {
       setLoading(false);
     }
-  }, [searchQuery]);
+  }, [searchQuery, statusFilter]);
 
   useEffect(() => {
     // Diferido con microtask: evita el setState síncrono dentro del efecto
@@ -87,15 +86,11 @@ export default function PackagesPage() {
     });
   }, [loadPackages]);
 
-  const visiblePackages = statusFilter === "ALL"
-    ? packages
-    : packages.filter((pkg) => pkg.status === statusFilter);
-
   // Calculate KPIs
-  const totalCount = visiblePackages.length;
-  const transitCount = visiblePackages.filter((p) => p.status === "EN_TRANSITO" || p.status === "EN_RUTA").length;
-  const deliveredCount = visiblePackages.filter((p) => p.status === "ENTREGADO").length;
-  const incidenceCount = visiblePackages.filter((p) => p.status === "INCIDENCIA").length;
+  const totalCount = packages.length;
+  const transitCount = packages.filter((p) => p.status === "EN_TRANSITO" || p.status === "EN_RUTA").length;
+  const deliveredCount = packages.filter((p) => p.status === "ENTREGADO").length;
+  const incidenceCount = packages.filter((p) => p.status === "INCIDENCIA").length;
 
   const getStatusBadge = (status: PackageStatus) => {
     switch (status) {
@@ -124,27 +119,35 @@ export default function PackagesPage() {
     setIsUpdateDialogOpen(true);
   };
 
-  const handleUpdateStatus = (e: React.FormEvent) => {
+  const handleUpdateStatus = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedPackage) return;
 
-    setPackages((current) =>
-      current.map((pkg) =>
-        pkg.id === selectedPackage.id ? { ...pkg, status: newStatus } : pkg
-      )
-    );
-    setIsUpdateDialogOpen(false);
+    setUpdating(true);
+    try {
+      await packageService.updateStatus({
+        packageId: selectedPackage.id,
+        newStatus: newStatus,
+        location: updateLocation,
+        notes: updateNotes,
+      });
+      setIsUpdateDialogOpen(false);
+      loadPackages();
+    } catch (err) {
+      console.error("Failed to update status:", err);
+    } finally {
+      setUpdating(false);
+    }
   };
 
   const handlePackageCreated = (newPackage: PackageItem) => {
-    setLoadError(false);
     const query = searchQuery.trim().toLowerCase();
     const matchesStatus = statusFilter === "ALL" || newPackage.status === statusFilter;
     const matchesSearch = !query || [
       newPackage.trackingCode,
       newPackage.senderName,
       newPackage.receiverName,
-    ].some((value) => value?.toLowerCase().includes(query));
+    ].some((value) => (value ?? "").toLowerCase().includes(query));
 
     if (matchesStatus && matchesSearch) {
       setPackages((current) => [newPackage, ...current.filter((item) => item.id !== newPackage.id)]);
@@ -171,6 +174,7 @@ export default function PackagesPage() {
           </p>
         </div>
         <div className="flex gap-2">
+          <ScannerModal onStatusUpdated={loadPackages} />
           <CreatePackageDialog onSuccess={handlePackageCreated} />
         </div>
       </div>
@@ -301,23 +305,17 @@ export default function PackagesPage() {
                     </div>
                   </TableCell>
                 </TableRow>
-              ) : loadError ? (
-                <TableRow className="border-slate-800 hover:bg-transparent">
-                  <TableCell colSpan={8} className="h-32 text-center text-red-400 font-medium text-xs">
-                    No se pudo cargar la lista de envíos. Intenta de nuevo.
-                  </TableCell>
-                </TableRow>
-              ) : visiblePackages.length === 0 ? (
+              ) : packages.length === 0 ? (
                 <TableRow className="border-slate-800 hover:bg-transparent">
                   <TableCell colSpan={8} className="h-32 text-center text-slate-400 font-medium text-xs">
                     Ningún paquete coincide con la búsqueda o filtros.
                   </TableCell>
                 </TableRow>
               ) : (
-                visiblePackages.map((pkg) => (
+                packages.map((pkg) => (
                   <TableRow key={pkg.id} className="border-slate-800/60 hover:bg-slate-800/40 transition-colors">
                     <TableCell className="font-mono font-bold text-xs text-purple-400">{pkg.trackingCode}</TableCell>
-                    <TableCell className="font-semibold text-xs text-slate-200">{pkg.senderName ?? "Remitente sin perfil"}</TableCell>
+                    <TableCell className="font-semibold text-xs text-slate-200">{pkg.senderName ?? "—"}</TableCell>
                     <TableCell className="font-semibold text-xs text-slate-200">{pkg.receiverName}</TableCell>
                     <TableCell className="text-xs text-slate-400">
                       <div className="flex items-center gap-1">
@@ -426,9 +424,10 @@ export default function PackagesPage() {
                 </Button>
                 <Button 
                   type="submit" 
+                  disabled={updating}
                   className="cursor-pointer bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-xs uppercase tracking-wider"
                 >
-                  Guardar Cambios
+                  {updating ? <Loader2 className="w-4 h-4 animate-spin" /> : "Guardar Cambios"}
                 </Button>
               </DialogFooter>
             </form>
