@@ -81,7 +81,7 @@ export default function CreatePackageDialog({ onSuccess }: CreatePackageDialogPr
             Registrar Nuevo Envío
           </DialogTitle>
           <DialogDescription className="text-zinc-500 dark:text-zinc-400 text-xs">
-            Los datos del remitente se obtienen de tu cuenta. Ingresa el destinatario y los detalles del envío.
+            Ingresa los detalles del destinatario para generar la guía de envío. El remitente se toma de tu cuenta.
           </DialogDescription>
         </DialogHeader>
 
@@ -93,7 +93,7 @@ export default function CreatePackageDialog({ onSuccess }: CreatePackageDialogPr
         )}
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-2">
-
+          
           {/* Destinatario Section */}
           <div className="space-y-3 pt-1">
             <h4 className="text-xs font-bold text-primary uppercase tracking-wider">Detalles del Destinatario</h4>
@@ -105,6 +105,7 @@ export default function CreatePackageDialog({ onSuccess }: CreatePackageDialogPr
                 <Input
                   id="receiverName"
                   placeholder="Ej: María Rojas"
+                  maxLength={150}
                   className={errors.receiverName ? "border-red-500" : ""}
                   {...register("receiverName")}
                 />
@@ -119,6 +120,7 @@ export default function CreatePackageDialog({ onSuccess }: CreatePackageDialogPr
                 <Input
                   id="receiverPhone"
                   placeholder="Ej: +51977889900"
+                  maxLength={20}
                   className={errors.receiverPhone ? "border-red-500" : ""}
                   {...register("receiverPhone")}
                 />
@@ -135,6 +137,7 @@ export default function CreatePackageDialog({ onSuccess }: CreatePackageDialogPr
                 <Input
                   id="destinationCity"
                   placeholder="Ej: Arequipa"
+                  maxLength={100}
                   className={errors.destinationCity ? "border-red-500" : ""}
                   {...register("destinationCity")}
                 />
@@ -149,6 +152,7 @@ export default function CreatePackageDialog({ onSuccess }: CreatePackageDialogPr
                 <Input
                   id="destinationAddress"
                   placeholder="Ej: Calle Los Claveles 123"
+                  maxLength={1000}
                   className={errors.destinationAddress ? "border-red-500" : ""}
                   {...register("destinationAddress")}
                 />
@@ -162,15 +166,17 @@ export default function CreatePackageDialog({ onSuccess }: CreatePackageDialogPr
           {/* Características Section */}
           <div className="space-y-3 pt-1">
             <h4 className="text-xs font-bold text-primary uppercase tracking-wider">Características del Envío</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1.5">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="flex flex-col gap-1.5 sm:col-span-1">
                 <Label htmlFor="weightKg" className="text-xs text-zinc-700 dark:text-zinc-300 font-semibold">
                   Peso (Kg)
                 </Label>
                 <Input
                   id="weightKg"
                   type="number"
-                  step="0.1"
+                  min="0.01"
+                  max="9999.99"
+                  step="0.01"
                   placeholder="Ej: 3.5"
                   className={errors.weightKg ? "border-red-500" : ""}
                   {...register("weightKg")}

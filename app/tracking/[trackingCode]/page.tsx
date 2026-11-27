@@ -165,14 +165,14 @@ export default function TrackingDetailPage() {
                 Guía No Encontrada
               </h1>
               <p className="text-zinc-500 dark:text-zinc-400 text-sm max-w-md mx-auto">
-                No pudimos localizar información para el código <span className="font-mono font-bold text-zinc-800 dark:text-zinc-200">"{trackingCode}"</span>. Por favor revisa que el número esté bien escrito o consulta otro código.
+                No pudimos localizar información para el código <span className="font-mono font-bold text-zinc-800 dark:text-zinc-200">&quot;{trackingCode}&quot;</span>. Por favor revisa que el número esté bien escrito o consulta otro código.
               </p>
             </div>
 
             {/* Retry Form */}
             <form onSubmit={handleSearchNewCode} className="flex gap-2 max-w-md mx-auto">
               <Input
-                placeholder="Ingresar nuevo código (Ej: SW-9843-XY)"
+                placeholder="Ingresar nuevo código (Ej: NX-3F2A9C7D4E5B6A8C9D0E1F2A3B4)"
                 value={searchCode}
                 onChange={(e) => setSearchCode(e.target.value)}
                 className="h-11 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800"

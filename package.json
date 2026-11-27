@@ -8,7 +8,9 @@
     "build": "cross-env NODE_OPTIONS=--max-old-space-size=4096 next build",
     "start": "next start",
     "lint": "eslint",
-    "db:users": "psql \"postgresql://postgres:5ab710fa849a4898784b5b5affba2504@26kgknrj.us-east.database.insforge.app:5432/insforge?sslmode=require\" -c \"SELECT u.id, u.full_name, u.email, COALESCE(r.name, 'SIN_ROL') AS rol, u.is_enabled, u.created_at FROM auth_schema.users u LEFT JOIN auth_schema.user_roles ur ON u.id = ur.user_id LEFT JOIN auth_schema.roles r ON ur.role_id = r.id;\""
+    "typecheck": "tsc --noEmit",
+    "test": "node tests/backend-contracts.cjs",
+    "db:users": "psql \"$DATABASE_URL\" -c \"SELECT u.id, u.full_name, u.email, COALESCE(r.name, 'SIN_ROL') AS rol, u.is_enabled, u.created_at FROM auth_schema.users u LEFT JOIN auth_schema.user_roles ur ON u.id = ur.user_id LEFT JOIN auth_schema.roles r ON ur.role_id = r.id;\""
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
